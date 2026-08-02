@@ -25,3 +25,18 @@ export async function addIntegrante(comandaId: string, nome: string): Promise<In
   const { data } = await api.post<Integrante>(`/comandas/${comandaId}/integrantes`, { nome });
   return data;
 }
+
+export interface JoinComandasPayload {
+  comanda_principal_id: string;
+  comandas_secundarias_ids: string[];
+}
+
+export interface JoinComandasResponse {
+  mensagem: string;
+  comanda_principal_id: string;
+}
+
+export async function joinComandas(payload: JoinComandasPayload): Promise<JoinComandasResponse> {
+  const { data } = await api.post<JoinComandasResponse>("/comandas/juntar", payload);
+  return data;
+}
