@@ -1,24 +1,23 @@
-import { ChefHat, LogOut, RefreshCw, UtensilsCrossed, Wifi, WifiOff } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { CheckCircle2, ChefHat, Clock3, Flame, LogOut, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listPedidos, updatePedidoStatus } from "../../services/pedido.service";
-import type { PedidoAtivo } from "../../types/pedido";
-import { PedidoCard } from "./components/PedidoCard";
-import { PROXIMA_ACAO } from "./status-flow";
+import type { PedidoAtivo, StatusPreparo } from "../../types/pedido";
+import { KanbanColumn } from "./components/KanbanColumn";
+import { COLUNAS_KANBAN, PROXIMA_ACAO, REGRESSAO_ACAO } from "./status-flow";
 
 const POLL_INTERVAL_MS = 8000;
 
-type FiltroStatus = "todos" | "pendente" | "em_preparo" | "pronto";
-
-const FILTROS: { value: FiltroStatus; label: string }[] = [
-  { value: "todos", label: "Todos" },
-  { value: "pendente", label: "Pendentes" },
-  { value: "em_preparo", label: "Em Preparo" },
-  { value: "pronto", label: "Prontos" },
-];
+const COLUNA_VISUAL: Record<StatusPreparo, { icon: LucideIcon; headerClass: string }> = {
+  pendente: { icon: Clock3, headerClass: "border-red-500/30 bg-red-950/30 text-red-300" },
+  em_preparo: { icon: Flame, headerClass: "border-amber-500/30 bg-amber-950/20 text-amber-300" },
+  pronto: { icon: CheckCircle2, headerClass: "border-emerald-500/30 bg-emerald-950/20 text-emerald-300" },
+  entregue: { icon: CheckCircle2, headerClass: "border-slate-700 bg-slate-900 text-slate-300" },
+};
 
 export function Kds() {
   const { user, logout } = useAuth();
@@ -30,7 +29,6 @@ export function Kds() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [filtro, setFiltro] = useState<FiltroStatus>("todos");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const isFirstLoadRef = useRef(true);
 
@@ -66,6 +64,26 @@ export function Kds() {
     navigate("/login", { replace: true });
   }
 
+  async function aplicarMudancaStatus(pedido: PedidoAtivo, novoStatus: StatusPreparo, mensagemErro: string) {
+    setUpdatingId(pedido.id);
+
+    try {
+      await updatePedidoStatus(pedido.id, novoStatus);
+
+      if (novoStatus === "entregue") {
+        setPedidos((current) => current.filter((item) => item.id !== pedido.id));
+      } else {
+        setPedidos((current) =>
+          current.map((item) => (item.id === pedido.id ? { ...item, status_preparo: novoStatus } : item))
+        );
+      }
+    } catch (error) {
+      showToast(getApiErrorMessage(error, mensagemErro), "error");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
   async function handleAvancarStatus(pedido: PedidoAtivo) {
     const acao = PROXIMA_ACAO[pedido.status_preparo];
 
@@ -73,32 +91,41 @@ export function Kds() {
       return;
     }
 
-    setUpdatingId(pedido.id);
-
-    try {
-      await updatePedidoStatus(pedido.id, acao.proximoStatus);
-
-      if (acao.proximoStatus === "entregue") {
-        setPedidos((current) => current.filter((item) => item.id !== pedido.id));
-      } else {
-        const proximoStatus = acao.proximoStatus;
-        setPedidos((current) =>
-          current.map((item) => (item.id === pedido.id ? { ...item, status_preparo: proximoStatus } : item))
-        );
-      }
-    } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar o status do pedido."), "error");
-    } finally {
-      setUpdatingId(null);
-    }
+    await aplicarMudancaStatus(pedido, acao.proximoStatus, "Não foi possível atualizar o status do pedido.");
   }
 
-  const pedidosFiltrados =
-    filtro === "todos" ? pedidos : pedidos.filter((pedido) => pedido.status_preparo === filtro);
+  async function handleRegredirStatus(pedido: PedidoAtivo) {
+    const acao = REGRESSAO_ACAO[pedido.status_preparo];
+
+    if (!acao) {
+      return;
+    }
+
+    await aplicarMudancaStatus(pedido, acao.proximoStatus, "Não foi possível desfazer o status do pedido.");
+  }
+
+  const pedidosPorStatus = useMemo(() => {
+    const grupos: Record<StatusPreparo, PedidoAtivo[]> = {
+      pendente: [],
+      em_preparo: [],
+      pronto: [],
+      entregue: [],
+    };
+
+    for (const pedido of pedidos) {
+      grupos[pedido.status_preparo]?.push(pedido);
+    }
+
+    for (const status of Object.keys(grupos) as StatusPreparo[]) {
+      grupos[status].sort((a, b) => new Date(a.criado_em).getTime() - new Date(b.criado_em).getTime());
+    }
+
+    return grupos;
+  }, [pedidos]);
 
   return (
-    <div className="min-h-svh bg-slate-950 text-white">
-      <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-900 px-6 py-4">
+    <div className="flex h-svh flex-col bg-slate-950 text-white">
+      <header className="flex flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-900 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-600 text-white">
             <ChefHat className="h-5 w-5" />
@@ -142,31 +169,7 @@ export function Kds() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-3">
-        <div className="inline-flex gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1">
-          {FILTROS.map((opcao) => {
-            const total =
-              opcao.value === "todos"
-                ? pedidos.length
-                : pedidos.filter((pedido) => pedido.status_preparo === opcao.value).length;
-
-            return (
-              <button
-                key={opcao.value}
-                type="button"
-                onClick={() => setFiltro(opcao.value)}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
-                  filtro === opcao.value ? "bg-orange-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                }`}
-              >
-                {opcao.label} <span className="opacity-70">({total})</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <main className="px-6 py-6">
+      <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:overflow-hidden">
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
             <RefreshCw className="h-6 w-6 animate-spin" />
@@ -187,21 +190,18 @@ export function Kds() {
           </div>
         )}
 
-        {!isLoading && !errorMessage && pedidosFiltrados.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-500">
-            <UtensilsCrossed className="h-10 w-10" />
-            <p className="text-sm">Nenhum pedido nessa fila no momento.</p>
-          </div>
-        )}
-
-        {!isLoading && pedidosFiltrados.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pedidosFiltrados.map((pedido) => (
-              <PedidoCard
-                key={pedido.id}
-                pedido={pedido}
-                isUpdating={updatingId === pedido.id}
+        {!isLoading && !errorMessage && (
+          <div className="flex h-full flex-col gap-4 md:flex-row md:items-stretch">
+            {COLUNAS_KANBAN.map((coluna) => (
+              <KanbanColumn
+                key={coluna.status}
+                titulo={coluna.titulo}
+                icon={COLUNA_VISUAL[coluna.status].icon}
+                headerClass={COLUNA_VISUAL[coluna.status].headerClass}
+                pedidos={pedidosPorStatus[coluna.status]}
+                updatingId={updatingId}
                 onAvancarStatus={handleAvancarStatus}
+                onRegredirStatus={handleRegredirStatus}
               />
             ))}
           </div>

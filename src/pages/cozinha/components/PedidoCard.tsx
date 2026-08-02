@@ -1,13 +1,14 @@
-import { AlertTriangle, Clock, User } from "lucide-react";
+import { AlertTriangle, Clock, Undo2, User } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
 import type { PedidoAtivo, StatusPreparo } from "../../../types/pedido";
-import { PROXIMA_ACAO, STATUS_LABEL } from "../status-flow";
+import { PROXIMA_ACAO, REGRESSAO_ACAO, STATUS_LABEL } from "../status-flow";
 
 interface PedidoCardProps {
   pedido: PedidoAtivo;
   isUpdating: boolean;
   onAvancarStatus: (pedido: PedidoAtivo) => void;
+  onRegredirStatus: (pedido: PedidoAtivo) => void;
 }
 
 const STATUS_CARD_CLASS: Record<StatusPreparo, string> = {
@@ -24,8 +25,9 @@ const STATUS_BADGE_CLASS: Record<StatusPreparo, string> = {
   entregue: "bg-slate-600 text-white",
 };
 
-export function PedidoCard({ pedido, isUpdating, onAvancarStatus }: PedidoCardProps) {
+export function PedidoCard({ pedido, isUpdating, onAvancarStatus, onRegredirStatus }: PedidoCardProps) {
   const acao = PROXIMA_ACAO[pedido.status_preparo];
+  const regressao = REGRESSAO_ACAO[pedido.status_preparo];
 
   return (
     <div
@@ -80,10 +82,26 @@ export function PedidoCard({ pedido, isUpdating, onAvancarStatus }: PedidoCardPr
         ))}
       </div>
 
-      {acao && (
-        <Button onClick={() => onAvancarStatus(pedido)} isLoading={isUpdating} className="mt-1 w-full">
-          {acao.label}
-        </Button>
+      {(acao || regressao) && (
+        <div className="mt-1 flex items-center gap-2">
+          {regressao && (
+            <Button
+              variant="secondary"
+              onClick={() => onRegredirStatus(pedido)}
+              isLoading={isUpdating}
+              aria-label={regressao.label}
+              title={regressao.label}
+              className="shrink-0 px-3"
+            >
+              <Undo2 className="h-4 w-4" />
+            </Button>
+          )}
+          {acao && (
+            <Button onClick={() => onAvancarStatus(pedido)} isLoading={isUpdating} className="flex-1">
+              {acao.label}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );
