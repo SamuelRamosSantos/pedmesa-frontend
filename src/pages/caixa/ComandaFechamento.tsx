@@ -1,11 +1,13 @@
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, Ban, PartyPopper, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
-import { fecharComanda, getComandaExtrato } from "../../services/comanda.service";
+import { cancelarComanda, fecharComanda, getComandaExtrato } from "../../services/comanda.service";
 import type { FormaPagamento } from "../../services/comanda.service";
 import type { ComandaExtratoResumo } from "../../types/comanda";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
@@ -25,6 +27,8 @@ export function ComandaFechamento() {
   const [pagamentos, setPagamentos] = useState<PagamentoLancado[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const nextPagamentoIdRef = useRef(1);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -88,6 +92,28 @@ export function ComandaFechamento() {
       setIsSubmitting(false);
     }
   }
+
+  async function handleCancelarComandaZerada() {
+    if (!id) {
+      return;
+    }
+
+    setIsCancelling(true);
+
+    try {
+      const resultado = await cancelarComanda(id);
+      showToast(resultado.mensagem, "success");
+      navigate("/caixa/mapa-mesas");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível cancelar a comanda."), "error");
+      setIsCancelling(false);
+      setIsConfirmCancelOpen(false);
+    }
+  }
+
+  const isComandaZerada = Boolean(
+    comanda && comanda.status === "aberta" && comanda.resumo_financeiro.valor_total_comanda === 0
+  );
 
   if (!id) {
     return <Navigate to="/caixa/mapa-mesas" replace />;
@@ -192,20 +218,54 @@ export function ComandaFechamento() {
               </div>
 
               <div className="lg:col-span-1">
-                <PagamentoSidebar
-                  pagamentos={pagamentos}
-                  totalComanda={comanda.resumo_financeiro.valor_total_comanda}
-                  isSubmitting={isSubmitting}
-                  podeRegistrarPagamento={comanda.status === "aberta"}
-                  onAddPagamento={handleAddPagamento}
-                  onRemovePagamento={handleRemovePagamento}
-                  onConfirmar={handleConfirmar}
-                />
+                {isComandaZerada ? (
+                  <Card className="flex flex-col items-center gap-3 text-center lg:sticky lg:top-20">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                      <PartyPopper className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Comanda Zerada</h2>
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        Esta mesa não teve nenhum pedido lançado. Você pode liberá-la agora sem gerar nenhum valor
+                        financeiro.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsConfirmCancelOpen(true)}
+                      data-testid="botao-cancelar-comanda-zerada"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+                    >
+                      <Ban className="h-4 w-4" />
+                      Cancelar / Liberar Mesa
+                    </button>
+                  </Card>
+                ) : (
+                  <PagamentoSidebar
+                    pagamentos={pagamentos}
+                    totalComanda={comanda.resumo_financeiro.valor_total_comanda}
+                    isSubmitting={isSubmitting}
+                    podeRegistrarPagamento={comanda.status === "aberta"}
+                    onAddPagamento={handleAddPagamento}
+                    onRemovePagamento={handleRemovePagamento}
+                    onConfirmar={handleConfirmar}
+                  />
+                )}
               </div>
             </div>
           </div>
         )}
       </main>
+
+      <ConfirmDialog
+        isOpen={isConfirmCancelOpen}
+        title="Cancelar comanda zerada?"
+        description={`A Mesa ${comanda?.numero_comanda ?? ""} não possui nenhum pedido lançado. Ela será liberada imediatamente e nenhum valor será cobrado.`}
+        confirmLabel="Sim, cancelar e liberar mesa"
+        isConfirming={isCancelling}
+        onCancel={() => setIsConfirmCancelOpen(false)}
+        onConfirm={handleCancelarComandaZerada}
+      />
     </div>
   );
 }

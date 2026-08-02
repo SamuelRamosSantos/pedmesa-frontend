@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  Ban,
   ClipboardList,
   RefreshCw,
   Search,
@@ -10,12 +11,13 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
 import { listCategorias } from "../../services/categoria.service";
-import { getComandaExtrato } from "../../services/comanda.service";
+import { cancelarComanda, getComandaExtrato } from "../../services/comanda.service";
 import { createPedido, listPedidos, updateItemStatus } from "../../services/pedido.service";
 import { listProdutos } from "../../services/produto.service";
 import type { Categoria } from "../../types/categoria";
@@ -56,6 +58,8 @@ export function ComandaDetalhe() {
   const [isSubmittingPedido, setIsSubmittingPedido] = useState(false);
   const [isAddIntegranteOpen, setIsAddIntegranteOpen] = useState(false);
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -154,6 +158,10 @@ export function ComandaDetalhe() {
       }))
       .filter((pedido) => pedido.itens.length > 0);
   }, [pedidosOrdenados, filtroStatusPedidos]);
+
+  const isComandaZerada = Boolean(
+    comanda && comanda.status === "aberta" && comanda.resumo_financeiro.valor_total_comanda === 0
+  );
 
   function handleAddToCart(produto: Produto) {
     setCart((current) => [
@@ -268,6 +276,24 @@ export function ComandaDetalhe() {
       showToast(getApiErrorMessage(error, "Não foi possível desfazer a entrega do item."), "error");
     } finally {
       setUpdatingItemId(null);
+    }
+  }
+
+  async function handleCancelarComandaZerada() {
+    if (!id) {
+      return;
+    }
+
+    setIsCancelling(true);
+
+    try {
+      const resultado = await cancelarComanda(id);
+      showToast(resultado.mensagem, "success");
+      navigate("/garcom/mesas");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível cancelar a comanda."), "error");
+      setIsCancelling(false);
+      setIsConfirmCancelOpen(false);
     }
   }
 
@@ -456,9 +482,20 @@ export function ComandaDetalhe() {
         )}
 
         {!errorMessage && comanda && abaAtiva === "pedidos" && pedidosOrdenados.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
+          <div className="flex flex-col items-center gap-3 py-16 text-center text-slate-400 dark:text-slate-500">
             <ClipboardList className="h-10 w-10" />
             <p className="text-sm">Nenhum pedido enviado para esta mesa ainda.</p>
+            {isComandaZerada && (
+              <button
+                type="button"
+                onClick={() => setIsConfirmCancelOpen(true)}
+                data-testid="botao-cancelar-comanda-zerada"
+                className="mt-2 flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+              >
+                <Ban className="h-4 w-4" />
+                Cancelar / Fechar Comanda Zerada
+              </button>
+            )}
           </div>
         )}
 
@@ -517,6 +554,16 @@ export function ComandaDetalhe() {
         comandaId={id}
         onClose={() => setIsAddIntegranteOpen(false)}
         onAdded={handleIntegranteAdicionado}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmCancelOpen}
+        title="Cancelar comanda zerada?"
+        description={`A Mesa ${comanda?.numero_comanda ?? ""} não possui nenhum pedido lançado. Ela será liberada imediatamente e nenhum valor será cobrado.`}
+        confirmLabel="Sim, cancelar e liberar mesa"
+        isConfirming={isCancelling}
+        onCancel={() => setIsConfirmCancelOpen(false)}
+        onConfirm={handleCancelarComandaZerada}
       />
     </div>
   );

@@ -64,3 +64,13 @@ export async function fecharComanda(
   const { data } = await api.post<FecharComandaResponse>(`/comandas/${comandaId}/fechar`, payload);
   return data;
 }
+
+export interface CancelarComandaResponse {
+  status: ComandaStatus;
+  mensagem: string;
+}
+
+export async function cancelarComanda(comandaId: string): Promise<CancelarComandaResponse> {
+  const { data } = await api.post<CancelarComandaResponse>(`/comandas/${comandaId}/cancelar`);
+  return data;
+}
