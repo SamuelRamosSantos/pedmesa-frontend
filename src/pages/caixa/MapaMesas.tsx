@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, LogOut, Merge, RefreshCw, Search, Users } from "lucide-react";
+import { Building2, ClipboardList, LogOut, Merge, Package, RefreshCw, Search, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -118,6 +118,12 @@ export function MapaMesas() {
         </div>
 
         <div className="flex items-center gap-3">
+          {user?.role === "admin" && (
+            <Button variant="secondary" onClick={() => navigate("/admin/produtos")}>
+              <Package className="h-4 w-4" />
+              Produtos
+            </Button>
+          )}
           <ThemeToggle />
           <button
             type="button"

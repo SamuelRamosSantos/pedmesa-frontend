@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Produtos } from "./pages/admin/Produtos";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { Kds } from "./pages/cozinha/Kds";
@@ -55,6 +56,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["caixa", "admin"]}>
             <ComandaFechamento />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/produtos"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Produtos />
           </ProtectedRoute>
         }
       />
