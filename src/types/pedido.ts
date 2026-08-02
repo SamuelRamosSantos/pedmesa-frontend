@@ -1,5 +1,7 @@
 export type StatusPreparo = "pendente" | "em_preparo" | "pronto" | "entregue";
 
+export type StatusItem = "pendente" | "em_preparo" | "pronto" | "entregue" | "cancelado";
+
 export interface PedidoCreatedResponse {
   pedido_id: string;
   status_preparo: StatusPreparo;
@@ -12,6 +14,7 @@ export interface PedidoItemAtivo {
   quantidade: number;
   integrante_nome: string | null;
   observacao: string | null;
+  status_item: StatusItem;
 }
 
 export interface PedidoAtivo {
@@ -27,4 +30,13 @@ export interface PedidoAtivo {
 export interface UpdatePedidoStatusResponse {
   id: string;
   status_preparo: StatusPreparo;
+}
+
+export interface UpdateItemStatusResponse {
+  item_id: string;
+  status_item: StatusItem;
+  pedido: {
+    id: string;
+    status_preparo: StatusPreparo;
+  };
 }
