@@ -113,7 +113,14 @@ export function ComandaDetalhe() {
             ...current,
             divisao_por_integrante: [
               ...current.divisao_por_integrante,
-              { integrante_id: integrante.id, nome: integrante.nome },
+              {
+                integrante_id: integrante.id,
+                nome: integrante.nome,
+                itens_individuais: [],
+                total_individual: 0,
+                cota_compartilhada: 0,
+                total_a_pagar: 0,
+              },
             ],
           }
         : current

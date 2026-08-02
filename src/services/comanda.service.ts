@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { ComandaDetail, ComandaExtratoResumo, ComandaListItem, Integrante } from "../types/comanda";
+import type { ComandaDetail, ComandaExtratoResumo, ComandaListItem, ComandaStatus, Integrante } from "../types/comanda";
 
 export interface CreateComandaPayload {
   numero_comanda: number;
@@ -38,5 +38,29 @@ export interface JoinComandasResponse {
 
 export async function joinComandas(payload: JoinComandasPayload): Promise<JoinComandasResponse> {
   const { data } = await api.post<JoinComandasResponse>("/comandas/juntar", payload);
+  return data;
+}
+
+export type FormaPagamento = "pix" | "dinheiro" | "cartao_credito" | "cartao_debito";
+
+export interface PagamentoPayload {
+  forma: FormaPagamento;
+  valor: number;
+}
+
+export interface FecharComandaPayload {
+  pagamentos: PagamentoPayload[];
+}
+
+export interface FecharComandaResponse {
+  status: ComandaStatus;
+  mensagem: string;
+}
+
+export async function fecharComanda(
+  comandaId: string,
+  payload: FecharComandaPayload
+): Promise<FecharComandaResponse> {
+  const { data } = await api.post<FecharComandaResponse>(`/comandas/${comandaId}/fechar`, payload);
   return data;
 }

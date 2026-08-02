@@ -1,13 +1,203 @@
-import { useParams } from "react-router-dom";
-import { PlaceholderPage } from "../../components/PlaceholderPage";
+import { ArrowLeft, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { useToast } from "../../contexts/ToastContext";
+import { getApiErrorMessage } from "../../lib/api-error";
+import { fecharComanda, getComandaExtrato } from "../../services/comanda.service";
+import type { FormaPagamento } from "../../services/comanda.service";
+import type { ComandaExtratoResumo } from "../../types/comanda";
+import { IntegranteAccordion } from "./components/IntegranteAccordion";
+import { PagamentoSidebar } from "./components/PagamentoSidebar";
+import { ResumoFinanceiroCard } from "./components/ResumoFinanceiroCard";
+import type { PagamentoLancado } from "./types";
 
 export function ComandaFechamento() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  const [comanda, setComanda] = useState<ComandaExtratoResumo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [pagamentos, setPagamentos] = useState<PagamentoLancado[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const nextPagamentoIdRef = useRef(1);
+
+  const fetchDados = useCallback(async () => {
+    if (!id) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const data = await getComandaExtrato(id);
+      setComanda(data);
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar o extrato da comanda."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchDados();
+  }, [fetchDados]);
+
+  function toggleExpanded(integranteId: string) {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(integranteId)) {
+        next.delete(integranteId);
+      } else {
+        next.add(integranteId);
+      }
+      return next;
+    });
+  }
+
+  function handleAddPagamento(forma: FormaPagamento, valor: number) {
+    setPagamentos((current) => [...current, { id: nextPagamentoIdRef.current++, forma, valor }]);
+  }
+
+  function handleRemovePagamento(pagamentoId: number) {
+    setPagamentos((current) => current.filter((pagamento) => pagamento.id !== pagamentoId));
+  }
+
+  async function handleConfirmar() {
+    if (!id || pagamentos.length === 0) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const resultado = await fecharComanda(id, {
+        pagamentos: pagamentos.map((pagamento) => ({ forma: pagamento.forma, valor: pagamento.valor })),
+      });
+
+      showToast(resultado.mensagem, "success");
+      navigate("/caixa/mapa-mesas");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível fechar a comanda."), "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (!id) {
+    return <Navigate to="/caixa/mapa-mesas" replace />;
+  }
 
   return (
-    <PlaceholderPage
-      title="Fechamento de Conta"
-      description={`Aqui o caixa vai ver o extrato e fechar a comanda ${id}. Em construção (PED-19).`}
-    />
+    <div className="min-h-svh bg-slate-50">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/caixa/mapa-mesas")}
+            aria-label="Voltar ao mapa de mesas"
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <p className="text-xs text-slate-500">Fechamento de Conta</p>
+            <h1 className="text-xl font-bold text-slate-900">
+              {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
+            </h1>
+          </div>
+          {comanda && (
+            <span
+              className={`ml-1 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                comanda.status === "aberta" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
+              }`}
+            >
+              {comanda.status === "aberta" ? "Aberta" : "Fechada"}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={fetchDados}
+            disabled={isLoading}
+            aria-label="Atualizar extrato"
+            className="ml-auto rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-6 py-6">
+        {isLoading && !comanda && (
+          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+            <RefreshCw className="h-6 w-6 animate-spin" />
+            <p className="text-sm">Carregando extrato...</p>
+          </div>
+        )}
+
+        {!isLoading && errorMessage && (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-sm text-red-700">{errorMessage}</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => navigate("/caixa/mapa-mesas")}>
+                Voltar ao mapa de mesas
+              </Button>
+              <Button variant="danger" onClick={fetchDados}>
+                Tentar novamente
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!errorMessage && comanda && (
+          <div className="flex flex-col gap-4">
+            {comanda.status !== "aberta" && (
+              <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600">
+                Esta comanda já foi fechada e não pode receber novos pagamentos.
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="flex flex-col gap-4 lg:col-span-2">
+                <ResumoFinanceiroCard resumo={comanda.resumo_financeiro} />
+
+                <div className="flex flex-col gap-3">
+                  <h2 className="text-base font-semibold text-slate-900">Divisão por Integrante</h2>
+
+                  {comanda.divisao_por_integrante.length === 0 ? (
+                    <p className="text-sm text-slate-400">Nenhum integrante cadastrado nesta comanda.</p>
+                  ) : (
+                    comanda.divisao_por_integrante.map((integrante) => (
+                      <IntegranteAccordion
+                        key={integrante.integrante_id}
+                        integrante={integrante}
+                        isExpanded={expandedIds.has(integrante.integrante_id)}
+                        onToggle={() => toggleExpanded(integrante.integrante_id)}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="lg:col-span-1">
+                <PagamentoSidebar
+                  pagamentos={pagamentos}
+                  totalComanda={comanda.resumo_financeiro.valor_total_comanda}
+                  isSubmitting={isSubmitting}
+                  podeRegistrarPagamento={comanda.status === "aberta"}
+                  onAddPagamento={handleAddPagamento}
+                  onRemovePagamento={handleRemovePagamento}
+                  onConfirmar={handleConfirmar}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
