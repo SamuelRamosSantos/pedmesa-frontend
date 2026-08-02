@@ -39,15 +39,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
-          {title && <h2 className="text-lg font-semibold text-slate-900">{title}</h2>}
+          {title && <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>}
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto shrink-0 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="ml-auto shrink-0 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />

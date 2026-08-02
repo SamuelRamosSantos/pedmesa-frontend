@@ -10,17 +10,19 @@ interface ProdutoCardProps {
 export function ProdutoCard({ produto, onAdd }: ProdutoCardProps) {
   return (
     <div
-      className={`flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm ${
+      className={`flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 ${
         produto.disponivel ? "" : "opacity-60"
       }`}
     >
       <div>
-        <p className="line-clamp-2 text-sm font-semibold text-slate-900">{produto.nome}</p>
-        {produto.descricao && <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{produto.descricao}</p>}
+        <p className="line-clamp-2 text-sm font-semibold text-slate-900 dark:text-white">{produto.nome}</p>
+        {produto.descricao && (
+          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{produto.descricao}</p>
+        )}
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-bold text-slate-900">{formatCurrency(produto.preco)}</span>
+        <span className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(produto.preco)}</span>
 
         {produto.disponivel ? (
           <button
@@ -32,7 +34,7 @@ export function ProdutoCard({ produto, onAdd }: ProdutoCardProps) {
             <Plus className="h-4 w-4" />
           </button>
         ) : (
-          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
             Esgotado
           </span>
         )}

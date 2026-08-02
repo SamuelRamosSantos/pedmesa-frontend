@@ -65,11 +65,11 @@ export function PagamentoSidebar({
 
   return (
     <Card className="lg:sticky lg:top-20">
-      <h2 className="text-base font-semibold text-slate-900">Pagamento</h2>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Pagamento</h2>
 
       <div className="mt-4 flex flex-col gap-3">
         <div>
-          <span className="text-sm font-medium text-slate-700">Forma de pagamento</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Forma de pagamento</span>
           <div className="mt-1.5 grid grid-cols-2 gap-2">
             {FORMAS.map((forma) => {
               const Icon = forma.icon;
@@ -81,8 +81,8 @@ export function PagamentoSidebar({
                   onClick={() => setFormaSelecionada(forma.value)}
                   className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2.5 text-xs font-medium transition-colors ${
                     isSelected
-                      ? "border-orange-500 bg-orange-50 text-orange-700"
-                      : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                      ? "border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function PagamentoSidebar({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="valor-pagamento" className="text-sm font-medium text-slate-700">
+          <label htmlFor="valor-pagamento" className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Valor (R$)
           </label>
           <div className="flex gap-2">
@@ -107,22 +107,22 @@ export function PagamentoSidebar({
               placeholder="0,00"
               value={valorDraft}
               onChange={(event) => setValorDraft(event.target.value)}
-              className={`w-full rounded-lg border px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 ${
+              className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 ${
                 valorError
-                  ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                  : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20"
+                  ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
+                  : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
               }`}
             />
             <button
               type="button"
               onClick={handleAddPagamento}
               aria-label="Adicionar lançamento de pagamento"
-              className="flex shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800"
+              className="flex shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
             >
               <Plus className="h-4 w-4" />
             </button>
           </div>
-          {valorError && <p className="text-sm text-red-600">{valorError}</p>}
+          {valorError && <p className="text-sm text-red-600 dark:text-red-400">{valorError}</p>}
         </div>
 
         {pagamentos.length > 0 && (
@@ -130,16 +130,18 @@ export function PagamentoSidebar({
             {pagamentos.map((pagamento) => (
               <li
                 key={pagamento.id}
-                className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm"
+                className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800"
               >
-                <span className="text-slate-700">{FORMA_LABEL[pagamento.forma]}</span>
+                <span className="text-slate-700 dark:text-slate-300">{FORMA_LABEL[pagamento.forma]}</span>
                 <span className="flex items-center gap-2">
-                  <span className="font-medium text-slate-900">{formatCurrency(pagamento.valor)}</span>
+                  <span className="font-medium text-slate-900 dark:text-white">
+                    {formatCurrency(pagamento.valor)}
+                  </span>
                   <button
                     type="button"
                     onClick={() => onRemovePagamento(pagamento.id)}
                     aria-label="Remover lançamento"
-                    className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -150,29 +152,33 @@ export function PagamentoSidebar({
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-200 pt-4 text-sm">
-        <div className="flex items-center justify-between text-slate-500">
+      <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-200 pt-4 text-sm dark:border-slate-800">
+        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total da Comanda</span>
-          <span className="font-medium text-slate-900">{formatCurrency(totalComanda)}</span>
+          <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(totalComanda)}</span>
         </div>
-        <div className="flex items-center justify-between text-slate-500">
+        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total Pago</span>
-          <span className="font-medium text-slate-900">{formatCurrency(fromCents(totalPagoCents))}</span>
+          <span className="font-medium text-slate-900 dark:text-white">
+            {formatCurrency(fromCents(totalPagoCents))}
+          </span>
         </div>
-        <div className="flex items-center justify-between text-slate-500">
+        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total Restante</span>
-          <span className="font-medium text-slate-900">{formatCurrency(fromCents(totalRestanteCents))}</span>
+          <span className="font-medium text-slate-900 dark:text-white">
+            {formatCurrency(fromCents(totalRestanteCents))}
+          </span>
         </div>
       </div>
 
       <div className="mt-4">
         {isQuitado ? (
-          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-2 text-sm font-semibold text-emerald-700">
+          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-2 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
             <CheckCircle2 className="h-4 w-4" />
             Pronto para Fechar
           </span>
         ) : (
-          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-red-50 py-2 text-sm font-semibold text-red-700">
+          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-red-50 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">
             <AlertTriangle className="h-4 w-4" />
             Valor Insuficiente
           </span>

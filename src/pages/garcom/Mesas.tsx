@@ -2,6 +2,7 @@ import { LogOut, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listComandas } from "../../services/comanda.service";
@@ -58,25 +59,26 @@ export function Mesas() {
   }
 
   return (
-    <div className="min-h-svh bg-slate-50 pb-24">
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3">
+    <div className="min-h-svh bg-slate-50 pb-24 dark:bg-slate-950">
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
         <div>
-          <p className="text-xs text-slate-500">PedMesa</p>
-          <h1 className="text-lg font-semibold text-slate-900">Salão</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <button
             type="button"
             onClick={fetchComandas}
             disabled={isLoading}
             aria-label="Atualizar lista de mesas"
-            className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50"
+            className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
           </button>
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-slate-900">{user?.nome}</p>
-            <p className="text-xs uppercase tracking-wide text-slate-500">{user?.role}</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.nome}</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{user?.role}</p>
           </div>
           <Button variant="secondary" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
@@ -85,7 +87,7 @@ export function Mesas() {
         </div>
       </header>
 
-      <div className="border-b border-slate-200 bg-white px-4 py-3">
+      <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
         <label htmlFor="busca-mesa" className="sr-only">
           Buscar mesa pelo número
         </label>
@@ -98,22 +100,22 @@ export function Mesas() {
             placeholder="Buscar mesa pelo número..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 text-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+            className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
           />
         </div>
       </div>
 
       <main className="px-4 py-4">
         {isLoading && comandas.length === 0 && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
             <RefreshCw className="h-6 w-6 animate-spin" />
             <p className="text-sm">Carregando mesas...</p>
           </div>
         )}
 
         {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-sm text-red-700">{errorMessage}</p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
+            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
             <Button variant="danger" onClick={fetchComandas}>
               Tentar novamente
             </Button>
@@ -121,7 +123,7 @@ export function Mesas() {
         )}
 
         {!errorMessage && !isLoading && comandasFiltradas.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400">
+          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
             <UtensilsCrossed className="h-10 w-10" />
             {comandas.length === 0 ? (
               <p className="text-sm">Nenhuma mesa aberta no momento.</p>

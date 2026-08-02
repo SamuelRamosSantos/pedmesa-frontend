@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
+import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { getHomeRouteForRole } from "../lib/role-routes";
@@ -40,14 +41,18 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-slate-50 px-4 py-12">
+    <div className="relative flex min-h-svh items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-600 text-white">
             <UtensilsCrossed className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">PedMesa</h1>
-          <p className="mt-1 text-sm text-slate-500">Entre com sua conta para continuar</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">PedMesa</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Entre com sua conta para continuar</p>
         </div>
 
         <Card>

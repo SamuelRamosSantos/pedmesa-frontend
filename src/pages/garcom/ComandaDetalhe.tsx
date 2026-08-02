@@ -2,6 +2,7 @@ import { ArrowLeft, RefreshCw, Search, ShoppingCart, UserPlus, UtensilsCrossed }
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
@@ -160,20 +161,20 @@ export function ComandaDetalhe() {
   }
 
   return (
-    <div className="min-h-svh bg-slate-50 pb-28">
-      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+    <div className="min-h-svh bg-slate-50 pb-28 dark:bg-slate-950">
+      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             type="button"
             onClick={() => navigate("/garcom/mesas")}
             aria-label="Voltar ao salão"
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-xs text-slate-500">Comanda</p>
-            <h1 className="text-xl font-bold text-slate-900">
+            <p className="text-xs text-slate-500 dark:text-slate-400">Comanda</p>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
               {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
             </h1>
           </div>
@@ -182,10 +183,13 @@ export function ComandaDetalhe() {
             onClick={fetchDados}
             disabled={isLoading}
             aria-label="Atualizar cardápio"
-            className="ml-auto rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
           </button>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </div>
 
         {comanda && (
@@ -194,7 +198,7 @@ export function ComandaDetalhe() {
               {comanda.divisao_por_integrante.map((integrante) => (
                 <span
                   key={integrante.integrante_id}
-                  className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
+                  className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                   {integrante.nome}
                 </span>
@@ -202,7 +206,7 @@ export function ComandaDetalhe() {
               <button
                 type="button"
                 onClick={() => setIsAddIntegranteOpen(true)}
-                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-dashed border-orange-300 px-3 py-1.5 text-xs font-medium text-orange-600 hover:bg-orange-50"
+                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-dashed border-orange-300 px-3 py-1.5 text-xs font-medium text-orange-600 hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950/40"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 Adicionar
@@ -221,7 +225,7 @@ export function ComandaDetalhe() {
                   placeholder="Buscar produto pelo nome..."
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 text-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -233,7 +237,7 @@ export function ComandaDetalhe() {
                 className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selectedCategoriaId === null
                     ? "bg-orange-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 }`}
               >
                 Todos
@@ -246,7 +250,7 @@ export function ComandaDetalhe() {
                   className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     selectedCategoriaId === categoria.id
                       ? "bg-orange-600 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   {categoria.nome}
@@ -259,15 +263,15 @@ export function ComandaDetalhe() {
 
       <main className="px-4 py-4">
         {isLoading && !comanda && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
             <RefreshCw className="h-6 w-6 animate-spin" />
             <p className="text-sm">Carregando comanda...</p>
           </div>
         )}
 
         {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-sm text-red-700">{errorMessage}</p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
+            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
             <div className="flex gap-3">
               <Button variant="secondary" onClick={() => navigate("/garcom/mesas")}>
                 Voltar ao salão
@@ -280,7 +284,7 @@ export function ComandaDetalhe() {
         )}
 
         {!errorMessage && comanda && produtosFiltrados.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400">
+          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
             <UtensilsCrossed className="h-10 w-10" />
             <p className="text-sm">Nenhum produto encontrado.</p>
           </div>

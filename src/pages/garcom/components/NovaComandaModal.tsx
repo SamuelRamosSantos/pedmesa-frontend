@@ -111,7 +111,7 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
         />
 
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-slate-700">Integrantes</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Integrantes</span>
 
           <div className="flex flex-col gap-2">
             {integrantes.map((field, index) => (
@@ -122,13 +122,13 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
                   placeholder={`Integrante ${index + 1} (ex.: Lucas)`}
                   value={field.nome}
                   onChange={(event) => handleIntegranteChange(field.id, event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
                 />
                 {integrantes.length > 1 && (
                   <button
                     type="button"
                     onClick={() => handleRemoveIntegrante(field.id)}
-                    className="shrink-0 rounded-lg p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="shrink-0 rounded-lg p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                     aria-label={`Remover integrante ${index + 1}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -138,12 +138,12 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
             ))}
           </div>
 
-          {integrantesError && <p className="text-sm text-red-600">{integrantesError}</p>}
+          {integrantesError && <p className="text-sm text-red-600 dark:text-red-400">{integrantesError}</p>}
 
           <button
             type="button"
             onClick={handleAddIntegrante}
-            className="flex items-center gap-1.5 self-start rounded-lg px-2 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50"
+            className="flex items-center gap-1.5 self-start rounded-lg px-2 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/40"
           >
             <UserPlus className="h-4 w-4" />
             Adicionar integrante

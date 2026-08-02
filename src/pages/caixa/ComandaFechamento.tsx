@@ -2,6 +2,7 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { fecharComanda, getComandaExtrato } from "../../services/comanda.service";
@@ -93,55 +94,60 @@ export function ComandaFechamento() {
   }
 
   return (
-    <div className="min-h-svh bg-slate-50">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-6 py-4">
+    <div className="min-h-svh bg-slate-50 dark:bg-slate-950">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <button
             type="button"
             onClick={() => navigate("/caixa/mapa-mesas")}
             aria-label="Voltar ao mapa de mesas"
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-xs text-slate-500">Fechamento de Conta</p>
-            <h1 className="text-xl font-bold text-slate-900">
+            <p className="text-xs text-slate-500 dark:text-slate-400">Fechamento de Conta</p>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
               {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
             </h1>
           </div>
           {comanda && (
             <span
               className={`ml-1 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                comanda.status === "aberta" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
+                comanda.status === "aberta"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
               }`}
             >
               {comanda.status === "aberta" ? "Aberta" : "Fechada"}
             </span>
           )}
-          <button
-            type="button"
-            onClick={fetchDados}
-            disabled={isLoading}
-            aria-label="Atualizar extrato"
-            className="ml-auto rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
-          </button>
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={fetchDados}
+              disabled={isLoading}
+              aria-label="Atualizar extrato"
+              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
+              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-6">
         {isLoading && !comanda && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
             <RefreshCw className="h-6 w-6 animate-spin" />
             <p className="text-sm">Carregando extrato...</p>
           </div>
         )}
 
         {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-sm text-red-700">{errorMessage}</p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
+            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
             <div className="flex gap-3">
               <Button variant="secondary" onClick={() => navigate("/caixa/mapa-mesas")}>
                 Voltar ao mapa de mesas
@@ -156,7 +162,7 @@ export function ComandaFechamento() {
         {!errorMessage && comanda && (
           <div className="flex flex-col gap-4">
             {comanda.status !== "aberta" && (
-              <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600">
+              <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 Esta comanda já foi fechada e não pode receber novos pagamentos.
               </div>
             )}
@@ -166,10 +172,12 @@ export function ComandaFechamento() {
                 <ResumoFinanceiroCard resumo={comanda.resumo_financeiro} />
 
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-base font-semibold text-slate-900">Divisão por Integrante</h2>
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">Divisão por Integrante</h2>
 
                   {comanda.divisao_por_integrante.length === 0 ? (
-                    <p className="text-sm text-slate-400">Nenhum integrante cadastrado nesta comanda.</p>
+                    <p className="text-sm text-slate-400 dark:text-slate-500">
+                      Nenhum integrante cadastrado nesta comanda.
+                    </p>
                   ) : (
                     comanda.divisao_por_integrante.map((integrante) => (
                       <IntegranteAccordion

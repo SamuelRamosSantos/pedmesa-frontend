@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body,
 #root {
@@ -11,4 +13,5 @@ body {
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
 }
