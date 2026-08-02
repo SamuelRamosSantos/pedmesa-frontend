@@ -1,13 +1,327 @@
-import { useParams } from "react-router-dom";
-import { PlaceholderPage } from "../../components/PlaceholderPage";
+import { ArrowLeft, RefreshCw, Search, ShoppingCart, UserPlus, UtensilsCrossed } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { useToast } from "../../contexts/ToastContext";
+import { getApiErrorMessage } from "../../lib/api-error";
+import { formatCurrency } from "../../lib/format";
+import { listCategorias } from "../../services/categoria.service";
+import { getComandaExtrato } from "../../services/comanda.service";
+import { createPedido } from "../../services/pedido.service";
+import { listProdutos } from "../../services/produto.service";
+import type { Categoria } from "../../types/categoria";
+import type { ComandaExtratoResumo, Integrante } from "../../types/comanda";
+import type { Produto } from "../../types/produto";
+import { AddIntegranteModal } from "./components/AddIntegranteModal";
+import { CartDrawer } from "./components/CartDrawer";
+import { ProdutoCard } from "./components/ProdutoCard";
+import type { CartItem } from "./types";
 
 export function ComandaDetalhe() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  const [comanda, setComanda] = useState<ComandaExtratoResumo | null>(null);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSubmittingPedido, setIsSubmittingPedido] = useState(false);
+  const [isAddIntegranteOpen, setIsAddIntegranteOpen] = useState(false);
+
+  const fetchDados = useCallback(async () => {
+    if (!id) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const [comandaData, categoriasData, produtosData] = await Promise.all([
+        getComandaExtrato(id),
+        listCategorias(),
+        listProdutos(),
+      ]);
+
+      setComanda(comandaData);
+      setCategorias(categoriasData);
+      setProdutos(produtosData);
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar a comanda."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchDados();
+  }, [fetchDados]);
+
+  const produtosFiltrados = useMemo(() => {
+    const termo = searchTerm.trim().toLowerCase();
+
+    return produtos
+      .filter((produto) => !selectedCategoriaId || produto.categoria_id === selectedCategoriaId)
+      .filter((produto) => !termo || produto.nome.toLowerCase().includes(termo))
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+  }, [produtos, selectedCategoriaId, searchTerm]);
+
+  const cartTotal = useMemo(
+    () => cart.reduce((soma, item) => soma + item.precoUnitario * item.quantidade, 0),
+    [cart]
+  );
+  const cartCount = useMemo(() => cart.reduce((soma, item) => soma + item.quantidade, 0), [cart]);
+
+  function handleAddToCart(produto: Produto) {
+    setCart((current) => [
+      ...current,
+      {
+        id: crypto.randomUUID(),
+        produtoId: produto.id,
+        produtoNome: produto.nome,
+        precoUnitario: produto.preco,
+        quantidade: 1,
+        integranteId: null,
+        observacao: "",
+      },
+    ]);
+  }
+
+  function handleUpdateCartItem(
+    itemId: string,
+    changes: Partial<Pick<CartItem, "quantidade" | "integranteId" | "observacao">>
+  ) {
+    setCart((current) => current.map((item) => (item.id === itemId ? { ...item, ...changes } : item)));
+  }
+
+  function handleRemoveCartItem(itemId: string) {
+    setCart((current) => current.filter((item) => item.id !== itemId));
+  }
+
+  function handleIntegranteAdicionado(integrante: Integrante) {
+    setComanda((current) =>
+      current
+        ? {
+            ...current,
+            divisao_por_integrante: [
+              ...current.divisao_por_integrante,
+              { integrante_id: integrante.id, nome: integrante.nome },
+            ],
+          }
+        : current
+    );
+  }
+
+  async function handleConfirmarPedido() {
+    if (!id || cart.length === 0) {
+      return;
+    }
+
+    setIsSubmittingPedido(true);
+
+    try {
+      const resultado = await createPedido(id, {
+        itens: cart.map((item) => ({
+          produto_id: item.produtoId,
+          integrante_id: item.integranteId,
+          quantidade: item.quantidade,
+          observacao: item.observacao.trim() || null,
+        })),
+      });
+
+      showToast(resultado.mensagem, "success");
+      setCart([]);
+      setIsCartOpen(false);
+      fetchDados();
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível enviar o pedido. Tente novamente."), "error");
+    } finally {
+      setIsSubmittingPedido(false);
+    }
+  }
+
+  if (!id) {
+    return <Navigate to="/garcom/mesas" replace />;
+  }
 
   return (
-    <PlaceholderPage
-      title="Comanda"
-      description={`Aqui o garçom vai lançar os pedidos da comanda ${id}. Em construção (PED-17).`}
-    />
+    <div className="min-h-svh bg-slate-50 pb-28">
+      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => navigate("/garcom/mesas")}
+            aria-label="Voltar ao salão"
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <p className="text-xs text-slate-500">Comanda</p>
+            <h1 className="text-xl font-bold text-slate-900">
+              {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={fetchDados}
+            disabled={isLoading}
+            aria-label="Atualizar cardápio"
+            className="ml-auto rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+
+        {comanda && (
+          <>
+            <div className="flex items-center gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none]">
+              {comanda.divisao_por_integrante.map((integrante) => (
+                <span
+                  key={integrante.integrante_id}
+                  className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
+                >
+                  {integrante.nome}
+                </span>
+              ))}
+              <button
+                type="button"
+                onClick={() => setIsAddIntegranteOpen(true)}
+                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-dashed border-orange-300 px-3 py-1.5 text-xs font-medium text-orange-600 hover:bg-orange-50"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                Adicionar
+              </button>
+            </div>
+
+            <div className="px-4 pb-3">
+              <label htmlFor="busca-produto" className="sr-only">
+                Buscar produto pelo nome
+              </label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400" />
+                <input
+                  id="busca-produto"
+                  type="search"
+                  placeholder="Buscar produto pelo nome..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 text-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none]">
+              <button
+                type="button"
+                onClick={() => setSelectedCategoriaId(null)}
+                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  selectedCategoriaId === null
+                    ? "bg-orange-600 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                Todos
+              </button>
+              {categorias.map((categoria) => (
+                <button
+                  key={categoria.id}
+                  type="button"
+                  onClick={() => setSelectedCategoriaId(categoria.id)}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    selectedCategoriaId === categoria.id
+                      ? "bg-orange-600 text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {categoria.nome}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <main className="px-4 py-4">
+        {isLoading && !comanda && (
+          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+            <RefreshCw className="h-6 w-6 animate-spin" />
+            <p className="text-sm">Carregando comanda...</p>
+          </div>
+        )}
+
+        {!isLoading && errorMessage && (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-sm text-red-700">{errorMessage}</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => navigate("/garcom/mesas")}>
+                Voltar ao salão
+              </Button>
+              <Button variant="danger" onClick={fetchDados}>
+                Tentar novamente
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!errorMessage && comanda && produtosFiltrados.length === 0 && (
+          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400">
+            <UtensilsCrossed className="h-10 w-10" />
+            <p className="text-sm">Nenhum produto encontrado.</p>
+          </div>
+        )}
+
+        {!errorMessage && produtosFiltrados.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {produtosFiltrados.map((produto) => (
+              <ProdutoCard key={produto.id} produto={produto} onAdd={handleAddToCart} />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {cart.length > 0 && !isCartOpen && (
+        <button
+          type="button"
+          onClick={() => setIsCartOpen(true)}
+          className="fixed inset-x-4 bottom-4 z-30 flex items-center justify-between gap-3 rounded-2xl bg-slate-900 px-5 py-4 text-white shadow-xl transition-transform active:scale-[0.98] sm:inset-x-auto sm:right-4 sm:w-96"
+        >
+          <span className="flex items-center gap-2 text-sm font-medium">
+            <ShoppingCart className="h-5 w-5" />
+            {cartCount} {cartCount === 1 ? "item" : "itens"}
+          </span>
+          <span className="font-semibold">{formatCurrency(cartTotal)}</span>
+          <span className="text-sm font-semibold text-orange-400">Ver pedido</span>
+        </button>
+      )}
+
+      {comanda && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          items={cart}
+          integrantes={comanda.divisao_por_integrante}
+          isSubmitting={isSubmittingPedido}
+          onClose={() => setIsCartOpen(false)}
+          onUpdateItem={handleUpdateCartItem}
+          onRemoveItem={handleRemoveCartItem}
+          onConfirm={handleConfirmarPedido}
+        />
+      )}
+
+      <AddIntegranteModal
+        isOpen={isAddIntegranteOpen}
+        comandaId={id}
+        onClose={() => setIsAddIntegranteOpen(false)}
+        onAdded={handleIntegranteAdicionado}
+      />
+    </div>
   );
 }

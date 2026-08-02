@@ -20,3 +20,15 @@ export interface ComandaDetail {
   aberta_em: string;
   integrantes: Integrante[];
 }
+
+export interface ExtratoIntegranteResumo {
+  integrante_id: string;
+  nome: string;
+}
+
+export interface ComandaExtratoResumo {
+  comanda_id: string;
+  numero_comanda: number;
+  status: ComandaStatus;
+  divisao_por_integrante: ExtratoIntegranteResumo[];
+}

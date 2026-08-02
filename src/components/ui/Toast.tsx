@@ -25,7 +25,7 @@ export function ToastViewport({ toasts, onDismiss }: ToastViewportProps) {
   }
 
   return (
-    <div className="fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:w-full sm:max-w-sm">
+    <div className="fixed inset-x-4 bottom-24 z-[35] flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:w-full sm:max-w-sm">
       {toasts.map((toast) => {
         const Icon = VARIANT_ICONS[toast.variant];
 
