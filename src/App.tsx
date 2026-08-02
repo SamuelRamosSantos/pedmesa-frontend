@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { Kds } from "./pages/cozinha/Kds";
+import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
 import { Login } from "./pages/Login";
 import { NotFound } from "./pages/NotFound";
@@ -17,6 +18,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["garcom", "admin"]}>
             <Mesas />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/garcom/comanda/:id"
+        element={
+          <ProtectedRoute allowedRoles={["garcom", "admin"]}>
+            <ComandaDetalhe />
           </ProtectedRoute>
         }
       />
