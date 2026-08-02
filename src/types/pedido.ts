@@ -5,3 +5,26 @@ export interface PedidoCreatedResponse {
   status_preparo: StatusPreparo;
   mensagem: string;
 }
+
+export interface PedidoItemAtivo {
+  id: string;
+  produto_nome: string;
+  quantidade: number;
+  integrante_nome: string | null;
+  observacao: string | null;
+}
+
+export interface PedidoAtivo {
+  id: string;
+  comanda_id: string;
+  numero_comanda: number;
+  garcom_nome: string;
+  status_preparo: StatusPreparo;
+  criado_em: string;
+  itens: PedidoItemAtivo[];
+}
+
+export interface UpdatePedidoStatusResponse {
+  id: string;
+  status_preparo: StatusPreparo;
+}
