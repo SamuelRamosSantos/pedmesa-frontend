@@ -1,4 +1,12 @@
-import { ArrowLeft, RefreshCw, Search, ShoppingCart, UserPlus, UtensilsCrossed } from "lucide-react";
+import {
+  ArrowLeft,
+  ClipboardList,
+  RefreshCw,
+  Search,
+  ShoppingCart,
+  UserPlus,
+  UtensilsCrossed,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -8,15 +16,19 @@ import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
 import { listCategorias } from "../../services/categoria.service";
 import { getComandaExtrato } from "../../services/comanda.service";
-import { createPedido } from "../../services/pedido.service";
+import { createPedido, listPedidos, updateItemStatus } from "../../services/pedido.service";
 import { listProdutos } from "../../services/produto.service";
 import type { Categoria } from "../../types/categoria";
 import type { ComandaExtratoResumo, Integrante } from "../../types/comanda";
+import type { PedidoAtivo, PedidoItemAtivo } from "../../types/pedido";
 import type { Produto } from "../../types/produto";
 import { AddIntegranteModal } from "./components/AddIntegranteModal";
 import { CartDrawer } from "./components/CartDrawer";
+import { PedidoEnviadoCard } from "./components/PedidoEnviadoCard";
 import { ProdutoCard } from "./components/ProdutoCard";
 import type { CartItem } from "./types";
+
+type AbaComandaDetalhe = "cardapio" | "pedidos";
 
 export function ComandaDetalhe() {
   const { id } = useParams<{ id: string }>();
@@ -26,9 +38,11 @@ export function ComandaDetalhe() {
   const [comanda, setComanda] = useState<ComandaExtratoResumo | null>(null);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoAtivo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [abaAtiva, setAbaAtiva] = useState<AbaComandaDetalhe>("cardapio");
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -36,6 +50,7 @@ export function ComandaDetalhe() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmittingPedido, setIsSubmittingPedido] = useState(false);
   const [isAddIntegranteOpen, setIsAddIntegranteOpen] = useState(false);
+  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -46,15 +61,17 @@ export function ComandaDetalhe() {
     setErrorMessage(null);
 
     try {
-      const [comandaData, categoriasData, produtosData] = await Promise.all([
+      const [comandaData, categoriasData, produtosData, pedidosData] = await Promise.all([
         getComandaExtrato(id),
         listCategorias(),
         listProdutos(),
+        listPedidos(),
       ]);
 
       setComanda(comandaData);
       setCategorias(categoriasData);
       setProdutos(produtosData);
+      setPedidos(pedidosData.filter((pedido) => pedido.comanda_id === id));
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar a comanda."));
     } finally {
@@ -80,6 +97,16 @@ export function ComandaDetalhe() {
     [cart]
   );
   const cartCount = useMemo(() => cart.reduce((soma, item) => soma + item.quantidade, 0), [cart]);
+
+  const pedidosOrdenados = useMemo(
+    () => [...pedidos].sort((a, b) => new Date(a.criado_em).getTime() - new Date(b.criado_em).getTime()),
+    [pedidos]
+  );
+
+  const totalProntosParaEntregar = useMemo(
+    () => pedidos.reduce((soma, pedido) => soma + pedido.itens.filter((item) => item.status_item === "pronto").length, 0),
+    [pedidos]
+  );
 
   function handleAddToCart(produto: Produto) {
     setCart((current) => [
@@ -156,6 +183,47 @@ export function ComandaDetalhe() {
     }
   }
 
+  function atualizarStatusItemLocal(pedidoId: string, itemId: string, novoStatus: PedidoItemAtivo["status_item"]) {
+    setPedidos((current) =>
+      current.map((pedido) =>
+        pedido.id !== pedidoId
+          ? pedido
+          : {
+              ...pedido,
+              itens: pedido.itens.map((item) => (item.id === itemId ? { ...item, status_item: novoStatus } : item)),
+            }
+      )
+    );
+  }
+
+  async function handleEntregarItem(pedido: PedidoAtivo, item: PedidoItemAtivo) {
+    setUpdatingItemId(item.id);
+
+    try {
+      await updateItemStatus(item.id, "entregue");
+      atualizarStatusItemLocal(pedido.id, item.id, "entregue");
+      showToast(`${item.quantidade}x ${item.produto_nome} entregue à mesa ${pedido.numero_comanda}.`, "success");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível marcar o item como entregue."), "error");
+    } finally {
+      setUpdatingItemId(null);
+    }
+  }
+
+  async function handleDesfazerEntrega(pedido: PedidoAtivo, item: PedidoItemAtivo) {
+    setUpdatingItemId(item.id);
+
+    try {
+      await updateItemStatus(item.id, "pronto");
+      atualizarStatusItemLocal(pedido.id, item.id, "pronto");
+      showToast(`Entrega de ${item.produto_nome} desfeita.`, "success");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível desfazer a entrega do item."), "error");
+    } finally {
+      setUpdatingItemId(null);
+    }
+  }
+
   if (!id) {
     return <Navigate to="/garcom/mesas" replace />;
   }
@@ -213,50 +281,84 @@ export function ComandaDetalhe() {
               </button>
             </div>
 
-            <div className="px-4 pb-3">
-              <label htmlFor="busca-produto" className="sr-only">
-                Buscar produto pelo nome
-              </label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400" />
-                <input
-                  id="busca-produto"
-                  type="search"
-                  placeholder="Buscar produto pelo nome..."
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none]">
+            <div className="flex gap-1 px-4 pb-3">
               <button
                 type="button"
-                onClick={() => setSelectedCategoriaId(null)}
-                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedCategoriaId === null
+                onClick={() => setAbaAtiva("cardapio")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                  abaAtiva === "cardapio"
                     ? "bg-orange-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 }`}
               >
-                Todos
+                Cardápio
               </button>
-              {categorias.map((categoria) => (
-                <button
-                  key={categoria.id}
-                  type="button"
-                  onClick={() => setSelectedCategoriaId(categoria.id)}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    selectedCategoriaId === categoria.id
-                      ? "bg-orange-600 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                  }`}
-                >
-                  {categoria.nome}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setAbaAtiva("pedidos")}
+                className={`relative rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                  abaAtiva === "pedidos"
+                    ? "bg-orange-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                }`}
+              >
+                Pedidos
+                {totalProntosParaEntregar > 0 && (
+                  <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1 text-xs font-bold text-white">
+                    {totalProntosParaEntregar}
+                  </span>
+                )}
+              </button>
             </div>
+
+            {abaAtiva === "cardapio" && (
+              <>
+                <div className="px-4 pb-3">
+                  <label htmlFor="busca-produto" className="sr-only">
+                    Buscar produto pelo nome
+                  </label>
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400" />
+                    <input
+                      id="busca-produto"
+                      type="search"
+                      placeholder="Buscar produto pelo nome..."
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none]">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategoriaId(null)}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                      selectedCategoriaId === null
+                        ? "bg-orange-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria.id}
+                      type="button"
+                      onClick={() => setSelectedCategoriaId(categoria.id)}
+                      className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                        selectedCategoriaId === categoria.id
+                          ? "bg-orange-600 text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {categoria.nome}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -283,17 +385,38 @@ export function ComandaDetalhe() {
           </div>
         )}
 
-        {!errorMessage && comanda && produtosFiltrados.length === 0 && (
+        {!errorMessage && comanda && abaAtiva === "cardapio" && produtosFiltrados.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
             <UtensilsCrossed className="h-10 w-10" />
             <p className="text-sm">Nenhum produto encontrado.</p>
           </div>
         )}
 
-        {!errorMessage && produtosFiltrados.length > 0 && (
+        {!errorMessage && abaAtiva === "cardapio" && produtosFiltrados.length > 0 && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {produtosFiltrados.map((produto) => (
               <ProdutoCard key={produto.id} produto={produto} onAdd={handleAddToCart} />
+            ))}
+          </div>
+        )}
+
+        {!errorMessage && comanda && abaAtiva === "pedidos" && pedidosOrdenados.length === 0 && (
+          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
+            <ClipboardList className="h-10 w-10" />
+            <p className="text-sm">Nenhum pedido enviado para esta mesa ainda.</p>
+          </div>
+        )}
+
+        {!errorMessage && abaAtiva === "pedidos" && pedidosOrdenados.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {pedidosOrdenados.map((pedido) => (
+              <PedidoEnviadoCard
+                key={pedido.id}
+                pedido={pedido}
+                updatingItemId={updatingItemId}
+                onEntregarItem={handleEntregarItem}
+                onDesfazerEntrega={handleDesfazerEntrega}
+              />
             ))}
           </div>
         )}
