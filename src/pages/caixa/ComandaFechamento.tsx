@@ -14,6 +14,7 @@ import type { ComandaExtratoResumo } from "../../types/comanda";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
 import { PagamentoSidebar } from "./components/PagamentoSidebar";
 import { ResumoFinanceiroCard } from "./components/ResumoFinanceiroCard";
+import { TodosItensCard } from "./components/TodosItensCard";
 import type { PagamentoLancado } from "./types";
 
 export function ComandaFechamento() {
@@ -235,6 +236,11 @@ export function ComandaFechamento() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="flex flex-col gap-4 lg:col-span-2">
                 <ResumoFinanceiroCard resumo={comanda.resumo_financeiro} />
+
+                <TodosItensCard
+                  divisaoPorIntegrante={comanda.divisao_por_integrante}
+                  itensCompartilhados={comanda.itens_compartilhados}
+                />
 
                 <div className="flex flex-col gap-3">
                   <h2 className="text-base font-semibold text-slate-900 dark:text-white">Divisão por Integrante</h2>
