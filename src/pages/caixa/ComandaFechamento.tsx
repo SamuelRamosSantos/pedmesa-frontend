@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, PartyPopper, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Ban, PartyPopper, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -7,6 +7,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { STATUS_ITEM_LABEL } from "../../lib/status-item";
 import { cancelarComanda, fecharComanda, getComandaExtrato } from "../../services/comanda.service";
 import type { FormaPagamento } from "../../services/comanda.service";
 import type { ComandaExtratoResumo } from "../../types/comanda";
@@ -29,6 +30,7 @@ export function ComandaFechamento() {
   const nextPagamentoIdRef = useRef(1);
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isConfirmPendenteOpen, setIsConfirmPendenteOpen] = useState(false);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -72,7 +74,7 @@ export function ComandaFechamento() {
     setPagamentos((current) => current.filter((pagamento) => pagamento.id !== pagamentoId));
   }
 
-  async function handleConfirmar() {
+  async function executarFechamento() {
     if (!id || pagamentos.length === 0) {
       return;
     }
@@ -90,7 +92,21 @@ export function ComandaFechamento() {
       showToast(getApiErrorMessage(error, "Não foi possível fechar a comanda."), "error");
     } finally {
       setIsSubmitting(false);
+      setIsConfirmPendenteOpen(false);
     }
+  }
+
+  function handleConfirmar() {
+    if (!id || pagamentos.length === 0) {
+      return;
+    }
+
+    if (comanda?.possui_itens_pendentes) {
+      setIsConfirmPendenteOpen(true);
+      return;
+    }
+
+    executarFechamento();
   }
 
   async function handleCancelarComandaZerada() {
@@ -187,6 +203,29 @@ export function ComandaFechamento() {
 
         {!errorMessage && comanda && (
           <div className="flex flex-col gap-4">
+            {comanda.status === "aberta" && comanda.possui_itens_pendentes && (
+              <div
+                data-testid="alerta-itens-pendentes"
+                className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-950/30"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                    Atenção: esta comanda possui {comanda.itens_pendentes_entrega}{" "}
+                    {comanda.itens_pendentes_entrega === 1 ? "item" : "itens"} ainda{" "}
+                    {comanda.itens_pendentes_entrega === 1 ? "não entregue" : "não entregues"} pela cozinha/bar!
+                  </p>
+                </div>
+                <ul className="ml-8 flex flex-col gap-0.5 text-sm text-amber-700 dark:text-amber-300">
+                  {comanda.itens_pendentes.map((item, index) => (
+                    <li key={`${item.produto_nome}-${index}`}>
+                      {item.quantidade}x {item.produto_nome} ({STATUS_ITEM_LABEL[item.status_item]})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {comanda.status !== "aberta" && (
               <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 Esta comanda já foi fechada e não pode receber novos pagamentos.
@@ -265,6 +304,16 @@ export function ComandaFechamento() {
         isConfirming={isCancelling}
         onCancel={() => setIsConfirmCancelOpen(false)}
         onConfirm={handleCancelarComandaZerada}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmPendenteOpen}
+        title="Itens pendentes de entrega"
+        description="Existem itens pendentes de entrega nesta comanda. Deseja prosseguir com o fechamento assim mesmo?"
+        confirmLabel="Sim, fechar mesmo assim"
+        isConfirming={isSubmitting}
+        onCancel={() => setIsConfirmPendenteOpen(false)}
+        onConfirm={executarFechamento}
       />
     </div>
   );

@@ -1,3 +1,5 @@
+import type { StatusItem } from "./pedido";
+
 export type ComandaStatus = "aberta" | "fechada";
 
 export interface Integrante {
@@ -45,10 +47,19 @@ export interface ResumoFinanceiro {
   valor_total_comanda: number;
 }
 
+export interface ItemPendenteEntrega {
+  produto_nome: string;
+  quantidade: number;
+  status_item: StatusItem;
+}
+
 export interface ComandaExtratoResumo {
   comanda_id: string;
   numero_comanda: number;
   status: ComandaStatus;
   resumo_financeiro: ResumoFinanceiro;
   divisao_por_integrante: ExtratoIntegranteResumo[];
+  itens_pendentes_entrega: number;
+  possui_itens_pendentes: boolean;
+  itens_pendentes: ItemPendenteEntrega[];
 }
