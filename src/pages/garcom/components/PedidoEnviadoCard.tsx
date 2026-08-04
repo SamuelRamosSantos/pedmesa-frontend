@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Loader2, Undo2 } from "lucide-react";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
 import type { PedidoAtivo, PedidoItemAtivo } from "../../../types/pedido";
-import { STATUS_ITEM_BADGE_CLASS, STATUS_ITEM_LABEL } from "../status-item-flow";
+import { STATUS_ITEM_BADGE_CLASS, STATUS_ITEM_LABEL } from "../../../lib/status-item";
 
 interface PedidoEnviadoCardProps {
   pedido: PedidoAtivo;

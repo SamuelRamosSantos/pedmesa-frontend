@@ -6,14 +6,17 @@ import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
-import { listPedidos, updatePedidoStatus } from "../../services/pedido.service";
-import type { PedidoAtivo, StatusPreparo } from "../../types/pedido";
+import { listPedidos, updateItemStatus } from "../../services/pedido.service";
+import type { PedidoAtivo, StatusItem } from "../../types/pedido";
 import { KanbanColumn } from "./components/KanbanColumn";
-import { COLUNAS_KANBAN, PROXIMA_ACAO, REGRESSAO_ACAO } from "./status-flow";
+import { COLUNAS_KANBAN, PROXIMA_ACAO_ITEM, REGRESSAO_ACAO_ITEM } from "./status-flow";
+import type { GrupoPreparo } from "./types";
 
 const POLL_INTERVAL_MS = 8000;
 
-const COLUNA_VISUAL: Record<StatusPreparo, { icon: LucideIcon; headerClass: string }> = {
+const STATUS_FORA_DA_FILA: StatusItem[] = ["entregue", "cancelado"];
+
+const COLUNA_VISUAL: Record<StatusItem, { icon: LucideIcon; headerClass: string }> = {
   pendente: {
     icon: Clock3,
     headerClass: "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-300",
@@ -32,7 +35,54 @@ const COLUNA_VISUAL: Record<StatusPreparo, { icon: LucideIcon; headerClass: stri
     icon: CheckCircle2,
     headerClass: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
   },
+  cancelado: {
+    icon: CheckCircle2,
+    headerClass: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+  },
 };
+
+function calcularStatusGrupo(statusDosItens: StatusItem[]): StatusItem {
+  if (statusDosItens.every((status) => status === "pendente")) {
+    return "pendente";
+  }
+
+  if (statusDosItens.every((status) => status === "pronto")) {
+    return "pronto";
+  }
+
+  return "em_preparo";
+}
+
+function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
+  const grupos: GrupoPreparo[] = [];
+
+  for (const pedido of pedidos) {
+    const itensPreparo = pedido.itens.filter(
+      (item) => item.precisa_preparo && !STATUS_FORA_DA_FILA.includes(item.status_item)
+    );
+
+    if (itensPreparo.length === 0) {
+      continue;
+    }
+
+    grupos.push({
+      pedidoId: pedido.id,
+      numeroComanda: pedido.numero_comanda,
+      garcomNome: pedido.garcom_nome,
+      criadoEm: pedido.criado_em,
+      statusGrupo: calcularStatusGrupo(itensPreparo.map((item) => item.status_item)),
+      itens: itensPreparo.map((item) => ({
+        id: item.id,
+        produtoNome: item.produto_nome,
+        quantidade: item.quantidade,
+        integranteNome: item.integrante_nome,
+        observacao: item.observacao,
+      })),
+    });
+  }
+
+  return grupos;
+}
 
 export function Kds() {
   const { user, logout } = useAuth();
@@ -44,7 +94,7 @@ export function Kds() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingPedidoId, setUpdatingPedidoId] = useState<string | null>(null);
   const isFirstLoadRef = useRef(true);
 
   const fetchPedidos = useCallback(async () => {
@@ -79,63 +129,85 @@ export function Kds() {
     navigate("/login", { replace: true });
   }
 
-  async function aplicarMudancaStatus(pedido: PedidoAtivo, novoStatus: StatusPreparo, mensagemErro: string) {
-    setUpdatingId(pedido.id);
+  function atualizarStatusItensLocal(pedidoId: string, itemIds: string[], novoStatus: StatusItem) {
+    setPedidos((current) =>
+      current.map((pedido) =>
+        pedido.id !== pedidoId
+          ? pedido
+          : {
+              ...pedido,
+              itens: pedido.itens.map((item) =>
+                itemIds.includes(item.id) ? { ...item, status_item: novoStatus } : item
+              ),
+            }
+      )
+    );
+  }
+
+  async function aplicarMudancaGrupo(grupo: GrupoPreparo, novoStatus: StatusItem, mensagemErro: string) {
+    setUpdatingPedidoId(grupo.pedidoId);
 
     try {
-      await updatePedidoStatus(pedido.id, novoStatus);
+      const resultados = await Promise.allSettled(
+        grupo.itens.map((item) => updateItemStatus(item.id, novoStatus))
+      );
 
-      if (novoStatus === "entregue") {
-        setPedidos((current) => current.filter((item) => item.id !== pedido.id));
-      } else {
-        setPedidos((current) =>
-          current.map((item) => (item.id === pedido.id ? { ...item, status_preparo: novoStatus } : item))
-        );
+      const itensComSucesso = grupo.itens
+        .filter((_, index) => resultados[index].status === "fulfilled")
+        .map((item) => item.id);
+
+      if (itensComSucesso.length > 0) {
+        atualizarStatusItensLocal(grupo.pedidoId, itensComSucesso, novoStatus);
       }
-    } catch (error) {
-      showToast(getApiErrorMessage(error, mensagemErro), "error");
+
+      if (resultados.some((resultado) => resultado.status === "rejected")) {
+        showToast(mensagemErro, "error");
+      }
     } finally {
-      setUpdatingId(null);
+      setUpdatingPedidoId(null);
     }
   }
 
-  async function handleAvancarStatus(pedido: PedidoAtivo) {
-    const acao = PROXIMA_ACAO[pedido.status_preparo];
+  async function handleAvancar(grupo: GrupoPreparo) {
+    const acao = PROXIMA_ACAO_ITEM[grupo.statusGrupo];
 
     if (!acao) {
       return;
     }
 
-    await aplicarMudancaStatus(pedido, acao.proximoStatus, "Não foi possível atualizar o status do pedido.");
+    await aplicarMudancaGrupo(grupo, acao.proximoStatus, "Não foi possível atualizar o status de alguns itens do pedido.");
   }
 
-  async function handleRegredirStatus(pedido: PedidoAtivo) {
-    const acao = REGRESSAO_ACAO[pedido.status_preparo];
+  async function handleRegredir(grupo: GrupoPreparo) {
+    const acao = REGRESSAO_ACAO_ITEM[grupo.statusGrupo];
 
     if (!acao) {
       return;
     }
 
-    await aplicarMudancaStatus(pedido, acao.proximoStatus, "Não foi possível desfazer o status do pedido.");
+    await aplicarMudancaGrupo(grupo, acao.proximoStatus, "Não foi possível desfazer o status de alguns itens do pedido.");
   }
 
-  const pedidosPorStatus = useMemo(() => {
-    const grupos: Record<StatusPreparo, PedidoAtivo[]> = {
+  const gruposPorStatus = useMemo(() => {
+    const todosOsGrupos = montarGruposPreparo(pedidos);
+
+    const colunas: Record<StatusItem, GrupoPreparo[]> = {
       pendente: [],
       em_preparo: [],
       pronto: [],
       entregue: [],
+      cancelado: [],
     };
 
-    for (const pedido of pedidos) {
-      grupos[pedido.status_preparo]?.push(pedido);
+    for (const grupo of todosOsGrupos) {
+      colunas[grupo.statusGrupo]?.push(grupo);
     }
 
-    for (const status of Object.keys(grupos) as StatusPreparo[]) {
-      grupos[status].sort((a, b) => new Date(a.criado_em).getTime() - new Date(b.criado_em).getTime());
+    for (const status of Object.keys(colunas) as StatusItem[]) {
+      colunas[status].sort((a, b) => new Date(a.criadoEm).getTime() - new Date(b.criadoEm).getTime());
     }
 
-    return grupos;
+    return colunas;
   }, [pedidos]);
 
   return (
@@ -215,10 +287,10 @@ export function Kds() {
                 titulo={coluna.titulo}
                 icon={COLUNA_VISUAL[coluna.status].icon}
                 headerClass={COLUNA_VISUAL[coluna.status].headerClass}
-                pedidos={pedidosPorStatus[coluna.status]}
-                updatingId={updatingId}
-                onAvancarStatus={handleAvancarStatus}
-                onRegredirStatus={handleRegredirStatus}
+                grupos={gruposPorStatus[coluna.status]}
+                updatingPedidoId={updatingPedidoId}
+                onAvancar={handleAvancar}
+                onRegredir={handleRegredir}
               />
             ))}
           </div>

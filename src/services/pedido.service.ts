@@ -1,12 +1,5 @@
 import { api } from "./api";
-import type {
-  PedidoAtivo,
-  PedidoCreatedResponse,
-  StatusItem,
-  StatusPreparo,
-  UpdateItemStatusResponse,
-  UpdatePedidoStatusResponse,
-} from "../types/pedido";
+import type { PedidoAtivo, PedidoCreatedResponse, StatusItem, UpdateItemStatusResponse } from "../types/pedido";
 
 export interface CreatePedidoItemPayload {
   produto_id: string;
@@ -26,16 +19,6 @@ export async function createPedido(comandaId: string, payload: CreatePedidoPaylo
 
 export async function listPedidos(): Promise<PedidoAtivo[]> {
   const { data } = await api.get<PedidoAtivo[]>("/pedidos");
-  return data;
-}
-
-export async function updatePedidoStatus(
-  pedidoId: string,
-  statusPreparo: StatusPreparo
-): Promise<UpdatePedidoStatusResponse> {
-  const { data } = await api.patch<UpdatePedidoStatusResponse>(`/pedidos/${pedidoId}/status`, {
-    status_preparo: statusPreparo,
-  });
   return data;
 }
 

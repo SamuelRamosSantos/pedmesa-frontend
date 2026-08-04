@@ -15,6 +15,7 @@ export interface PedidoItemAtivo {
   integrante_nome: string | null;
   observacao: string | null;
   status_item: StatusItem;
+  precisa_preparo: boolean;
 }
 
 export interface PedidoAtivo {
@@ -25,11 +26,6 @@ export interface PedidoAtivo {
   status_preparo: StatusPreparo;
   criado_em: string;
   itens: PedidoItemAtivo[];
-}
-
-export interface UpdatePedidoStatusResponse {
-  id: string;
-  status_preparo: StatusPreparo;
 }
 
 export interface UpdateItemStatusResponse {

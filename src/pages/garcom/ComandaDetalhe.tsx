@@ -27,10 +27,7 @@ import type { Produto } from "../../types/produto";
 import { AddIntegranteModal } from "./components/AddIntegranteModal";
 import { CartDrawer } from "./components/CartDrawer";
 import { PedidoEnviadoCard } from "./components/PedidoEnviadoCard";
-import { PedidosResumoBar } from "./components/PedidosResumoBar";
 import { ProdutoCard } from "./components/ProdutoCard";
-import type { FiltroStatusPedido } from "./status-item-flow";
-import { statusItemPassaFiltro } from "./status-item-flow";
 import type { CartItem } from "./types";
 
 type AbaComandaDetalhe = "cardapio" | "pedidos";
@@ -49,7 +46,6 @@ export function ComandaDetalhe() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [abaAtiva, setAbaAtiva] = useState<AbaComandaDetalhe>("cardapio");
-  const [filtroStatusPedidos, setFiltroStatusPedidos] = useState<FiltroStatusPedido>("todos");
   const [selectedCategoriaId, setSelectedCategoriaId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -149,15 +145,6 @@ export function ComandaDetalhe() {
   }, [pedidosOrdenados]);
 
   const totalProntosParaEntregar = contagensPorStatus.pronto ?? 0;
-
-  const pedidosFiltrados = useMemo(() => {
-    return pedidosOrdenados
-      .map((pedido) => ({
-        ...pedido,
-        itens: pedido.itens.filter((item) => statusItemPassaFiltro(item.status_item, filtroStatusPedidos)),
-      }))
-      .filter((pedido) => pedido.itens.length > 0);
-  }, [pedidosOrdenados, filtroStatusPedidos]);
 
   const isComandaZerada = Boolean(
     comanda && comanda.status === "aberta" && comanda.resumo_financeiro.valor_total_comanda === 0
@@ -432,14 +419,6 @@ export function ComandaDetalhe() {
                 </div>
               </>
             )}
-
-            {abaAtiva === "pedidos" && (
-              <PedidosResumoBar
-                contagens={contagensPorStatus}
-                filtro={filtroStatusPedidos}
-                onFiltroChange={setFiltroStatusPedidos}
-              />
-            )}
           </>
         )}
       </div>
@@ -499,16 +478,9 @@ export function ComandaDetalhe() {
           </div>
         )}
 
-        {!errorMessage && abaAtiva === "pedidos" && pedidosOrdenados.length > 0 && pedidosFiltrados.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
-            <ClipboardList className="h-10 w-10" />
-            <p className="text-sm">Nenhum item encontrado para o filtro selecionado.</p>
-          </div>
-        )}
-
-        {!errorMessage && abaAtiva === "pedidos" && pedidosFiltrados.length > 0 && (
+        {!errorMessage && abaAtiva === "pedidos" && pedidosOrdenados.length > 0 && (
           <div className="flex flex-col gap-3">
-            {pedidosFiltrados.map((pedido) => (
+            {pedidosOrdenados.map((pedido) => (
               <PedidoEnviadoCard
                 key={pedido.id}
                 pedido={pedido}
