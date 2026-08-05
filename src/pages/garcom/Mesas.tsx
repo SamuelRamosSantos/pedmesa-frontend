@@ -1,4 +1,4 @@
-import { LogOut, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
+import { LayoutGrid, LogOut, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -66,6 +66,17 @@ export function Mesas() {
           <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
         </div>
         <div className="flex items-center gap-2">
+          {user && user.roles.length > 1 && (
+            <button
+              type="button"
+              onClick={() => navigate("/selecionar-visao")}
+              aria-label="Trocar visão"
+              title="Trocar visão"
+              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
+              <LayoutGrid className="h-5 w-5" />
+            </button>
+          )}
           <ThemeToggle />
           <button
             type="button"
@@ -78,7 +89,9 @@ export function Mesas() {
           </button>
           <div className="hidden text-right sm:block">
             <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.nome}</p>
-            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{user?.role}</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {user?.roles.join(", ")}
+            </p>
           </div>
           <Button variant="secondary" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />

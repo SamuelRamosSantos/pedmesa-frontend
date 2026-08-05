@@ -2,7 +2,7 @@ import { ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
-import { getHomeRouteForRole } from "../lib/role-routes";
+import { getHomeRouteForRoles } from "../lib/role-routes";
 
 export function Unauthorized() {
   const { user, logout } = useAuth();
@@ -10,7 +10,7 @@ export function Unauthorized() {
 
   function handleGoHome() {
     if (user) {
-      navigate(getHomeRouteForRole(user.role), { replace: true });
+      navigate(getHomeRouteForRoles(user.roles), { replace: true });
     } else {
       navigate("/login", { replace: true });
     }

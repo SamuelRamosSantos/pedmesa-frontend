@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, LogOut, Merge, Package, RefreshCw, Search, Users } from "lucide-react";
+import { Building2, ClipboardList, LayoutGrid, LogOut, Merge, Package, RefreshCw, Search, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -118,10 +118,22 @@ export function MapaMesas() {
         </div>
 
         <div className="flex items-center gap-3">
-          {user?.role === "admin" && (
-            <Button variant="secondary" onClick={() => navigate("/admin/produtos")}>
-              <Package className="h-4 w-4" />
-              Produtos
+          {user?.roles.includes("admin") && (
+            <>
+              <Button variant="secondary" onClick={() => navigate("/admin/produtos")}>
+                <Package className="h-4 w-4" />
+                Produtos
+              </Button>
+              <Button variant="secondary" onClick={() => navigate("/admin/usuarios")}>
+                <Users className="h-4 w-4" />
+                Usuários
+              </Button>
+            </>
+          )}
+          {user && user.roles.length > 1 && (
+            <Button variant="secondary" onClick={() => navigate("/selecionar-visao")}>
+              <LayoutGrid className="h-4 w-4" />
+              Trocar Visão
             </Button>
           )}
           <ThemeToggle />
@@ -136,7 +148,9 @@ export function MapaMesas() {
           </button>
           <div className="text-right">
             <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.nome}</p>
-            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{user?.role}</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {user?.roles.join(", ")}
+            </p>
           </div>
           <Button variant="secondary" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />

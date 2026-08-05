@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Produtos } from "./pages/admin/Produtos";
+import { Usuarios } from "./pages/admin/Usuarios";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { Kds } from "./pages/cozinha/Kds";
@@ -8,12 +9,22 @@ import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
 import { Login } from "./pages/Login";
 import { NotFound } from "./pages/NotFound";
+import { SelecionarVisao } from "./pages/SelecionarVisao";
 import { Unauthorized } from "./pages/Unauthorized";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/selecionar-visao"
+        element={
+          <ProtectedRoute>
+            <SelecionarVisao />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/garcom/mesas"
@@ -65,6 +76,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <Produtos />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/usuarios"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Usuarios />
           </ProtectedRoute>
         }
       />

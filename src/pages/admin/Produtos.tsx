@@ -1,18 +1,21 @@
 import {
   ArrowLeft,
   ChefHat,
+  LayoutGrid,
   Package,
   Pencil,
   PlusCircle,
   RefreshCw,
   Search,
   Trash2,
+  Users,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
+import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
@@ -24,6 +27,7 @@ import { ProdutoModal } from "./components/ProdutoModal";
 
 export function Produtos() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -147,6 +151,16 @@ export function Produtos() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <Button variant="secondary" onClick={() => navigate("/admin/usuarios")}>
+            <Users className="h-4 w-4" />
+            Usuários
+          </Button>
+          {user && user.roles.length > 1 && (
+            <Button variant="secondary" onClick={() => navigate("/selecionar-visao")}>
+              <LayoutGrid className="h-4 w-4" />
+              Trocar Visão
+            </Button>
+          )}
           <ThemeToggle />
           <button
             type="button"

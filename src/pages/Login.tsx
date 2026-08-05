@@ -9,7 +9,7 @@ import { Input } from "../components/ui/Input";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
-import { getHomeRouteForRole } from "../lib/role-routes";
+import { getHomeRouteForRoles } from "../lib/role-routes";
 import { login } from "../services/auth.service";
 
 export function Login() {
@@ -28,7 +28,7 @@ export function Login() {
     try {
       const { token, usuario } = await login({ email, senha });
       authenticate(token, usuario);
-      navigate(getHomeRouteForRole(usuario.role), { replace: true });
+      navigate(getHomeRouteForRoles(usuario.roles), { replace: true });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         showToast("E-mail ou senha inválidos.", "error");
