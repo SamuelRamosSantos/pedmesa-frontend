@@ -26,3 +26,11 @@ export async function updateItemStatus(itemId: string, status: StatusItem): Prom
   const { data } = await api.patch<UpdateItemStatusResponse>(`/pedidos/itens/${itemId}/status`, { status });
   return data;
 }
+
+export async function deleteItemPedido(itemId: string): Promise<void> {
+  await api.delete(`/pedidos/itens/${itemId}`);
+}
+
+export async function deletePedido(pedidoId: string): Promise<void> {
+  await api.delete(`/pedidos/${pedidoId}`);
+}

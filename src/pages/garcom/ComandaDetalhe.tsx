@@ -18,7 +18,7 @@ import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
 import { listCategorias } from "../../services/categoria.service";
 import { cancelarComanda, getComandaExtrato } from "../../services/comanda.service";
-import { createPedido, listPedidos, updateItemStatus } from "../../services/pedido.service";
+import { createPedido, deletePedido, listPedidos, updateItemStatus } from "../../services/pedido.service";
 import { listProdutos } from "../../services/produto.service";
 import type { Categoria } from "../../types/categoria";
 import type { ComandaExtratoResumo, Integrante } from "../../types/comanda";
@@ -56,6 +56,8 @@ export function ComandaDetalhe() {
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [pedidoParaExcluir, setPedidoParaExcluir] = useState<PedidoAtivo | null>(null);
+  const [excluindoPedidoId, setExcluindoPedidoId] = useState<string | null>(null);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -263,6 +265,25 @@ export function ComandaDetalhe() {
       showToast(getApiErrorMessage(error, "Não foi possível desfazer a entrega do item."), "error");
     } finally {
       setUpdatingItemId(null);
+    }
+  }
+
+  async function handleConfirmarExclusaoPedido() {
+    if (!pedidoParaExcluir) {
+      return;
+    }
+
+    setExcluindoPedidoId(pedidoParaExcluir.id);
+
+    try {
+      await deletePedido(pedidoParaExcluir.id);
+      showToast(`Pedido da mesa ${pedidoParaExcluir.numero_comanda} excluído.`, "success");
+      setPedidoParaExcluir(null);
+      fetchDados();
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível excluir o pedido."), "error");
+    } finally {
+      setExcluindoPedidoId(null);
     }
   }
 
@@ -485,8 +506,10 @@ export function ComandaDetalhe() {
                 key={pedido.id}
                 pedido={pedido}
                 updatingItemId={updatingItemId}
+                excluindoPedidoId={excluindoPedidoId}
                 onEntregarItem={handleEntregarItem}
                 onDesfazerEntrega={handleDesfazerEntrega}
+                onExcluirPedido={setPedidoParaExcluir}
               />
             ))}
           </div>
@@ -536,6 +559,16 @@ export function ComandaDetalhe() {
         isConfirming={isCancelling}
         onCancel={() => setIsConfirmCancelOpen(false)}
         onConfirm={handleCancelarComandaZerada}
+      />
+
+      <ConfirmDialog
+        isOpen={pedidoParaExcluir !== null}
+        title="Excluir pedido?"
+        description="Todos os itens deste pedido serão removidos. Esta ação não pode ser desfeita."
+        confirmLabel="Sim, excluir pedido"
+        isConfirming={excluindoPedidoId !== null}
+        onCancel={() => setPedidoParaExcluir(null)}
+        onConfirm={handleConfirmarExclusaoPedido}
       />
     </div>
   );

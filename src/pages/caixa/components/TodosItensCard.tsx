@@ -1,4 +1,4 @@
-import { Receipt } from "lucide-react";
+import { Loader2, Receipt, Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { Card } from "../../../components/ui/Card";
 import { formatCurrency } from "../../../lib/format";
@@ -7,9 +7,13 @@ import type { ExtratoItemCompartilhadoLinha, ExtratoIntegranteResumo } from "../
 interface TodosItensCardProps {
   divisaoPorIntegrante: ExtratoIntegranteResumo[];
   itensCompartilhados: ExtratoItemCompartilhadoLinha[];
+  podeExcluirItem: boolean;
+  excluindoItemId: string | null;
+  onExcluirItem: (itemId: string, produtoNome: string) => void;
 }
 
 interface LinhaTodosItens {
+  id: string;
   chave: string;
   produto: string;
   qtd: number;
@@ -18,11 +22,18 @@ interface LinhaTodosItens {
   valorPorPessoa: number | null;
 }
 
-export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: TodosItensCardProps) {
+export function TodosItensCard({
+  divisaoPorIntegrante,
+  itensCompartilhados,
+  podeExcluirItem,
+  excluindoItemId,
+  onExcluirItem,
+}: TodosItensCardProps) {
   const linhas: LinhaTodosItens[] = [
     ...divisaoPorIntegrante.flatMap((integrante) =>
-      integrante.itens_individuais.map((item, index) => ({
-        chave: `individual-${integrante.integrante_id}-${index}`,
+      integrante.itens_individuais.map((item) => ({
+        id: item.id,
+        chave: `individual-${item.id}`,
         produto: item.produto,
         qtd: item.qtd,
         subtotal: item.subtotal,
@@ -30,8 +41,9 @@ export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: To
         valorPorPessoa: null,
       }))
     ),
-    ...itensCompartilhados.map((item, index) => ({
-      chave: `compartilhado-${index}`,
+    ...itensCompartilhados.map((item) => ({
+      id: item.id,
+      chave: `compartilhado-${item.id}`,
       produto: item.produto,
       qtd: item.qtd,
       subtotal: item.subtotal,
@@ -44,6 +56,8 @@ export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: To
     return null;
   }
 
+  const gridColsClass = podeExcluirItem ? "grid-cols-[1fr_auto_auto_auto_auto]" : "grid-cols-[1fr_auto_auto_auto]";
+
   return (
     <Card data-testid="card-todos-itens">
       <div className="flex items-center gap-2">
@@ -51,7 +65,7 @@ export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: To
         <h2 className="text-base font-semibold text-slate-900 dark:text-white">Todos os Itens</h2>
       </div>
 
-      <div className="mt-4 grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 gap-y-2.5">
+      <div className={`mt-4 grid ${gridColsClass} items-center gap-x-3 gap-y-2.5`}>
         <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
           Produto
         </span>
@@ -64,6 +78,7 @@ export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: To
         <span className="text-right text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
           Para
         </span>
+        {podeExcluirItem && <span aria-hidden="true" />}
 
         {linhas.map((linha) => (
           <Fragment key={linha.chave}>
@@ -92,6 +107,22 @@ export function TodosItensCard({ divisaoPorIntegrante, itensCompartilhados }: To
                 </>
               )}
             </span>
+            {podeExcluirItem && (
+              <button
+                type="button"
+                onClick={() => onExcluirItem(linha.id, linha.produto)}
+                disabled={excluindoItemId === linha.id}
+                aria-label={`Excluir ${linha.produto}`}
+                title="Excluir item"
+                className="flex shrink-0 items-center justify-center rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+              >
+                {excluindoItemId === linha.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </button>
+            )}
           </Fragment>
         ))}
       </div>

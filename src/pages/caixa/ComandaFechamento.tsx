@@ -5,11 +5,13 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
+import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { STATUS_ITEM_LABEL } from "../../lib/status-item";
 import { cancelarComanda, fecharComanda, getComandaExtrato } from "../../services/comanda.service";
 import type { FormaPagamento } from "../../services/comanda.service";
+import { deleteItemPedido } from "../../services/pedido.service";
 import type { ComandaExtratoResumo } from "../../types/comanda";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
 import { PagamentoSidebar } from "./components/PagamentoSidebar";
@@ -20,6 +22,7 @@ import type { PagamentoLancado } from "./types";
 export function ComandaFechamento() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const [comanda, setComanda] = useState<ComandaExtratoResumo | null>(null);
@@ -32,6 +35,8 @@ export function ComandaFechamento() {
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isConfirmPendenteOpen, setIsConfirmPendenteOpen] = useState(false);
+  const [itemParaExcluir, setItemParaExcluir] = useState<{ id: string; produtoNome: string } | null>(null);
+  const [excluindoItemId, setExcluindoItemId] = useState<string | null>(null);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -125,6 +130,29 @@ export function ComandaFechamento() {
       showToast(getApiErrorMessage(error, "Não foi possível cancelar a comanda."), "error");
       setIsCancelling(false);
       setIsConfirmCancelOpen(false);
+    }
+  }
+
+  function handleSolicitarExclusaoItem(itemId: string, produtoNome: string) {
+    setItemParaExcluir({ id: itemId, produtoNome });
+  }
+
+  async function handleConfirmarExclusaoItem() {
+    if (!itemParaExcluir) {
+      return;
+    }
+
+    setExcluindoItemId(itemParaExcluir.id);
+
+    try {
+      await deleteItemPedido(itemParaExcluir.id);
+      showToast(`"${itemParaExcluir.produtoNome}" excluído do fechamento.`, "success");
+      setItemParaExcluir(null);
+      fetchDados();
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível excluir o item."), "error");
+    } finally {
+      setExcluindoItemId(null);
     }
   }
 
@@ -240,6 +268,9 @@ export function ComandaFechamento() {
                 <TodosItensCard
                   divisaoPorIntegrante={comanda.divisao_por_integrante}
                   itensCompartilhados={comanda.itens_compartilhados}
+                  podeExcluirItem={Boolean(user?.pode_excluir_item_fechamento) && comanda.status === "aberta"}
+                  excluindoItemId={excluindoItemId}
+                  onExcluirItem={handleSolicitarExclusaoItem}
                 />
 
                 <div className="flex flex-col gap-3">
@@ -320,6 +351,16 @@ export function ComandaFechamento() {
         isConfirming={isSubmitting}
         onCancel={() => setIsConfirmPendenteOpen(false)}
         onConfirm={executarFechamento}
+      />
+
+      <ConfirmDialog
+        isOpen={itemParaExcluir !== null}
+        title="Excluir item?"
+        description={`"${itemParaExcluir?.produtoNome ?? ""}" será removido do fechamento e não fará mais parte da conta. Esta ação não pode ser desfeita.`}
+        confirmLabel="Sim, excluir item"
+        isConfirming={excluindoItemId !== null}
+        onCancel={() => setItemParaExcluir(null)}
+        onConfirm={handleConfirmarExclusaoItem}
       />
     </div>
   );

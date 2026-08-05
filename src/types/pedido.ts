@@ -22,6 +22,7 @@ export interface PedidoAtivo {
   id: string;
   comanda_id: string;
   numero_comanda: number;
+  usuario_id: string;
   garcom_nome: string;
   status_preparo: StatusPreparo;
   criado_em: string;

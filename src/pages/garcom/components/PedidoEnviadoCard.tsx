@@ -1,21 +1,42 @@
-import { AlertTriangle, CheckCircle2, Loader2, Undo2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, Trash2, Undo2 } from "lucide-react";
+import { useAuth } from "../../../contexts/AuthContext";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
-import type { PedidoAtivo, PedidoItemAtivo } from "../../../types/pedido";
 import { STATUS_ITEM_BADGE_CLASS, STATUS_ITEM_LABEL } from "../../../lib/status-item";
+import type { PedidoAtivo, PedidoItemAtivo } from "../../../types/pedido";
 
 interface PedidoEnviadoCardProps {
   pedido: PedidoAtivo;
   updatingItemId: string | null;
+  excluindoPedidoId: string | null;
   onEntregarItem: (pedido: PedidoAtivo, item: PedidoItemAtivo) => void;
   onDesfazerEntrega: (pedido: PedidoAtivo, item: PedidoItemAtivo) => void;
+  onExcluirPedido: (pedido: PedidoAtivo) => void;
 }
 
 export function PedidoEnviadoCard({
   pedido,
   updatingItemId,
+  excluindoPedidoId,
   onEntregarItem,
   onDesfazerEntrega,
+  onExcluirPedido,
 }: PedidoEnviadoCardProps) {
+  const { user } = useAuth();
+
+  const isDono = pedido.usuario_id === user?.id;
+  const isAdmin = user?.roles.includes("admin") ?? false;
+  const nenhumItemBloqueiaExclusao = pedido.itens.every((item) => {
+    if (item.status_item === "cancelado") {
+      return true;
+    }
+
+    // Item que precisa de preparo: só pode excluir enquanto a cozinha não começou (pendente).
+    // Item auto-pronto (nasce "pronto"): pode excluir até ser entregue ao cliente.
+    return item.precisa_preparo ? item.status_item === "pendente" : item.status_item !== "entregue";
+  });
+  const podeExcluirPedido = (isDono || isAdmin) && nenhumItemBloqueiaExclusao;
+  const isExcluindo = excluindoPedidoId === pedido.id;
+
   return (
     <div
       data-testid={`pedido-enviado-${pedido.id}`}
@@ -25,7 +46,21 @@ export function PedidoEnviadoCard({
         <span>
           {formatTempoDecorrido(pedido.criado_em)} · {formatHora(pedido.criado_em)}
         </span>
-        <span>{pedido.garcom_nome}</span>
+        <div className="flex items-center gap-2">
+          <span>{pedido.garcom_nome}</span>
+          {podeExcluirPedido && (
+            <button
+              type="button"
+              onClick={() => onExcluirPedido(pedido)}
+              disabled={isExcluindo}
+              aria-label="Excluir pedido"
+              title="Excluir pedido (só é possível enquanto tudo estiver pendente)"
+              className="flex items-center justify-center rounded-lg p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+            >
+              {isExcluindo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-2.5">

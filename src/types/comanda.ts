@@ -24,6 +24,7 @@ export interface ComandaDetail {
 }
 
 export interface ExtratoItemLinha {
+  id: string;
   produto: string;
   qtd: number;
   preco_unitario: number;
@@ -31,6 +32,7 @@ export interface ExtratoItemLinha {
 }
 
 export interface ExtratoItemCompartilhadoLinha {
+  id: string;
   produto: string;
   qtd: number;
   preco_unitario: number;
