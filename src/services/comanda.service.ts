@@ -1,5 +1,15 @@
 import { api } from "./api";
-import type { ComandaDetail, ComandaExtratoResumo, ComandaListItem, ComandaStatus, Integrante } from "../types/comanda";
+import type {
+  ComandaDetail,
+  ComandaExtratoResumo,
+  ComandaListItem,
+  ComandaStatus,
+  DescontoTipo,
+  FormaPagamento,
+  Integrante,
+  PagamentoComanda,
+  RateioIntegranteComDesconto,
+} from "../types/comanda";
 
 export interface CreateComandaPayload {
   numero_comanda: number;
@@ -41,20 +51,52 @@ export async function joinComandas(payload: JoinComandasPayload): Promise<JoinCo
   return data;
 }
 
-export type FormaPagamento = "pix" | "dinheiro" | "cartao_credito" | "cartao_debito";
-
-export interface PagamentoPayload {
+export interface AddPagamentoPayload {
   forma: FormaPagamento;
   valor: number;
 }
 
+export async function addPagamentoComanda(comandaId: string, payload: AddPagamentoPayload): Promise<PagamentoComanda> {
+  const { data } = await api.post<PagamentoComanda>(`/comandas/${comandaId}/pagamentos`, payload);
+  return data;
+}
+
+export async function removePagamentoComanda(comandaId: string, pagamentoId: string): Promise<void> {
+  await api.delete(`/comandas/${comandaId}/pagamentos/${pagamentoId}`);
+}
+
+export interface UpdateDescontoPayload {
+  desconto_tipo: DescontoTipo;
+  desconto_valor: number;
+}
+
+export interface UpdateDescontoResponse {
+  desconto_tipo: DescontoTipo;
+  desconto_valor: number;
+}
+
+export async function updateDescontoComanda(
+  comandaId: string,
+  payload: UpdateDescontoPayload
+): Promise<UpdateDescontoResponse> {
+  const { data } = await api.put<UpdateDescontoResponse>(`/comandas/${comandaId}/desconto`, payload);
+  return data;
+}
+
 export interface FecharComandaPayload {
-  pagamentos: PagamentoPayload[];
+  desconto_tipo?: DescontoTipo;
+  desconto_valor?: number;
 }
 
 export interface FecharComandaResponse {
   status: ComandaStatus;
   mensagem: string;
+  subtotal: number;
+  desconto_tipo: DescontoTipo;
+  desconto_valor: number;
+  desconto_aplicado: number;
+  total_final: number;
+  divisao_por_integrante: RateioIntegranteComDesconto[];
 }
 
 export async function fecharComanda(

@@ -2,6 +2,17 @@ import type { StatusItem } from "./pedido";
 
 export type ComandaStatus = "aberta" | "fechada";
 
+export type DescontoTipo = "percentual" | "valor_fixo" | "nenhum";
+
+export type FormaPagamento = "pix" | "dinheiro" | "cartao_credito" | "cartao_debito";
+
+export interface PagamentoComanda {
+  id: string;
+  forma: FormaPagamento;
+  valor: number;
+  criado_em: string;
+}
+
 export interface Integrante {
   id: string;
   nome: string;
@@ -73,4 +84,17 @@ export interface ComandaExtratoResumo {
   itens_pendentes_entrega: number;
   possui_itens_pendentes: boolean;
   itens_pendentes: ItemPendenteEntrega[];
+  desconto_tipo: DescontoTipo;
+  desconto_valor: number;
+  subtotal: number | null;
+  total_final: number | null;
+  pagamentos: PagamentoComanda[];
+}
+
+export interface RateioIntegranteComDesconto {
+  integrante_id: string;
+  nome: string;
+  total_original: number;
+  desconto_aplicado: number;
+  total_a_pagar: number;
 }

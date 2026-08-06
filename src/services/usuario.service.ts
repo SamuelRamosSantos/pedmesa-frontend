@@ -8,6 +8,7 @@ export interface CreateUsuarioPayload {
   senha: string;
   roles: UserRole[];
   pode_excluir_item_fechamento: boolean;
+  pode_conceder_desconto: boolean;
 }
 
 export interface UpdateUsuarioPayload {
@@ -15,6 +16,7 @@ export interface UpdateUsuarioPayload {
   email: string;
   roles: UserRole[];
   pode_excluir_item_fechamento: boolean;
+  pode_conceder_desconto: boolean;
 }
 
 export interface AlterarSenhaResponse {

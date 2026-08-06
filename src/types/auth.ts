@@ -6,6 +6,7 @@ export interface AuthUser {
   roles: UserRole[];
   tenant_id: string;
   pode_excluir_item_fechamento: boolean;
+  pode_conceder_desconto: boolean;
 }
 
 export interface LoginResponse {

@@ -6,9 +6,13 @@ interface IntegranteAccordionProps {
   integrante: ExtratoIntegranteResumo;
   isExpanded: boolean;
   onToggle: () => void;
+  descontoAplicado: number;
 }
 
-export function IntegranteAccordion({ integrante, isExpanded, onToggle }: IntegranteAccordionProps) {
+export function IntegranteAccordion({ integrante, isExpanded, onToggle, descontoAplicado }: IntegranteAccordionProps) {
+  const totalComDesconto = integrante.total_a_pagar - descontoAplicado;
+  const temDesconto = descontoAplicado > 0;
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <button
@@ -21,8 +25,15 @@ export function IntegranteAccordion({ integrante, isExpanded, onToggle }: Integr
           <User className="h-4 w-4" />
         </div>
         <span className="flex-1 font-medium text-slate-900 dark:text-white">{integrante.nome}</span>
-        <span className="text-lg font-bold text-slate-900 dark:text-white">
-          {formatCurrency(integrante.total_a_pagar)}
+        <span className="flex flex-col items-end">
+          {temDesconto && (
+            <span className="text-xs text-slate-400 line-through dark:text-slate-500">
+              {formatCurrency(integrante.total_a_pagar)}
+            </span>
+          )}
+          <span className="text-lg font-bold text-slate-900 dark:text-white">
+            {formatCurrency(totalComDesconto)}
+          </span>
         </span>
         <ChevronDown
           className={`h-5 w-5 text-slate-400 transition-transform dark:text-slate-500 ${isExpanded ? "rotate-180" : ""}`}
@@ -66,9 +77,15 @@ export function IntegranteAccordion({ integrante, isExpanded, onToggle }: Integr
               <span>Cota Compartilhada</span>
               <span>{formatCurrency(integrante.cota_compartilhada)}</span>
             </div>
+            {temDesconto && (
+              <div className="flex items-center justify-between text-orange-600 dark:text-orange-400">
+                <span>Desconto</span>
+                <span>- {formatCurrency(descontoAplicado)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 font-semibold text-slate-900 dark:border-slate-800 dark:text-white">
               <span>Total a Pagar</span>
-              <span>{formatCurrency(integrante.total_a_pagar)}</span>
+              <span>{formatCurrency(totalComDesconto)}</span>
             </div>
           </div>
         </div>

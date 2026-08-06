@@ -7,17 +7,25 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
+import { calcularDesconto, ratearDesconto } from "../../lib/desconto";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { STATUS_ITEM_LABEL } from "../../lib/status-item";
-import { cancelarComanda, fecharComanda, getComandaExtrato } from "../../services/comanda.service";
-import type { FormaPagamento } from "../../services/comanda.service";
+import {
+  addPagamentoComanda,
+  cancelarComanda,
+  fecharComanda,
+  getComandaExtrato,
+  removePagamentoComanda,
+  updateDescontoComanda,
+} from "../../services/comanda.service";
 import { deleteItemPedido } from "../../services/pedido.service";
-import type { ComandaExtratoResumo } from "../../types/comanda";
+import type { ComandaExtratoResumo, DescontoTipo, FormaPagamento } from "../../types/comanda";
+import type { DescontoTipoEntrada } from "./components/DescontoCard";
+import { DescontoCard } from "./components/DescontoCard";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
 import { PagamentoSidebar } from "./components/PagamentoSidebar";
 import { ResumoFinanceiroCard } from "./components/ResumoFinanceiroCard";
 import { TodosItensCard } from "./components/TodosItensCard";
-import type { PagamentoLancado } from "./types";
 
 export function ComandaFechamento() {
   const { id } = useParams<{ id: string }>();
@@ -29,14 +37,17 @@ export function ComandaFechamento() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const [pagamentos, setPagamentos] = useState<PagamentoLancado[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const nextPagamentoIdRef = useRef(1);
+  const [isAddingPagamento, setIsAddingPagamento] = useState(false);
+  const [removendoPagamentoId, setRemovendoPagamentoId] = useState<string | null>(null);
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isConfirmPendenteOpen, setIsConfirmPendenteOpen] = useState(false);
   const [itemParaExcluir, setItemParaExcluir] = useState<{ id: string; produtoNome: string } | null>(null);
   const [excluindoItemId, setExcluindoItemId] = useState<string | null>(null);
+  const [descontoTipoEntrada, setDescontoTipoEntrada] = useState<DescontoTipoEntrada>("percentual");
+  const [descontoValorEntrada, setDescontoValorEntrada] = useState(0);
+  const ultimoDescontoPersistidoRef = useRef<{ tipo: DescontoTipo; valor: number } | null>(null);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -49,6 +60,9 @@ export function ComandaFechamento() {
     try {
       const data = await getComandaExtrato(id);
       setComanda(data);
+      setDescontoTipoEntrada(data.desconto_tipo === "valor_fixo" ? "valor_fixo" : "percentual");
+      setDescontoValorEntrada(data.desconto_valor ?? 0);
+      ultimoDescontoPersistidoRef.current = { tipo: data.desconto_tipo, valor: data.desconto_valor ?? 0 };
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar o extrato da comanda."));
     } finally {
@@ -72,12 +86,40 @@ export function ComandaFechamento() {
     });
   }
 
-  function handleAddPagamento(forma: FormaPagamento, valor: number) {
-    setPagamentos((current) => [...current, { id: nextPagamentoIdRef.current++, forma, valor }]);
+  async function handleAddPagamento(forma: FormaPagamento, valor: number) {
+    if (!id) {
+      return;
+    }
+
+    setIsAddingPagamento(true);
+
+    try {
+      const novoPagamento = await addPagamentoComanda(id, { forma, valor });
+      setComanda((current) => (current ? { ...current, pagamentos: [...current.pagamentos, novoPagamento] } : current));
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível registrar o pagamento."), "error");
+    } finally {
+      setIsAddingPagamento(false);
+    }
   }
 
-  function handleRemovePagamento(pagamentoId: number) {
-    setPagamentos((current) => current.filter((pagamento) => pagamento.id !== pagamentoId));
+  async function handleRemovePagamento(pagamentoId: string) {
+    if (!id) {
+      return;
+    }
+
+    setRemovendoPagamentoId(pagamentoId);
+
+    try {
+      await removePagamentoComanda(id, pagamentoId);
+      setComanda((current) =>
+        current ? { ...current, pagamentos: current.pagamentos.filter((p) => p.id !== pagamentoId) } : current
+      );
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível remover o pagamento."), "error");
+    } finally {
+      setRemovendoPagamentoId(null);
+    }
   }
 
   async function executarFechamento() {
@@ -89,7 +131,8 @@ export function ComandaFechamento() {
 
     try {
       const resultado = await fecharComanda(id, {
-        pagamentos: pagamentos.map((pagamento) => ({ forma: pagamento.forma, valor: pagamento.valor })),
+        desconto_tipo: descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum",
+        desconto_valor: descontoValorEntrada,
       });
 
       showToast(resultado.mensagem, "success");
@@ -104,6 +147,11 @@ export function ComandaFechamento() {
 
   function handleConfirmar() {
     if (!id || pagamentos.length === 0) {
+      return;
+    }
+
+    if (descontoInvalido) {
+      showToast("O desconto informado é maior que o valor da comanda.", "error");
       return;
     }
 
@@ -158,6 +206,63 @@ export function ComandaFechamento() {
 
   const isComandaZerada = Boolean(
     comanda && comanda.status === "aberta" && comanda.resumo_financeiro.valor_total_comanda === 0
+  );
+
+  const pagamentos = comanda?.pagamentos ?? [];
+  const usuarioTemPermissaoDesconto = Boolean(user?.pode_conceder_desconto);
+  const podeEditarDesconto = usuarioTemPermissaoDesconto && comanda?.status === "aberta";
+  const subtotal = comanda?.resumo_financeiro.valor_total_comanda ?? 0;
+  const descontoCalculado = calcularDesconto(subtotal, {
+    tipo: descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum",
+    valor: descontoValorEntrada,
+  });
+  const descontoInvalido = descontoCalculado.total_final < 0;
+  const mostrarColunaDesconto = usuarioTemPermissaoDesconto && descontoCalculado.desconto_aplicado > 0;
+
+  useEffect(() => {
+    if (!id || !podeEditarDesconto || descontoInvalido) {
+      return;
+    }
+
+    const tipoResolvido: DescontoTipo = descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum";
+    const ultimo = ultimoDescontoPersistidoRef.current;
+
+    if (ultimo && ultimo.tipo === tipoResolvido && ultimo.valor === descontoValorEntrada) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      updateDescontoComanda(id, { desconto_tipo: tipoResolvido, desconto_valor: descontoValorEntrada })
+        .then(() => {
+          ultimoDescontoPersistidoRef.current = { tipo: tipoResolvido, valor: descontoValorEntrada };
+        })
+        .catch((error) => {
+          showToast(getApiErrorMessage(error, "Não foi possível salvar o desconto."), "error");
+        });
+    }, 600);
+
+    return () => clearTimeout(timeoutId);
+  }, [id, podeEditarDesconto, descontoTipoEntrada, descontoValorEntrada, descontoInvalido, showToast]);
+
+  const rateioPorIntegranteId = new Map(
+    ratearDesconto(
+      (comanda?.divisao_por_integrante ?? []).map((integrante) => ({
+        id: integrante.integrante_id,
+        valorBase: integrante.total_a_pagar,
+      })),
+      descontoCalculado.desconto_aplicado
+    ).map((rateio) => [rateio.id, rateio.descontoAplicado])
+  );
+
+  const todosOsItens = [
+    ...(comanda?.divisao_por_integrante ?? []).flatMap((integrante) => integrante.itens_individuais),
+    ...(comanda?.itens_compartilhados ?? []),
+  ];
+  const rateioPorItemId = new Map(
+    ratearDesconto(
+      todosOsItens.map((item) => ({ id: item.id, valorBase: item.subtotal })),
+      descontoCalculado.desconto_aplicado
+    ).map((rateio) => [rateio.id, rateio.descontoAplicado])
   );
 
   if (!id) {
@@ -271,6 +376,8 @@ export function ComandaFechamento() {
                   podeExcluirItem={Boolean(user?.pode_excluir_item_fechamento) && comanda.status === "aberta"}
                   excluindoItemId={excluindoItemId}
                   onExcluirItem={handleSolicitarExclusaoItem}
+                  descontoPorItemId={rateioPorItemId}
+                  mostrarColunaDesconto={mostrarColunaDesconto}
                 />
 
                 <div className="flex flex-col gap-3">
@@ -287,6 +394,7 @@ export function ComandaFechamento() {
                         integrante={integrante}
                         isExpanded={expandedIds.has(integrante.integrante_id)}
                         onToggle={() => toggleExpanded(integrante.integrante_id)}
+                        descontoAplicado={rateioPorIntegranteId.get(integrante.integrante_id) ?? 0}
                       />
                     ))
                   )}
@@ -317,15 +425,31 @@ export function ComandaFechamento() {
                     </button>
                   </Card>
                 ) : (
-                  <PagamentoSidebar
-                    pagamentos={pagamentos}
-                    totalComanda={comanda.resumo_financeiro.valor_total_comanda}
-                    isSubmitting={isSubmitting}
-                    podeRegistrarPagamento={comanda.status === "aberta"}
-                    onAddPagamento={handleAddPagamento}
-                    onRemovePagamento={handleRemovePagamento}
-                    onConfirmar={handleConfirmar}
-                  />
+                  <div className="flex flex-col gap-4 lg:sticky lg:top-20">
+                    {podeEditarDesconto && (
+                      <DescontoCard
+                        subtotal={descontoCalculado.subtotal}
+                        tipo={descontoTipoEntrada}
+                        valor={descontoValorEntrada}
+                        descontoAplicado={descontoCalculado.desconto_aplicado}
+                        totalFinal={descontoCalculado.total_final}
+                        onChangeTipo={setDescontoTipoEntrada}
+                        onChangeValor={setDescontoValorEntrada}
+                      />
+                    )}
+
+                    <PagamentoSidebar
+                      pagamentos={pagamentos}
+                      totalComanda={Math.max(0, descontoCalculado.total_final)}
+                      isSubmitting={isSubmitting}
+                      isAddingPagamento={isAddingPagamento}
+                      removendoPagamentoId={removendoPagamentoId}
+                      podeRegistrarPagamento={comanda.status === "aberta" && !descontoInvalido}
+                      onAddPagamento={handleAddPagamento}
+                      onRemovePagamento={handleRemovePagamento}
+                      onConfirmar={handleConfirmar}
+                    />
+                  </div>
                 )}
               </div>
             </div>

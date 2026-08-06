@@ -1,20 +1,34 @@
-import { AlertTriangle, Banknote, CheckCircle2, CreditCard, Landmark, Plus, QrCode, Send, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Banknote,
+  CheckCircle2,
+  CreditCard,
+  HandCoins,
+  Landmark,
+  Loader2,
+  Plus,
+  QrCode,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
+import { CurrencyInput } from "../../../components/ui/CurrencyInput";
 import { formatCurrency } from "../../../lib/format";
 import { fromCents, toCents } from "../../../lib/money";
-import type { FormaPagamento } from "../../../services/comanda.service";
-import type { PagamentoLancado } from "../types";
+import type { FormaPagamento, PagamentoComanda } from "../../../types/comanda";
 
 interface PagamentoSidebarProps {
-  pagamentos: PagamentoLancado[];
+  pagamentos: PagamentoComanda[];
   totalComanda: number;
   isSubmitting: boolean;
+  isAddingPagamento: boolean;
+  removendoPagamentoId: string | null;
   podeRegistrarPagamento: boolean;
   onAddPagamento: (forma: FormaPagamento, valor: number) => void;
-  onRemovePagamento: (id: number) => void;
+  onRemovePagamento: (id: string) => void;
   onConfirmar: () => void;
 }
 
@@ -36,35 +50,36 @@ export function PagamentoSidebar({
   pagamentos,
   totalComanda,
   isSubmitting,
+  isAddingPagamento,
+  removendoPagamentoId,
   podeRegistrarPagamento,
   onAddPagamento,
   onRemovePagamento,
   onConfirmar,
 }: PagamentoSidebarProps) {
   const [formaSelecionada, setFormaSelecionada] = useState<FormaPagamento>("pix");
-  const [valorDraft, setValorDraft] = useState("");
+  const [valorDraftCents, setValorDraftCents] = useState(0);
   const [valorError, setValorError] = useState<string | undefined>();
 
   const totalComandaCents = toCents(totalComanda);
   const totalPagoCents = pagamentos.reduce((soma, pagamento) => soma + toCents(pagamento.valor), 0);
   const totalRestanteCents = Math.max(0, totalComandaCents - totalPagoCents);
+  const trocoCents = Math.max(0, totalPagoCents - totalComandaCents);
   const isQuitado = totalPagoCents + 1 >= totalComandaCents;
 
   function handleAddPagamento() {
-    const valor = Number(valorDraft);
-
-    if (!valorDraft || !Number.isFinite(valor) || valor <= 0) {
+    if (valorDraftCents <= 0) {
       setValorError("Informe um valor válido maior que zero.");
       return;
     }
 
     setValorError(undefined);
-    onAddPagamento(formaSelecionada, valor);
-    setValorDraft("");
+    onAddPagamento(formaSelecionada, fromCents(valorDraftCents));
+    setValorDraftCents(0);
   }
 
   return (
-    <Card className="lg:sticky lg:top-20">
+    <Card>
       <h2 className="text-base font-semibold text-slate-900 dark:text-white">Pagamento</h2>
 
       <div className="mt-4 flex flex-col gap-3">
@@ -93,36 +108,24 @@ export function PagamentoSidebar({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="valor-pagamento" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Valor (R$)
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="valor-pagamento"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step={0.01}
-              placeholder="0,00"
-              value={valorDraft}
-              onChange={(event) => setValorDraft(event.target.value)}
-              className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 ${
-                valorError
-                  ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
-                  : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
-              }`}
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <CurrencyInput
+              label="Valor (R$)"
+              valueCents={valorDraftCents}
+              onChangeCents={setValorDraftCents}
+              error={valorError}
             />
-            <button
-              type="button"
-              onClick={handleAddPagamento}
-              aria-label="Adicionar lançamento de pagamento"
-              className="flex shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
           </div>
-          {valorError && <p className="text-sm text-red-600 dark:text-red-400">{valorError}</p>}
+          <button
+            type="button"
+            onClick={handleAddPagamento}
+            disabled={isAddingPagamento}
+            aria-label="Adicionar lançamento de pagamento"
+            className="flex h-[42px] shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-700 dark:hover:bg-slate-600"
+          >
+            {isAddingPagamento ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          </button>
         </div>
 
         {pagamentos.length > 0 && (
@@ -140,10 +143,15 @@ export function PagamentoSidebar({
                   <button
                     type="button"
                     onClick={() => onRemovePagamento(pagamento.id)}
+                    disabled={removendoPagamentoId === pagamento.id}
                     aria-label="Remover lançamento"
-                    className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                    className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    {removendoPagamentoId === pagamento.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
                   </button>
                 </span>
               </li>
@@ -169,6 +177,18 @@ export function PagamentoSidebar({
             {formatCurrency(fromCents(totalRestanteCents))}
           </span>
         </div>
+        {trocoCents > 0 && (
+          <div
+            data-testid="linha-troco"
+            className="flex items-center justify-between rounded-lg bg-emerald-50 px-2.5 py-1.5 font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+          >
+            <span className="flex items-center gap-1.5">
+              <HandCoins className="h-4 w-4" />
+              Troco
+            </span>
+            <span>{formatCurrency(fromCents(trocoCents))}</span>
+          </div>
+        )}
       </div>
 
       <div className="mt-4">

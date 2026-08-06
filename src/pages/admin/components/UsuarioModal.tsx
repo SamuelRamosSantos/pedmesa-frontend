@@ -37,6 +37,7 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
   const [senha, setSenha] = useState("");
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] = useState(false);
+  const [podeConcederDesconto, setPodeConcederDesconto] = useState(false);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [emailError, setEmailError] = useState<string | undefined>();
@@ -60,11 +61,13 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
       setEmail(usuarioEditando.email);
       setRoles(usuarioEditando.roles);
       setPodeExcluirItemFechamento(usuarioEditando.pode_excluir_item_fechamento);
+      setPodeConcederDesconto(usuarioEditando.pode_conceder_desconto);
     } else {
       setNome("");
       setEmail("");
       setRoles([]);
       setPodeExcluirItemFechamento(false);
+      setPodeConcederDesconto(false);
     }
 
     setSenha("");
@@ -125,6 +128,7 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
           email: email.trim().toLowerCase(),
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
+          pode_conceder_desconto: podeConcederDesconto,
         });
         showToast(`Usuário "${nome.trim()}" atualizado com sucesso.`, "success");
       } else {
@@ -134,6 +138,7 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
           senha,
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
+          pode_conceder_desconto: podeConcederDesconto,
         });
         showToast(`Usuário "${nome.trim()}" cadastrado com sucesso.`, "success");
       }
@@ -217,12 +222,21 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
           {rolesError && <p className="text-sm text-red-600 dark:text-red-400">{rolesError}</p>}
         </div>
 
-        <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
           <Switch
             checked={podeExcluirItemFechamento}
             onChange={setPodeExcluirItemFechamento}
             label="Pode excluir item no fechamento"
             description="Permite remover um item lançado por engano durante o fechamento da conta no caixa."
+          />
+
+          <div className="border-t border-slate-100 dark:border-slate-800" />
+
+          <Switch
+            checked={podeConcederDesconto}
+            onChange={setPodeConcederDesconto}
+            label="Pode conceder desconto"
+            description="Permite aplicar desconto (percentual ou em R$) no fechamento da conta no caixa."
           />
         </div>
 
