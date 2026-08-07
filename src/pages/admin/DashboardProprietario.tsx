@@ -281,7 +281,7 @@ export function DashboardProprietario() {
                       />
                       <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
                       <Tooltip
-                        formatter={(value: number) => [`${value}`, "Quantidade"]}
+                        formatter={(value) => [`${value ?? 0}`, "Quantidade"]}
                         contentStyle={{ borderRadius: 8, fontSize: 13 }}
                       />
                       <Bar dataKey="quantidade" name="Quantidade" fill="#ea580c" radius={[4, 4, 0, 0]} />

@@ -2,6 +2,8 @@ import {
   ArrowLeft,
   Building2,
   ChefHat,
+  Copy,
+  KeyRound,
   LayoutGrid,
   MapPin,
   Pencil,
@@ -24,7 +26,7 @@ import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { deleteImpressora, listImpressoras, updateImpressora } from "../../services/impressora.service";
-import { updateTenantConfiguracoes } from "../../services/tenant.service";
+import { regenerateTokenAgente, updateTenantConfiguracoes } from "../../services/tenant.service";
 import type { Impressora } from "../../types/impressora";
 import { useNavigate } from "react-router-dom";
 import { ImpressoraModal } from "./components/ImpressoraModal";
@@ -62,6 +64,9 @@ export function ConfiguracoesEmpresa() {
   const [impressoraEditando, setImpressoraEditando] = useState<Impressora | null>(null);
   const [togglingImpressoraId, setTogglingImpressoraId] = useState<string | null>(null);
   const [deletingImpressoraId, setDeletingImpressoraId] = useState<string | null>(null);
+
+  const [isConfirmandoNovoToken, setIsConfirmandoNovoToken] = useState(false);
+  const [isRegenerandoToken, setIsRegenerandoToken] = useState(false);
 
   const fetchImpressoras = useCallback(async () => {
     setIsLoadingImpressoras(true);
@@ -218,6 +223,34 @@ export function ConfiguracoesEmpresa() {
       showToast(getApiErrorMessage(error, "Não foi possível excluir a impressora."), "error");
     } finally {
       setDeletingImpressoraId(null);
+    }
+  }
+
+  async function handleCopiarToken() {
+    if (!tenant?.token_agente) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(tenant.token_agente);
+      showToast("Token copiado para a área de transferência.", "success");
+    } catch {
+      showToast("Não foi possível copiar o token. Selecione e copie manualmente.", "error");
+    }
+  }
+
+  async function handleConfirmarNovoToken() {
+    setIsRegenerandoToken(true);
+
+    try {
+      await regenerateTokenAgente();
+      await refetch();
+      showToast("Novo token do agente gerado com sucesso.", "success");
+      setIsConfirmandoNovoToken(false);
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível gerar um novo token."), "error");
+    } finally {
+      setIsRegenerandoToken(false);
     }
   }
 
@@ -486,6 +519,43 @@ export function ConfiguracoesEmpresa() {
                     </div>
                   ))}
               </div>
+
+              <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Agente de Impressão Desktop</h3>
+                </div>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Use esse token para configurar o aplicativo <strong>pedmesa-print-agent</strong> no computador do
+                  caixa, para imprimir numa impressora USB local.
+                </p>
+
+                {tenant.token_agente ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Input
+                      label="Token do Agente"
+                      value={tenant.token_agente}
+                      disabled
+                      className="flex-1 font-mono text-xs"
+                    />
+                    <Button type="button" variant="secondary" onClick={handleCopiarToken}>
+                      <Copy className="h-4 w-4" />
+                      Copiar
+                    </Button>
+                    <Button type="button" variant="secondary" onClick={() => setIsConfirmandoNovoToken(true)}>
+                      <KeyRound className="h-4 w-4" />
+                      Gerar novo token
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <Button type="button" onClick={() => setIsConfirmandoNovoToken(true)}>
+                      <KeyRound className="h-4 w-4" />
+                      Gerar Token do Agente
+                    </Button>
+                  </div>
+                )}
+              </div>
             </Card>
           </>
         )}
@@ -503,6 +573,16 @@ export function ConfiguracoesEmpresa() {
         isConfirming={isTogglingModulo}
         onCancel={() => setConfirmandoModulo(null)}
         onConfirm={handleConfirmarModulo}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmandoNovoToken}
+        title="Gerar novo token do agente?"
+        description="O token atual deixará de funcionar imediatamente. Qualquer PedMesa Print Agent já configurado com o token antigo vai parar de conseguir buscar a fila de impressão até ser reconfigurado com o novo token."
+        confirmLabel="Sim, gerar novo token"
+        isConfirming={isRegenerandoToken}
+        onCancel={() => setIsConfirmandoNovoToken(false)}
+        onConfirm={handleConfirmarNovoToken}
       />
 
       <ImpressoraModal

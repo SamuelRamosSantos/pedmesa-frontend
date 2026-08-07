@@ -18,5 +18,6 @@ export interface Tenant {
   cidade: string | null;
   estado: string | null;
   cep: string | null;
+  token_agente: string | null;
   criado_em: string;
 }

@@ -25,3 +25,8 @@ export async function updateTenantConfiguracoes(payload: UpdateTenantConfigPaylo
   const { data } = await api.patch<Tenant>("/tenants/configuracoes", payload);
   return data;
 }
+
+export async function regenerateTokenAgente(): Promise<Tenant> {
+  const { data } = await api.post<Tenant>("/tenants/token-agente");
+  return data;
+}
