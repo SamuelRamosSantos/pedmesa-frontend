@@ -1,5 +1,17 @@
-import { ArrowLeft, Building2, ChefHat, LayoutGrid, MapPin, RefreshCw, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  Building2,
+  ChefHat,
+  LayoutGrid,
+  MapPin,
+  Pencil,
+  Printer,
+  PlusCircle,
+  RefreshCw,
+  Save,
+  Trash2,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -11,8 +23,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { deleteImpressora, listImpressoras, updateImpressora } from "../../services/impressora.service";
 import { updateTenantConfiguracoes } from "../../services/tenant.service";
+import type { Impressora } from "../../types/impressora";
 import { useNavigate } from "react-router-dom";
+import { ImpressoraModal } from "./components/ImpressoraModal";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -40,6 +55,30 @@ export function ConfiguracoesEmpresa() {
 
   const [confirmandoModulo, setConfirmandoModulo] = useState<boolean | null>(null);
   const [isTogglingModulo, setIsTogglingModulo] = useState(false);
+
+  const [impressoras, setImpressoras] = useState<Impressora[]>([]);
+  const [isLoadingImpressoras, setIsLoadingImpressoras] = useState(true);
+  const [isImpressoraModalOpen, setIsImpressoraModalOpen] = useState(false);
+  const [impressoraEditando, setImpressoraEditando] = useState<Impressora | null>(null);
+  const [togglingImpressoraId, setTogglingImpressoraId] = useState<string | null>(null);
+  const [deletingImpressoraId, setDeletingImpressoraId] = useState<string | null>(null);
+
+  const fetchImpressoras = useCallback(async () => {
+    setIsLoadingImpressoras(true);
+
+    try {
+      const data = await listImpressoras();
+      setImpressoras(data);
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível carregar as impressoras."), "error");
+    } finally {
+      setIsLoadingImpressoras(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchImpressoras();
+  }, [fetchImpressoras]);
 
   useEffect(() => {
     if (!tenant) {
@@ -128,6 +167,57 @@ export function ConfiguracoesEmpresa() {
       showToast(getApiErrorMessage(error, "Não foi possível atualizar essa configuração."), "error");
     } finally {
       setIsTogglingModulo(false);
+    }
+  }
+
+  function handleNovaImpressora() {
+    setImpressoraEditando(null);
+    setIsImpressoraModalOpen(true);
+  }
+
+  function handleEditarImpressora(impressora: Impressora) {
+    setImpressoraEditando(impressora);
+    setIsImpressoraModalOpen(true);
+  }
+
+  function handleImpressoraModalSaved() {
+    setIsImpressoraModalOpen(false);
+    setImpressoraEditando(null);
+    fetchImpressoras();
+  }
+
+  async function handleToggleAtivoImpressora(impressora: Impressora) {
+    setTogglingImpressoraId(impressora.id);
+
+    try {
+      const atualizada = await updateImpressora(impressora.id, { ativo: !impressora.ativo });
+      setImpressoras((current) => current.map((item) => (item.id === impressora.id ? atualizada : item)));
+      showToast(
+        atualizada.ativo ? `"${impressora.nome}" ativada.` : `"${impressora.nome}" desativada.`,
+        "success"
+      );
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível atualizar a impressora."), "error");
+    } finally {
+      setTogglingImpressoraId(null);
+    }
+  }
+
+  async function handleExcluirImpressora(impressora: Impressora) {
+    if (!window.confirm(`Tem certeza que deseja excluir a impressora "${impressora.nome}"?`)) {
+      return;
+    }
+
+    setDeletingImpressoraId(impressora.id);
+
+    try {
+      await deleteImpressora(impressora.id);
+      setImpressoras((current) => current.filter((item) => item.id !== impressora.id));
+      showToast(`Impressora "${impressora.nome}" excluída.`, "success");
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Não foi possível excluir a impressora."), "error");
+    } finally {
+      setDeletingImpressoraId(null);
     }
   }
 
@@ -307,6 +397,96 @@ export function ConfiguracoesEmpresa() {
                 />
               </div>
             </Card>
+
+            <Card>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Printer className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">Impressoras</h2>
+                </div>
+                <Button onClick={handleNovaImpressora}>
+                  <PlusCircle className="h-4 w-4" />
+                  Nova Impressora
+                </Button>
+              </div>
+
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Cadastre as impressoras de rede (IP) que devem receber os pedidos enviados pelo garçom.
+              </p>
+
+              <div className="mt-4 flex flex-col gap-2">
+                {isLoadingImpressoras && (
+                  <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <p className="text-sm">Carregando impressoras...</p>
+                  </div>
+                )}
+
+                {!isLoadingImpressoras && impressoras.length === 0 && (
+                  <p className="py-4 text-center text-sm text-slate-400 dark:text-slate-500">
+                    Nenhuma impressora cadastrada ainda.
+                  </p>
+                )}
+
+                {!isLoadingImpressoras &&
+                  impressoras.map((impressora) => (
+                    <div
+                      key={impressora.id}
+                      data-testid={`impressora-card-${impressora.nome}`}
+                      className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700 ${
+                        impressora.ativo ? "" : "opacity-60"
+                      }`}
+                    >
+                      <div>
+                        <p className="font-medium text-slate-900 dark:text-white">{impressora.nome}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {impressora.ip}:{impressora.porta}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            impressora.ativo
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                              : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                          }`}
+                        >
+                          {impressora.ativo ? "Ativa" : "Inativa"}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAtivoImpressora(impressora)}
+                          disabled={togglingImpressoraId === impressora.id}
+                          className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                          {impressora.ativo ? "Desativar" : "Ativar"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleEditarImpressora(impressora)}
+                          aria-label={`Editar ${impressora.nome}`}
+                          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleExcluirImpressora(impressora)}
+                          disabled={deletingImpressoraId === impressora.id}
+                          aria-label={`Excluir ${impressora.nome}`}
+                          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </Card>
           </>
         )}
       </main>
@@ -323,6 +503,16 @@ export function ConfiguracoesEmpresa() {
         isConfirming={isTogglingModulo}
         onCancel={() => setConfirmandoModulo(null)}
         onConfirm={handleConfirmarModulo}
+      />
+
+      <ImpressoraModal
+        isOpen={isImpressoraModalOpen}
+        impressoraEditando={impressoraEditando}
+        onClose={() => {
+          setIsImpressoraModalOpen(false);
+          setImpressoraEditando(null);
+        }}
+        onSaved={handleImpressoraModalSaved}
       />
     </div>
   );
