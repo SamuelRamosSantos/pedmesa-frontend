@@ -15,6 +15,7 @@ import type { Usuario } from "../../../types/usuario";
 interface UsuarioModalProps {
   isOpen: boolean;
   usuarioEditando: Usuario | null;
+  usaModuloCozinha: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -31,7 +32,13 @@ const OPCOES_ROLE: OpcaoRole[] = [
   { role: "caixa", label: "Caixa" },
 ];
 
-export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: UsuarioModalProps) {
+export function UsuarioModal({
+  isOpen,
+  usuarioEditando,
+  usaModuloCozinha,
+  onClose,
+  onSaved,
+}: UsuarioModalProps) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -188,7 +195,9 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
 
           <div className="flex flex-col gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
             {OPCOES_ROLE.map((opcao) => {
-              const disabled = opcao.role === "admin" && isEditandoProprioUsuario;
+              const disabled =
+                (opcao.role === "admin" && isEditandoProprioUsuario) ||
+                (opcao.role === "cozinha" && !usaModuloCozinha);
 
               return (
                 <label
@@ -216,6 +225,13 @@ export function UsuarioModal({ isOpen, usuarioEditando, onClose, onSaved }: Usua
           {isEditandoProprioUsuario && alvoJaEhAdmin && (
             <p className="text-xs text-slate-400 dark:text-slate-500">
               Você não pode remover sua própria permissão de Admin.
+            </p>
+          )}
+
+          {!usaModuloCozinha && (
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              O módulo de visão e preparo na cozinha está desativado nas configurações da empresa — não é possível
+              conceder ou remover a visão de Cozinha enquanto isso.
             </p>
           )}
 

@@ -1,4 +1,15 @@
-import { Building2, ClipboardList, LayoutGrid, LogOut, Merge, Package, RefreshCw, Search, Users } from "lucide-react";
+import {
+  Building2,
+  ClipboardList,
+  LayoutGrid,
+  LogOut,
+  Merge,
+  Package,
+  RefreshCw,
+  Search,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -127,6 +138,10 @@ export function MapaMesas() {
               <Button variant="secondary" onClick={() => navigate("/admin/usuarios")}>
                 <Users className="h-4 w-4" />
                 Usuários
+              </Button>
+              <Button variant="secondary" onClick={() => navigate("/admin/configuracoes")}>
+                <Settings className="h-4 w-4" />
+                Configurações
               </Button>
             </>
           )}

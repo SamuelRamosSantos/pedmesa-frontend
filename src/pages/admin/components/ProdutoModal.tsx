@@ -15,11 +15,19 @@ interface ProdutoModalProps {
   isOpen: boolean;
   produtoEditando: Produto | null;
   categorias: Categoria[];
+  usaModuloCozinha: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export function ProdutoModal({ isOpen, produtoEditando, categorias, onClose, onSaved }: ProdutoModalProps) {
+export function ProdutoModal({
+  isOpen,
+  produtoEditando,
+  categorias,
+  usaModuloCozinha,
+  onClose,
+  onSaved,
+}: ProdutoModalProps) {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
@@ -98,7 +106,7 @@ export function ProdutoModal({ isOpen, produtoEditando, categorias, onClose, onS
       preco: precoNumero,
       descricao: descricao.trim() || null,
       disponivel,
-      precisa_preparo: precisaPreparo,
+      precisa_preparo: usaModuloCozinha ? precisaPreparo : false,
     };
 
     try {
@@ -183,17 +191,21 @@ export function ProdutoModal({ isOpen, produtoEditando, categorias, onClose, onS
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
           <Switch checked={disponivel} onChange={setDisponivel} label="Disponível para venda" />
 
-          <div className="border-t border-slate-100 dark:border-slate-800" />
+          {usaModuloCozinha && (
+            <>
+              <div className="border-t border-slate-100 dark:border-slate-800" />
 
-          <Switch
-            checked={precisaPreparo}
-            onChange={setPrecisaPreparo}
-            label="Requer preparo na cozinha/bar?"
-            description={
-              !precisaPreparo &&
-              'Este item será marcado como "Pronto" automaticamente assim que o pedido for enviado (ex: bebidas, insumos prontos).'
-            }
-          />
+              <Switch
+                checked={precisaPreparo}
+                onChange={setPrecisaPreparo}
+                label="Requer preparo na cozinha/bar?"
+                description={
+                  !precisaPreparo &&
+                  'Este item será marcado como "Pronto" automaticamente assim que o pedido for enviado (ex: bebidas, insumos prontos).'
+                }
+              />
+            </>
+          )}
         </div>
 
         <div className="mt-2 flex gap-3">

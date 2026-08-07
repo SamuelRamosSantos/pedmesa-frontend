@@ -8,7 +8,6 @@ import {
   RefreshCw,
   Search,
   Trash2,
-  Users,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -16,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
@@ -28,7 +28,9 @@ import { ProdutoModal } from "./components/ProdutoModal";
 export function Produtos() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { tenant } = useTenant();
   const { showToast } = useToast();
+  const usaModuloCozinha = tenant?.usa_modulo_cozinha ?? true;
 
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -151,10 +153,6 @@ export function Produtos() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
-          <Button variant="secondary" onClick={() => navigate("/admin/usuarios")}>
-            <Users className="h-4 w-4" />
-            Usuários
-          </Button>
           {user && user.roles.length > 1 && (
             <Button variant="secondary" onClick={() => navigate("/selecionar-visao")}>
               <LayoutGrid className="h-4 w-4" />
@@ -273,17 +271,18 @@ export function Produtos() {
                     {formatCurrency(produto.preco)}
                   </span>
 
-                  {produto.precisa_preparo ? (
-                    <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-                      <ChefHat className="h-3 w-3" />
-                      Requer preparo
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-                      <Zap className="h-3 w-3" />
-                      Auto-pronto
-                    </span>
-                  )}
+                  {usaModuloCozinha &&
+                    (produto.precisa_preparo ? (
+                      <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                        <ChefHat className="h-3 w-3" />
+                        Requer preparo
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                        <Zap className="h-3 w-3" />
+                        Auto-pronto
+                      </span>
+                    ))}
                 </div>
 
                 <div className="mt-1 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
@@ -325,6 +324,7 @@ export function Produtos() {
         isOpen={isModalOpen}
         produtoEditando={produtoEditando}
         categorias={categorias}
+        usaModuloCozinha={usaModuloCozinha}
         onClose={() => {
           setIsModalOpen(false);
           setProdutoEditando(null);

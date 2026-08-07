@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   KeyRound,
   LayoutGrid,
-  Package,
   Pencil,
   PlusCircle,
   RefreshCw,
@@ -16,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listUsuarios, updateUsuarioAtivo } from "../../services/usuario.service";
@@ -34,7 +34,9 @@ const ROLE_LABEL: Record<UserRole, string> = {
 export function Usuarios() {
   const navigate = useNavigate();
   const { user: usuarioLogado } = useAuth();
+  const { tenant } = useTenant();
   const { showToast } = useToast();
+  const usaModuloCozinha = tenant?.usa_modulo_cozinha ?? true;
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,10 +125,6 @@ export function Usuarios() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
-          <Button variant="secondary" onClick={() => navigate("/admin/produtos")}>
-            <Package className="h-4 w-4" />
-            Produtos
-          </Button>
           {usuarioLogado && usuarioLogado.roles.length > 1 && (
             <Button variant="secondary" onClick={() => navigate("/selecionar-visao")}>
               <LayoutGrid className="h-4 w-4" />
@@ -265,6 +263,7 @@ export function Usuarios() {
       <UsuarioModal
         isOpen={isModalOpen}
         usuarioEditando={usuarioEditando}
+        usaModuloCozinha={usaModuloCozinha}
         onClose={() => {
           setIsModalOpen(false);
           setUsuarioEditando(null);
