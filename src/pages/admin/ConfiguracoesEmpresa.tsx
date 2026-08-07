@@ -136,7 +136,7 @@ export function ConfiguracoesEmpresa() {
       <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-800 dark:bg-slate-900">
         <button
           type="button"
-          onClick={() => navigate("/caixa/mapa-mesas")}
+          onClick={() => navigate("/admin/dashboard")}
           aria-label="Voltar"
           className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
         >

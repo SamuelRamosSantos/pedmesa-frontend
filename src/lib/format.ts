@@ -2,6 +2,14 @@ export function formatHora(isoDate: string): string {
   return new Date(isoDate).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
+export function formatData(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+export function formatDataHora(isoDate: string): string {
+  return `${formatData(isoDate)} ${formatHora(isoDate)}`;
+}
+
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 }

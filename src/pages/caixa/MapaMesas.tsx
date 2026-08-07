@@ -1,6 +1,7 @@
 import {
   Building2,
   ClipboardList,
+  LayoutDashboard,
   LayoutGrid,
   LogOut,
   Merge,
@@ -131,6 +132,10 @@ export function MapaMesas() {
         <div className="flex items-center gap-3">
           {user?.roles.includes("admin") && (
             <>
+              <Button variant="secondary" onClick={() => navigate("/admin/dashboard")}>
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </Button>
               <Button variant="secondary" onClick={() => navigate("/admin/produtos")}>
                 <Package className="h-4 w-4" />
                 Produtos

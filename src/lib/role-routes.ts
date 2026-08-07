@@ -7,6 +7,7 @@ export function getHomeRouteForRole(role: UserRole): string {
     case "cozinha":
       return "/cozinha/kds";
     case "admin":
+      return "/admin/dashboard";
     case "caixa":
       return "/caixa/mapa-mesas";
     default:
@@ -37,8 +38,8 @@ export const ROLE_VIEW_INFO: Record<UserRole, RoleViewInfo> = {
   admin: {
     role: "admin",
     label: "Administração",
-    description: "Produtos, usuários e configurações do estabelecimento",
-    route: "/admin/produtos",
+    description: "Dashboard, produtos, usuários e configurações do estabelecimento",
+    route: "/admin/dashboard",
   },
   garcom: {
     role: "garcom",

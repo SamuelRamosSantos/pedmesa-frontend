@@ -16,6 +16,7 @@ import type { ComponentType } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { CurrencyInput } from "../../../components/ui/CurrencyInput";
+import { FORMA_PAGAMENTO_LABEL } from "../../../lib/forma-pagamento";
 import { formatCurrency } from "../../../lib/format";
 import { fromCents, toCents } from "../../../lib/money";
 import type { FormaPagamento, PagamentoComanda } from "../../../types/comanda";
@@ -38,13 +39,6 @@ const FORMAS: { value: FormaPagamento; label: string; icon: ComponentType<{ clas
   { value: "cartao_credito", label: "Cartão Crédito", icon: CreditCard },
   { value: "cartao_debito", label: "Cartão Débito", icon: Landmark },
 ];
-
-const FORMA_LABEL: Record<FormaPagamento, string> = {
-  pix: "Pix",
-  dinheiro: "Dinheiro",
-  cartao_credito: "Cartão de Crédito",
-  cartao_debito: "Cartão de Débito",
-};
 
 export function PagamentoSidebar({
   pagamentos,
@@ -135,7 +129,7 @@ export function PagamentoSidebar({
                 key={pagamento.id}
                 className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800"
               >
-                <span className="text-slate-700 dark:text-slate-300">{FORMA_LABEL[pagamento.forma]}</span>
+                <span className="text-slate-700 dark:text-slate-300">{FORMA_PAGAMENTO_LABEL[pagamento.forma]}</span>
                 <span className="flex items-center gap-2">
                   <span className="font-medium text-slate-900 dark:text-white">
                     {formatCurrency(pagamento.valor)}
