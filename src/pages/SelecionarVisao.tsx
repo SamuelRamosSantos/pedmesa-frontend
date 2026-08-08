@@ -1,5 +1,7 @@
-import { ArrowRight, LogOut, UtensilsCrossed } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
+import logoWordmark from "../assets/logo-wordmark.svg";
 import { Card } from "../components/ui/Card";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
@@ -23,9 +25,8 @@ export function SelecionarVisao() {
       </div>
 
       <div className="mx-auto flex w-full max-w-lg flex-col items-center">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-600 text-white">
-          <UtensilsCrossed className="h-6 w-6" />
-        </div>
+        <img src={logoWordmark} alt="PedMesa" className="mb-3 h-9 w-auto dark:hidden" />
+        <img src={logoWordmarkDark} alt="PedMesa" className="mb-3 hidden h-9 w-auto dark:block" />
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Qual painel você quer abrir?</h1>
         <p className="mt-1 text-center text-sm text-slate-500 dark:text-slate-400">
           Olá, {user?.nome}. Sua conta tem acesso a mais de uma visão.

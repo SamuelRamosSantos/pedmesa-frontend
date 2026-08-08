@@ -1,8 +1,10 @@
 import axios from "axios";
-import { LockKeyhole, Mail, UtensilsCrossed } from "lucide-react";
+import { LockKeyhole, Mail } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
+import logoWordmark from "../assets/logo-wordmark.svg";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
@@ -48,11 +50,9 @@ export function Login() {
 
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-600 text-white">
-            <UtensilsCrossed className="h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">PedMesa</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Entre com sua conta para continuar</p>
+          <img src={logoWordmark} alt="PedMesa" className="h-10 w-auto dark:hidden" />
+          <img src={logoWordmarkDark} alt="PedMesa" className="hidden h-10 w-auto dark:block" />
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Entre com sua conta para continuar</p>
         </div>
 
         <Card>

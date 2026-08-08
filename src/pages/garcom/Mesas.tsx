@@ -1,6 +1,7 @@
 import { LayoutGrid, LogOut, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logoIcon from "../../assets/logo-icon.svg";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
@@ -61,9 +62,12 @@ export function Mesas() {
   return (
     <div className="min-h-svh bg-slate-50 pb-24 dark:bg-slate-950">
       <header className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-        <div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
-          <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
+        <div className="flex items-center gap-3">
+          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
+          <div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
+            <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {user && user.roles.length > 1 && (

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logoIcon from "../../assets/logo-icon.svg";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
@@ -118,9 +119,7 @@ export function MapaMesas() {
     <div className="min-h-svh bg-slate-50 dark:bg-slate-950">
       <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-600 text-white">
-            <Building2 className="h-5 w-5" />
-          </div>
+          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Painel do Caixa</p>
             <h1 className="text-lg font-bold text-slate-900 dark:text-white">

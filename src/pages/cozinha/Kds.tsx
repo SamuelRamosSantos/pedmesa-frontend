@@ -1,7 +1,8 @@
-import { CheckCircle2, ChefHat, Clock3, Flame, LayoutGrid, LogOut, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { CheckCircle2, Clock3, Flame, LayoutGrid, LogOut, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logoIcon from "../../assets/logo-icon.svg";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -214,9 +215,7 @@ export function Kds() {
     <div className="flex h-svh flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
       <header className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-600 text-white">
-            <ChefHat className="h-5 w-5" />
-          </div>
+          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
             <h1 className="text-lg font-bold text-slate-900 dark:text-white">Painel da Cozinha</h1>

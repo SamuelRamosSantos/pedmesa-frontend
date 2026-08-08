@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  Building2,
   ChefHat,
   Copy,
   KeyRound,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import logoIcon from "../../assets/logo-icon.svg";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
@@ -282,9 +282,7 @@ export function ConfiguracoesEmpresa() {
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-600 text-white">
-            <Building2 className="h-5 w-5" />
-          </div>
+          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Administração</p>
             <h1 className="text-lg font-bold text-slate-900 dark:text-white">Configurações da Empresa</h1>
