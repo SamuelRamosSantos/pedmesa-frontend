@@ -40,6 +40,7 @@ export function ConfiguracoesEmpresa() {
   const { showToast } = useToast();
 
   const [nomeFantasia, setNomeFantasia] = useState("");
+  const [quantidadeComandas, setQuantidadeComandas] = useState("");
   const [ramoAtividade, setRamoAtividade] = useState("");
   const [emailEmpresa, setEmailEmpresa] = useState("");
   const [emailProprietario, setEmailProprietario] = useState("");
@@ -51,6 +52,7 @@ export function ConfiguracoesEmpresa() {
   const [cep, setCep] = useState("");
 
   const [nomeFantasiaError, setNomeFantasiaError] = useState<string | undefined>();
+  const [quantidadeComandasError, setQuantidadeComandasError] = useState<string | undefined>();
   const [emailEmpresaError, setEmailEmpresaError] = useState<string | undefined>();
   const [emailProprietarioError, setEmailProprietarioError] = useState<string | undefined>();
   const [isSavingDados, setIsSavingDados] = useState(false);
@@ -91,6 +93,7 @@ export function ConfiguracoesEmpresa() {
     }
 
     setNomeFantasia(tenant.nome_fantasia);
+    setQuantidadeComandas(String(tenant.quantidade_comandas));
     setRamoAtividade(tenant.ramo_atividade ?? "");
     setEmailEmpresa(tenant.email_empresa ?? "");
     setEmailProprietario(tenant.email_proprietario ?? "");
@@ -105,6 +108,7 @@ export function ConfiguracoesEmpresa() {
   async function handleSubmitDados(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNomeFantasiaError(undefined);
+    setQuantidadeComandasError(undefined);
     setEmailEmpresaError(undefined);
     setEmailProprietarioError(undefined);
 
@@ -112,6 +116,16 @@ export function ConfiguracoesEmpresa() {
 
     if (!nomeFantasia.trim()) {
       setNomeFantasiaError("Informe o nome fantasia.");
+      hasError = true;
+    }
+
+    const quantidadeComandasNumero = Number(quantidadeComandas);
+    if (
+      !quantidadeComandas ||
+      !Number.isInteger(quantidadeComandasNumero) ||
+      quantidadeComandasNumero <= 0
+    ) {
+      setQuantidadeComandasError("Informe um número inteiro maior que zero.");
       hasError = true;
     }
 
@@ -134,6 +148,7 @@ export function ConfiguracoesEmpresa() {
     try {
       await updateTenantConfiguracoes({
         nome_fantasia: nomeFantasia.trim(),
+        quantidade_comandas: quantidadeComandasNumero,
         ramo_atividade: ramoAtividade.trim() || null,
         email_empresa: emailEmpresa.trim() || null,
         email_proprietario: emailProprietario.trim() || null,
@@ -334,6 +349,16 @@ export function ConfiguracoesEmpresa() {
                     value={nomeFantasia}
                     onChange={(event) => setNomeFantasia(event.target.value)}
                     error={nomeFantasiaError}
+                  />
+                  <Input
+                    label="Quantidade de Mesas Disponíveis"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    placeholder="Ex.: 20"
+                    value={quantidadeComandas}
+                    onChange={(event) => setQuantidadeComandas(event.target.value)}
+                    error={quantidadeComandasError}
                   />
                   <Input
                     label="Ramo de Atividade"
