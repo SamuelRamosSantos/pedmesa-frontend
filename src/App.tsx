@@ -6,6 +6,7 @@ import { Produtos } from "./pages/admin/Produtos";
 import { Usuarios } from "./pages/admin/Usuarios";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
+import { PreContaImpressao } from "./pages/caixa/PreContaImpressao";
 import { Kds } from "./pages/cozinha/Kds";
 import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
@@ -69,6 +70,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["caixa", "admin"]}>
             <ComandaFechamento />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/caixa/comanda/:id/preconta"
+        element={
+          <ProtectedRoute allowedRoles={["caixa", "admin"]}>
+            <PreContaImpressao />
           </ProtectedRoute>
         }
       />

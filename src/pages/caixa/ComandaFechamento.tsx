@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, Ban, PartyPopper, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Ban, PartyPopper, Printer, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -181,6 +181,14 @@ export function ComandaFechamento() {
     }
   }
 
+  function handleImprimirPreConta() {
+    if (!id) {
+      return;
+    }
+
+    window.open(`/caixa/comanda/${id}/preconta`, "_blank");
+  }
+
   function handleSolicitarExclusaoItem(itemId: string, produtoNome: string) {
     setItemParaExcluir({ id: itemId, produtoNome });
   }
@@ -299,6 +307,17 @@ export function ComandaFechamento() {
             </span>
           )}
           <div className="ml-auto flex items-center gap-1">
+            {comanda?.status === "aberta" && (
+              <button
+                type="button"
+                onClick={handleImprimirPreConta}
+                data-testid="botao-imprimir-preconta"
+                className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <Printer className="h-4 w-4" />
+                Imprimir Pré-Conta
+              </button>
+            )}
             <ThemeToggle />
             <button
               type="button"
