@@ -1,3 +1,5 @@
+import type { LoginResponseSuperAdmin } from "./super-admin";
+
 export type UserRole = "admin" | "garcom" | "cozinha" | "caixa";
 
 export interface AuthUser {
@@ -9,7 +11,10 @@ export interface AuthUser {
   pode_conceder_desconto: boolean;
 }
 
-export interface LoginResponse {
+export interface LoginResponseTenant {
+  tipo: "tenant";
   token: string;
   usuario: AuthUser;
 }
+
+export type LoginResponse = LoginResponseTenant | LoginResponseSuperAdmin;

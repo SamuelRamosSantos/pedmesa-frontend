@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
+import { SuperAdminAuthProvider } from './contexts/SuperAdminAuthContext.tsx'
 import { TenantProvider } from './contexts/TenantContext.tsx'
 import { ThemeProvider } from './contexts/ThemeContext.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
@@ -12,13 +13,15 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <BrowserRouter>
-        <AuthProvider>
-          <TenantProvider>
-            <ToastProvider>
-              <App />
-            </ToastProvider>
-          </TenantProvider>
-        </AuthProvider>
+        <SuperAdminAuthProvider>
+          <AuthProvider>
+            <TenantProvider>
+              <ToastProvider>
+                <App />
+              </ToastProvider>
+            </TenantProvider>
+          </AuthProvider>
+        </SuperAdminAuthProvider>
       </BrowserRouter>
     </ThemeProvider>
   </StrictMode>,

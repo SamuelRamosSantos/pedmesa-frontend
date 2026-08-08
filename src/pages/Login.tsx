@@ -10,7 +10,9 @@ import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
+import { useSuperAdminAuth } from "../contexts/SuperAdminAuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { getApiErrorMessage } from "../lib/api-error";
 import { getHomeRouteForRoles } from "../lib/role-routes";
 import { login } from "../services/auth.service";
 
@@ -20,6 +22,7 @@ export function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login: authenticate } = useAuth();
+  const { login: authenticateSuperAdmin } = useSuperAdminAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -28,14 +31,21 @@ export function Login() {
     setIsSubmitting(true);
 
     try {
-      const { token, usuario } = await login({ email, senha });
-      authenticate(token, usuario);
-      navigate(getHomeRouteForRoles(usuario.roles), { replace: true });
+      const resultado = await login({ email, senha });
+
+      if (resultado.tipo === "super_admin") {
+        authenticateSuperAdmin(resultado.token, resultado.super_admin);
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      authenticate(resultado.token, resultado.usuario);
+      navigate(getHomeRouteForRoles(resultado.usuario.roles), { replace: true });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         showToast("E-mail ou senha inválidos.", "error");
       } else {
-        showToast("Não foi possível entrar. Tente novamente em instantes.", "error");
+        showToast(getApiErrorMessage(error, "Não foi possível entrar. Tente novamente em instantes."), "error");
       }
     } finally {
       setIsSubmitting(false);
