@@ -25,11 +25,11 @@ export function MesaCard({ numero, comanda, onClick }: MesaCardProps) {
       onClick={() => onClick(comanda)}
       className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 dark:border-emerald-900 dark:bg-emerald-950/20"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-emerald-700/70 dark:text-emerald-400/80">
           Mesa
         </span>
-        <span className="inline-flex items-center rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
           Ocupada
         </span>
       </div>

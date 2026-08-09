@@ -8,6 +8,9 @@ import { SuperAdminAuthProvider } from './contexts/SuperAdminAuthContext.tsx'
 import { TenantProvider } from './contexts/TenantContext.tsx'
 import { ThemeProvider } from './contexts/ThemeContext.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
+import { registerServiceWorker } from './lib/register-service-worker.ts'
+
+registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

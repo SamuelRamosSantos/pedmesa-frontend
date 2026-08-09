@@ -1,10 +1,8 @@
-import { LayoutGrid, LogOut, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
+import { Menu, Plus, RefreshCw, Search, UtensilsCrossed } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoIcon from "../../assets/logo-icon.svg";
+import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
-import { ThemeToggle } from "../../components/ui/ThemeToggle";
-import { useAuth } from "../../contexts/AuthContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listComandas } from "../../services/comanda.service";
 import type { ComandaListItem } from "../../types/comanda";
@@ -12,7 +10,6 @@ import { ComandaCard } from "./components/ComandaCard";
 import { NovaComandaModal } from "./components/NovaComandaModal";
 
 export function Mesas() {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [comandas, setComandas] = useState<ComandaListItem[]>([]);
@@ -49,132 +46,111 @@ export function Mesas() {
     return comandas.filter((comanda) => String(comanda.numero_comanda).includes(termo));
   }, [comandas, searchTerm]);
 
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-  }
-
   function handleComandaCriada() {
     setIsModalOpen(false);
     fetchComandas();
   }
 
   return (
-    <div className="min-h-svh bg-slate-50 pb-24 dark:bg-slate-950">
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-3">
-          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
-          <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
-            <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {user && user.roles.length > 1 && (
+    <AppShell>
+      {({ openSidebar }) => (
+        <>
+          <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={openSidebar}
+                aria-label="Abrir menu"
+                className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
+            </div>
             <button
               type="button"
-              onClick={() => navigate("/selecionar-visao")}
-              aria-label="Trocar visão"
-              title="Trocar visão"
-              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              onClick={fetchComandas}
+              disabled={isLoading}
+              aria-label="Atualizar lista de mesas"
+              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <LayoutGrid className="h-5 w-5" />
+              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          </header>
+
+          <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <label htmlFor="busca-mesa" className="sr-only">
+              Buscar mesa pelo número
+            </label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400" />
+              <input
+                id="busca-mesa"
+                type="search"
+                inputMode="numeric"
+                placeholder="Buscar mesa pelo número..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+
+          <main className="px-4 py-4 pb-24">
+            {isLoading && comandas.length === 0 && (
+              <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+                <p className="text-sm">Carregando mesas...</p>
+              </div>
+            )}
+
+            {!isLoading && errorMessage && (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
+                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <Button variant="danger" onClick={fetchComandas}>
+                  Tentar novamente
+                </Button>
+              </div>
+            )}
+
+            {!errorMessage && !isLoading && comandasFiltradas.length === 0 && (
+              <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
+                <UtensilsCrossed className="h-10 w-10" />
+                {comandas.length === 0 ? (
+                  <p className="text-sm">Nenhuma mesa aberta no momento.</p>
+                ) : (
+                  <p className="text-sm">Nenhuma mesa encontrada para "{searchTerm}".</p>
+                )}
+              </div>
+            )}
+
+            {!errorMessage && comandasFiltradas.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                {comandasFiltradas.map((comanda) => (
+                  <ComandaCard
+                    key={comanda.id}
+                    comanda={comanda}
+                    onClick={() => navigate(`/garcom/comanda/${comanda.id}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </main>
+
+          {!isModalOpen && (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-orange-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-600/30 transition-transform hover:scale-105 hover:bg-orange-700 active:scale-95"
+            >
+              <Plus className="h-5 w-5" />
+              Abrir Comanda
             </button>
           )}
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={fetchComandas}
-            disabled={isLoading}
-            aria-label="Atualizar lista de mesas"
-            className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
-          >
-            <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
-          </button>
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.nome}</p>
-            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {user?.roles.join(", ")}
-            </p>
-          </div>
-          <Button variant="secondary" onClick={handleLogout}>
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sair</span>
-          </Button>
-        </div>
-      </header>
 
-      <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-        <label htmlFor="busca-mesa" className="sr-only">
-          Buscar mesa pelo número
-        </label>
-        <div className="relative">
-          <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-slate-400" />
-          <input
-            id="busca-mesa"
-            type="search"
-            inputMode="numeric"
-            placeholder="Buscar mesa pelo número..."
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-          />
-        </div>
-      </div>
-
-      <main className="px-4 py-4">
-        {isLoading && comandas.length === 0 && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
-            <RefreshCw className="h-6 w-6 animate-spin" />
-            <p className="text-sm">Carregando mesas...</p>
-          </div>
-        )}
-
-        {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
-            <Button variant="danger" onClick={fetchComandas}>
-              Tentar novamente
-            </Button>
-          </div>
-        )}
-
-        {!errorMessage && !isLoading && comandasFiltradas.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
-            <UtensilsCrossed className="h-10 w-10" />
-            {comandas.length === 0 ? (
-              <p className="text-sm">Nenhuma mesa aberta no momento.</p>
-            ) : (
-              <p className="text-sm">Nenhuma mesa encontrada para "{searchTerm}".</p>
-            )}
-          </div>
-        )}
-
-        {!errorMessage && comandasFiltradas.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {comandasFiltradas.map((comanda) => (
-              <ComandaCard
-                key={comanda.id}
-                comanda={comanda}
-                onClick={() => navigate(`/garcom/comanda/${comanda.id}`)}
-              />
-            ))}
-          </div>
-        )}
-      </main>
-
-      {!isModalOpen && (
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-orange-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-600/30 transition-transform hover:scale-105 hover:bg-orange-700 active:scale-95"
-        >
-          <Plus className="h-5 w-5" />
-          Abrir Comanda
-        </button>
+          <NovaComandaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={handleComandaCriada} />
+        </>
       )}
-
-      <NovaComandaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={handleComandaCriada} />
-    </div>
+    </AppShell>
   );
 }

@@ -1,10 +1,7 @@
-import { CheckCircle2, Clock3, Flame, LayoutGrid, LogOut, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { CheckCircle2, Clock3, Flame, Menu, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import logoIcon from "../../assets/logo-icon.svg";
-import { ThemeToggle } from "../../components/ui/ThemeToggle";
-import { useAuth } from "../../contexts/AuthContext";
+import { AppShell } from "../../components/layout/AppShell";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
@@ -86,9 +83,7 @@ function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
 }
 
 export function Kds() {
-  const { user, logout } = useAuth();
   const { showToast } = useToast();
-  const navigate = useNavigate();
 
   const [pedidos, setPedidos] = useState<PedidoAtivo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -124,11 +119,6 @@ export function Kds() {
     const interval = setInterval(fetchPedidos, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [fetchPedidos]);
-
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-  }
 
   function atualizarStatusItensLocal(pedidoId: string, itemIds: string[], novoStatus: StatusItem) {
     setPedidos((current) =>
@@ -212,103 +202,80 @@ export function Kds() {
   }, [pedidos]);
 
   return (
-    <div className="flex h-svh flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
-      <header className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-3">
-          <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
-          <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa</p>
+    <AppShell>
+      {({ openSidebar }) => (
+        <div className="flex h-svh flex-col text-slate-900 dark:text-white">
+          <header className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-800 dark:bg-slate-900">
+            <button
+              type="button"
+              onClick={openSidebar}
+              aria-label="Abrir menu"
+              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
             <h1 className="text-lg font-bold text-slate-900 dark:text-white">Painel da Cozinha</h1>
-          </div>
+
+            <div className="ml-auto flex items-center gap-4">
+              <span
+                className={`flex items-center gap-1.5 text-xs font-semibold ${isConnected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+              >
+                {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
+                {isConnected ? "Conectado" : "Sem conexão"}
+              </span>
+
+              <button
+                type="button"
+                onClick={fetchPedidos}
+                aria-label="Atualizar pedidos"
+                className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:overflow-hidden">
+            {isLoading && (
+              <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+                <p className="text-sm">Carregando pedidos...</p>
+              </div>
+            )}
+
+            {!isLoading && errorMessage && (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/40 dark:bg-red-950/30">
+                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <button
+                  type="button"
+                  onClick={fetchPedidos}
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            )}
+
+            {!isLoading && !errorMessage && (
+              <div className="flex h-full flex-col gap-4 md:flex-row md:items-stretch">
+                {COLUNAS_KANBAN.map((coluna) => (
+                  <KanbanColumn
+                    key={coluna.status}
+                    titulo={coluna.titulo}
+                    icon={COLUNA_VISUAL[coluna.status].icon}
+                    headerClass={COLUNA_VISUAL[coluna.status].headerClass}
+                    grupos={gruposPorStatus[coluna.status]}
+                    updatingPedidoId={updatingPedidoId}
+                    onAvancar={handleAvancar}
+                    onRegredir={handleRegredir}
+                  />
+                ))}
+              </div>
+            )}
+          </main>
         </div>
-
-        <div className="ml-auto flex items-center gap-4">
-          <span
-            className={`flex items-center gap-1.5 text-xs font-semibold ${isConnected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
-          >
-            {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
-            {isConnected ? "Conectado" : "Sem conexão"}
-          </span>
-
-          {user && user.roles.length > 1 && (
-            <button
-              type="button"
-              onClick={() => navigate("/selecionar-visao")}
-              aria-label="Trocar visão"
-              title="Trocar visão"
-              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              <LayoutGrid className="h-5 w-5" />
-            </button>
-          )}
-
-          <ThemeToggle />
-
-          <button
-            type="button"
-            onClick={fetchPedidos}
-            aria-label="Atualizar pedidos"
-            className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            <RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
-          </button>
-
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.nome}</p>
-            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {user?.roles.join(", ")}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex items-center gap-2 rounded-lg bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-300 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sair</span>
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:overflow-hidden">
-        {isLoading && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
-            <RefreshCw className="h-6 w-6 animate-spin" />
-            <p className="text-sm">Carregando pedidos...</p>
-          </div>
-        )}
-
-        {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/40 dark:bg-red-950/30">
-            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
-            <button
-              type="button"
-              onClick={fetchPedidos}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
-            >
-              Tentar novamente
-            </button>
-          </div>
-        )}
-
-        {!isLoading && !errorMessage && (
-          <div className="flex h-full flex-col gap-4 md:flex-row md:items-stretch">
-            {COLUNAS_KANBAN.map((coluna) => (
-              <KanbanColumn
-                key={coluna.status}
-                titulo={coluna.titulo}
-                icon={COLUNA_VISUAL[coluna.status].icon}
-                headerClass={COLUNA_VISUAL[coluna.status].headerClass}
-                grupos={gruposPorStatus[coluna.status]}
-                updatingPedidoId={updatingPedidoId}
-                onAvancar={handleAvancar}
-                onRegredir={handleRegredir}
-              />
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+      )}
+    </AppShell>
   );
 }

@@ -15,16 +15,16 @@ export function getHomeRouteForRole(role: UserRole): string {
   }
 }
 
+const PRIORIDADE_PAPEIS: UserRole[] = ["admin", "caixa", "garcom", "cozinha"];
+
 export function getHomeRouteForRoles(roles: UserRole[]): string {
   if (roles.length === 0) {
     return "/login";
   }
 
-  if (roles.length > 1) {
-    return "/selecionar-visao";
-  }
+  const papelPrioritario = PRIORIDADE_PAPEIS.find((role) => roles.includes(role));
 
-  return getHomeRouteForRole(roles[0]);
+  return getHomeRouteForRole(papelPrioritario ?? roles[0]);
 }
 
 export interface RoleViewInfo {

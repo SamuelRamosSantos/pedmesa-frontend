@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   Ban,
   ClipboardList,
+  Menu,
   RefreshCw,
   Search,
   ShoppingCart,
@@ -10,9 +11,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
@@ -310,9 +311,19 @@ export function ComandaDetalhe() {
   }
 
   return (
-    <div className="min-h-svh bg-slate-50 pb-28 dark:bg-slate-950">
-      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <AppShell>
+      {({ openSidebar }) => (
+        <div className="pb-28">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            type="button"
+            onClick={openSidebar}
+            aria-label="Abrir menu"
+            className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
           <button
             type="button"
             onClick={() => navigate("/garcom/mesas")}
@@ -332,13 +343,10 @@ export function ComandaDetalhe() {
             onClick={fetchDados}
             disabled={isLoading}
             aria-label="Atualizar cardápio"
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="ml-auto rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
           </button>
-          <div className="ml-auto">
-            <ThemeToggle />
-          </div>
         </div>
 
         {comanda && (
@@ -474,7 +482,7 @@ export function ComandaDetalhe() {
         )}
 
         {!errorMessage && abaAtiva === "cardapio" && produtosFiltrados.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
             {produtosFiltrados.map((produto) => (
               <ProdutoCard key={produto.id} produto={produto} onAdd={handleAddToCart} />
             ))}
@@ -570,6 +578,8 @@ export function ComandaDetalhe() {
         onCancel={() => setPedidoParaExcluir(null)}
         onConfirm={handleConfirmarExclusaoPedido}
       />
-    </div>
+        </div>
+      )}
+    </AppShell>
   );
 }
