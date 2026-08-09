@@ -35,3 +35,13 @@ export interface TenantAdminItem {
   cep: string | null;
   criado_em: string;
 }
+
+export interface LeadAdminItem {
+  id: string;
+  nome: string;
+  email: string;
+  whatsapp: string;
+  nome_estabelecimento: string;
+  cpf_cnpj: string;
+  criado_em: string;
+}

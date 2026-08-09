@@ -15,6 +15,7 @@ import { Mesas } from "./pages/garcom/Mesas";
 import { Login } from "./pages/Login";
 import { NotFound } from "./pages/NotFound";
 import { SelecionarVisao } from "./pages/SelecionarVisao";
+import { PainelLeads } from "./pages/superadmin/PainelLeads";
 import { PainelSuperAdmin } from "./pages/superadmin/PainelSuperAdmin";
 import { Unauthorized } from "./pages/Unauthorized";
 
@@ -39,6 +40,15 @@ function App() {
           element={
             <SuperAdminProtectedRoute>
               <PainelSuperAdmin />
+            </SuperAdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/leads"
+          element={
+            <SuperAdminProtectedRoute>
+              <PainelLeads />
             </SuperAdminProtectedRoute>
           }
         />

@@ -1,4 +1,4 @@
-import { LogOut, Pencil, PlusCircle, RefreshCw, Search, ShieldCheck } from "lucide-react";
+import { LogOut, Pencil, PlusCircle, RefreshCw, Search, ShieldCheck, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
@@ -177,6 +177,10 @@ export function PainelSuperAdmin() {
 
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-slate-500 dark:text-slate-400 sm:inline">{superAdmin?.nome}</span>
+          <Button variant="secondary" onClick={() => navigate("/admin/leads")}>
+            <Users className="h-4 w-4" />
+            Leads
+          </Button>
           <ThemeToggle />
           <button
             type="button"

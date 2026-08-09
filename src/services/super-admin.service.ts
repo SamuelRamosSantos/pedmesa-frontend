@@ -1,6 +1,6 @@
 import { adminApi } from "./admin-api";
 import type { LoginResponseTenant } from "../types/auth";
-import type { TenantAdminItem, TenantStatus } from "../types/super-admin";
+import type { LeadAdminItem, TenantAdminItem, TenantStatus } from "../types/super-admin";
 
 export interface ListTenantsFilters {
   status?: TenantStatus;
@@ -57,5 +57,10 @@ export async function updateTenant(tenantId: string, payload: UpdateTenantPayloa
 
 export async function impersonarTenant(tenantId: string): Promise<LoginResponseTenant> {
   const { data } = await adminApi.post<LoginResponseTenant>(`/admin/tenants/${tenantId}/impersonar`);
+  return data;
+}
+
+export async function listLeads(): Promise<LeadAdminItem[]> {
+  const { data } = await adminApi.get<LeadAdminItem[]>("/admin/leads");
   return data;
 }
