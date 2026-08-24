@@ -2,6 +2,7 @@ export { Button } from "./Button";
 export { Input } from "./Input";
 export { Card } from "./Card";
 export { ConfirmDialog } from "./ConfirmDialog";
+export { ImageUpload } from "./ImageUpload";
 export { Modal } from "./Modal";
 export { Switch } from "./Switch";
 export { ThemeToggle } from "./ThemeToggle";

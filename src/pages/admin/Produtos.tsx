@@ -231,11 +231,20 @@ export function Produtos() {
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">{produto.nome}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {categoriasPorId.get(produto.categoria_id)?.nome ?? "Sem categoria"}
-                        </p>
+                      <div className="flex items-start gap-3">
+                        {produto.imagem_url && (
+                          <img
+                            src={produto.imagem_url}
+                            alt=""
+                            className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                          />
+                        )}
+                        <div>
+                          <p className="font-semibold text-slate-900 dark:text-white">{produto.nome}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {categoriasPorId.get(produto.categoria_id)?.nome ?? "Sem categoria"}
+                          </p>
+                        </div>
                       </div>
                       {!produto.disponivel && (
                         <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/60 dark:text-red-300">

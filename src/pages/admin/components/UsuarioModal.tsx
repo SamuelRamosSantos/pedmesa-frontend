@@ -2,6 +2,7 @@ import { LockKeyhole, Save, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
+import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { Switch } from "../../../components/ui/Switch";
@@ -45,6 +46,7 @@ export function UsuarioModal({
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] = useState(false);
   const [podeConcederDesconto, setPodeConcederDesconto] = useState(false);
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [emailError, setEmailError] = useState<string | undefined>();
@@ -69,12 +71,14 @@ export function UsuarioModal({
       setRoles(usuarioEditando.roles);
       setPodeExcluirItemFechamento(usuarioEditando.pode_excluir_item_fechamento);
       setPodeConcederDesconto(usuarioEditando.pode_conceder_desconto);
+      setFotoUrl(usuarioEditando.foto_url);
     } else {
       setNome("");
       setEmail("");
       setRoles([]);
       setPodeExcluirItemFechamento(false);
       setPodeConcederDesconto(false);
+      setFotoUrl(null);
     }
 
     setSenha("");
@@ -136,6 +140,7 @@ export function UsuarioModal({
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
+          foto_url: fotoUrl,
         });
         showToast(`Usuário "${nome.trim()}" atualizado com sucesso.`, "success");
       } else {
@@ -146,6 +151,7 @@ export function UsuarioModal({
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
+          foto_url: fotoUrl,
         });
         showToast(`Usuário "${nome.trim()}" cadastrado com sucesso.`, "success");
       }
@@ -160,6 +166,10 @@ export function UsuarioModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEdicao ? "Editar usuário" : "Novo usuário"}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <div className="flex justify-center">
+          <ImageUpload label="Foto do usuário" value={fotoUrl} onChange={setFotoUrl} shape="circle" />
+        </div>
+
         <Input
           label="Nome"
           placeholder="Ex.: Maria Silva"

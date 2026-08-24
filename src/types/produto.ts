@@ -6,6 +6,7 @@ export interface Produto {
   descricao: string | null;
   disponivel: boolean;
   precisa_preparo: boolean;
+  imagem_url: string | null;
 }
 
 export interface ProdutoPayload {
@@ -15,4 +16,5 @@ export interface ProdutoPayload {
   descricao: string | null;
   disponivel: boolean;
   precisa_preparo: boolean;
+  imagem_url: string | null;
 }
