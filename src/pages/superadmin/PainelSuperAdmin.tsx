@@ -156,7 +156,7 @@ export function PainelSuperAdmin() {
 
     try {
       const resultado = await impersonarTenant(tenant.id);
-      authenticateTenant(resultado.token, resultado.usuario);
+      authenticateTenant(resultado.usuario);
       navigate(getHomeRouteForRoles(resultado.usuario.roles));
     } catch (error) {
       showToast(getApiErrorMessage(error, "Não foi possível acessar como esse estabelecimento."), "error");

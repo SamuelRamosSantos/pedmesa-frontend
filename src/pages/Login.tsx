@@ -34,12 +34,12 @@ export function Login() {
       const resultado = await login({ email, senha });
 
       if (resultado.tipo === "super_admin") {
-        authenticateSuperAdmin(resultado.token, resultado.super_admin);
+        authenticateSuperAdmin(resultado.super_admin);
         navigate("/admin", { replace: true });
         return;
       }
 
-      authenticate(resultado.token, resultado.usuario);
+      authenticate(resultado.usuario);
       navigate(getHomeRouteForRoles(resultado.usuario.roles), { replace: true });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {

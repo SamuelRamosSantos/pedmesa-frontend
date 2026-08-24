@@ -1,42 +1,41 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
-  clearStoredSuperAdminAuth,
-  getStoredSuperAdminToken,
+  clearStoredSuperAdminUser,
   getStoredSuperAdminUser,
-  setStoredSuperAdminAuth,
+  setStoredSuperAdminUser,
 } from "../lib/super-admin-auth-storage";
+import { adminApi } from "../services/admin-api";
 import type { SuperAdminUser } from "../types/super-admin";
 
 interface SuperAdminAuthContextValue {
-  token: string | null;
   superAdmin: SuperAdminUser | null;
   isAuthenticated: boolean;
-  login: (token: string, superAdmin: SuperAdminUser) => void;
+  login: (superAdmin: SuperAdminUser) => void;
   logout: () => void;
 }
 
 const SuperAdminAuthContext = createContext<SuperAdminAuthContextValue | undefined>(undefined);
 
 export function SuperAdminAuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => getStoredSuperAdminToken());
   const [superAdmin, setSuperAdmin] = useState<SuperAdminUser | null>(() => getStoredSuperAdminUser());
 
-  const login = useCallback((newToken: string, newSuperAdmin: SuperAdminUser) => {
-    setStoredSuperAdminAuth(newToken, newSuperAdmin);
-    setToken(newToken);
+  const login = useCallback((newSuperAdmin: SuperAdminUser) => {
+    setStoredSuperAdminUser(newSuperAdmin);
     setSuperAdmin(newSuperAdmin);
   }, []);
 
   const logout = useCallback(() => {
-    clearStoredSuperAdminAuth();
-    setToken(null);
+    clearStoredSuperAdminUser();
     setSuperAdmin(null);
+
+    // Sem await de propósito — ver o mesmo comentário em AuthContext.tsx.
+    adminApi.post("/auth/admin-logout").catch(() => {});
   }, []);
 
   const value = useMemo<SuperAdminAuthContextValue>(
-    () => ({ token, superAdmin, isAuthenticated: Boolean(token && superAdmin), login, logout }),
-    [token, superAdmin, login, logout]
+    () => ({ superAdmin, isAuthenticated: Boolean(superAdmin), login, logout }),
+    [superAdmin, login, logout]
   );
 
   return <SuperAdminAuthContext.Provider value={value}>{children}</SuperAdminAuthContext.Provider>;

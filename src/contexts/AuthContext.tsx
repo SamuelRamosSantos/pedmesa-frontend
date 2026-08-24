@@ -1,43 +1,43 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { clearStoredAuth, getStoredToken, getStoredUser, setStoredAuth } from "../lib/auth-storage";
+import { clearStoredUser, getStoredUser, setStoredUser } from "../lib/auth-storage";
+import { api } from "../services/api";
 import type { AuthUser } from "../types/auth";
 
 interface AuthContextValue {
-  token: string | null;
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (token: string, user: AuthUser) => void;
+  login: (user: AuthUser) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => getStoredToken());
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
-  const login = useCallback((newToken: string, newUser: AuthUser) => {
-    setStoredAuth(newToken, newUser);
-    setToken(newToken);
+  const login = useCallback((newUser: AuthUser) => {
+    setStoredUser(newUser);
     setUser(newUser);
   }, []);
 
   const logout = useCallback(() => {
-    clearStoredAuth();
-    setToken(null);
+    clearStoredUser();
     setUser(null);
+
+    // Um cookie HttpOnly só some quando o próprio backend manda limpar — sem
+    // await de propósito, a UI não deve travar esperando essa chamada terminar.
+    api.post("/auth/logout").catch(() => {});
   }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      token,
       user,
-      isAuthenticated: Boolean(token && user),
+      isAuthenticated: Boolean(user),
       login,
       logout,
     }),
-    [token, user, login, logout]
+    [user, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
