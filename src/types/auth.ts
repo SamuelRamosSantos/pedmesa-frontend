@@ -1,6 +1,6 @@
 import type { LoginResponseSuperAdmin } from "./super-admin";
 
-export type UserRole = "admin" | "garcom" | "cozinha" | "caixa";
+export type UserRole = "admin" | "garcom" | "cozinha" | "caixa" | "expedicao";
 
 export interface AuthUser {
   id: string;

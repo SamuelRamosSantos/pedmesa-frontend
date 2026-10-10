@@ -6,6 +6,7 @@ import {
   Menu,
   Package,
   Settings,
+  Truck,
   UtensilsCrossed,
   Users,
   X,
@@ -24,6 +25,7 @@ const ROLE_ICON: Record<UserRole, LucideIcon> = {
   garcom: UtensilsCrossed,
   cozinha: ChefHat,
   caixa: Building2,
+  expedicao: Truck,
 };
 
 const ADMIN_SUBITENS: { label: string; route: string; icon: LucideIcon }[] = [

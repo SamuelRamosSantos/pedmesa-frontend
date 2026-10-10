@@ -10,6 +10,7 @@ import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { PreContaImpressao } from "./pages/caixa/PreContaImpressao";
 import { Kds } from "./pages/cozinha/Kds";
+import { Expedicao } from "./pages/expedicao/Expedicao";
 import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
 import { Login } from "./pages/Login";
@@ -103,6 +104,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["caixa", "admin"]}>
               <PreContaImpressao />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expedicao"
+          element={
+            <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
+              <Expedicao />
             </ProtectedRoute>
           }
         />
