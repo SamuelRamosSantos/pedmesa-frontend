@@ -17,17 +17,10 @@ import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listUsuarios, updateUsuarioAtivo } from "../../services/usuario.service";
-import type { UserRole } from "../../types/auth";
+import { ROLE_LABEL } from "../../lib/role-labels";
 import type { Usuario } from "../../types/usuario";
 import { AlterarSenhaModal } from "./components/AlterarSenhaModal";
 import { UsuarioModal } from "./components/UsuarioModal";
-
-const ROLE_LABEL: Record<UserRole, string> = {
-  admin: "Admin",
-  garcom: "Garçom",
-  cozinha: "Cozinha",
-  caixa: "Caixa",
-};
 
 export function Usuarios() {
   const { user: usuarioLogado } = useAuth();

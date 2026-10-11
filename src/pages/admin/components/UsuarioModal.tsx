@@ -9,6 +9,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import { createUsuario, updateUsuario } from "../../../services/usuario.service";
+import { ROLE_LABEL, ROLES_EM_ORDEM } from "../../../lib/role-labels";
 import type { UserRole } from "../../../types/auth";
 import type { Usuario } from "../../../types/usuario";
 
@@ -25,12 +26,7 @@ interface OpcaoRole {
   label: string;
 }
 
-const OPCOES_ROLE: OpcaoRole[] = [
-  { role: "admin", label: "Admin" },
-  { role: "garcom", label: "Garçom" },
-  { role: "cozinha", label: "Cozinha" },
-  { role: "caixa", label: "Caixa" },
-];
+const OPCOES_ROLE: OpcaoRole[] = ROLES_EM_ORDEM.map((role) => ({ role, label: ROLE_LABEL[role] }));
 
 export function UsuarioModal({
   isOpen,

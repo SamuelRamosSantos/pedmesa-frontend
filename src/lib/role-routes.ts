@@ -10,12 +10,14 @@ export function getHomeRouteForRole(role: UserRole): string {
       return "/admin/dashboard";
     case "caixa":
       return "/caixa/mapa-mesas";
+    case "expedicao":
+      return "/expedicao";
     default:
       return "/login";
   }
 }
 
-const PRIORIDADE_PAPEIS: UserRole[] = ["admin", "caixa", "garcom", "cozinha"];
+const PRIORIDADE_PAPEIS: UserRole[] = ["admin", "caixa", "garcom", "cozinha", "expedicao"];
 
 export function getHomeRouteForRoles(roles: UserRole[]): string {
   if (roles.length === 0) {
@@ -58,5 +60,11 @@ export const ROLE_VIEW_INFO: Record<UserRole, RoleViewInfo> = {
     label: "Caixa",
     description: "Mapa de mesas e fechamento de contas",
     route: "/caixa/mapa-mesas",
+  },
+  expedicao: {
+    role: "expedicao",
+    label: "Expedição",
+    description: "Pedidos de delivery e painel de expedição",
+    route: "/expedicao",
   },
 };
