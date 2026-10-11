@@ -2,6 +2,7 @@ import type { CriarPedidoDeliveryPayload, EnderecoNovoPayload, ItemPedidoDeliver
 import type { FormaPagamento } from "../types/comanda";
 import type { CotacaoDelivery } from "../types/delivery";
 import type { SituacaoCotacao } from "./cotacao-delivery";
+import { formatarNumeroEntrega } from "./expedicao";
 import { formatCurrency } from "./format";
 import type { DadosClienteDelivery } from "./identificacao-cliente";
 
@@ -89,5 +90,5 @@ export function motivoQueImpedeEnvio(estado: EstadoEnvio): string | null {
 
 // "Delivery #0007 criado": mesmo formato de número do cupom.
 export function mensagemPedidoCriado(numeroEntrega: number): string {
-  return `Delivery #${String(numeroEntrega).padStart(4, "0")} criado`;
+  return `Delivery ${formatarNumeroEntrega(numeroEntrega)} criado`;
 }

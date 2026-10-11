@@ -11,3 +11,8 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 
   return fallback;
 }
+
+// Status HTTP da resposta de erro (ex.: 409 de concorrência), ou null sem resposta.
+export function getApiErrorStatus(error: unknown): number | null {
+  return axios.isAxiosError(error) ? (error.response?.status ?? null) : null;
+}

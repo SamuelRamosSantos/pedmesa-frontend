@@ -1,12 +1,14 @@
 import { CheckCircle2, Clock3, Flame, Menu, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { KanbanColumn } from "../../components/kanban/KanbanColumn";
 import { AppShell } from "../../components/layout/AppShell";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
 import type { PedidoAtivo, StatusItem } from "../../types/pedido";
-import { KanbanColumn } from "./components/KanbanColumn";
+import { GrupoPreparoCard } from "./components/GrupoPreparoCard";
 import { COLUNAS_KANBAN, PROXIMA_ACAO_ITEM, REGRESSAO_ACAO_ITEM } from "./status-flow";
 import type { GrupoPreparo } from "./types";
 
@@ -114,11 +116,7 @@ export function Kds() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchPedidos();
-    const interval = setInterval(fetchPedidos, POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [fetchPedidos]);
+  usePolling(fetchPedidos, POLL_INTERVAL_MS);
 
   function atualizarStatusItensLocal(pedidoId: string, itemIds: string[], novoStatus: StatusItem) {
     setPedidos((current) =>
@@ -265,10 +263,16 @@ export function Kds() {
                     titulo={coluna.titulo}
                     icon={COLUNA_VISUAL[coluna.status].icon}
                     headerClass={COLUNA_VISUAL[coluna.status].headerClass}
-                    grupos={gruposPorStatus[coluna.status]}
-                    updatingPedidoId={updatingPedidoId}
-                    onAvancar={handleAvancar}
-                    onRegredir={handleRegredir}
+                    itens={gruposPorStatus[coluna.status]}
+                    chave={(grupo) => grupo.pedidoId}
+                    renderCard={(grupo) => (
+                      <GrupoPreparoCard
+                        grupo={grupo}
+                        isUpdating={updatingPedidoId === grupo.pedidoId}
+                        onAvancar={handleAvancar}
+                        onRegredir={handleRegredir}
+                      />
+                    )}
                   />
                 ))}
               </div>
