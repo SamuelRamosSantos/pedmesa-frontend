@@ -7,6 +7,7 @@ import { DashboardProprietario } from "./pages/admin/DashboardProprietario";
 import { Produtos } from "./pages/admin/Produtos";
 import { Usuarios } from "./pages/admin/Usuarios";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
+import { NovoPedidoDelivery } from "./pages/caixa/delivery/NovoPedidoDelivery";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { PreContaImpressao } from "./pages/caixa/PreContaImpressao";
 import { Kds } from "./pages/cozinha/Kds";
@@ -104,6 +105,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["caixa", "admin"]}>
               <PreContaImpressao />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/caixa/delivery/novo"
+          element={
+            // Mesmos papéis que o backend aceita em POST /delivery/pedidos (ADR-001).
+            <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
+              <NovoPedidoDelivery />
             </ProtectedRoute>
           }
         />

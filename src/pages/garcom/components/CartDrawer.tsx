@@ -1,31 +1,21 @@
-import { Minus, Plus, Send, Trash2, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { useEffect } from "react";
+import { LinhaCarrinho } from "../../../components/carrinho/LinhaCarrinho";
 import { Button } from "../../../components/ui/Button";
 import { formatCurrency } from "../../../lib/format";
+import type { ControleCarrinho } from "../../../hooks/useCarrinho";
 import type { ExtratoIntegranteResumo } from "../../../types/comanda";
-import type { CartItem } from "../types";
 
 interface CartDrawerProps {
   isOpen: boolean;
-  items: CartItem[];
+  carrinho: ControleCarrinho;
   integrantes: ExtratoIntegranteResumo[];
   isSubmitting: boolean;
   onClose: () => void;
-  onUpdateItem: (id: string, changes: Partial<Pick<CartItem, "quantidade" | "integranteId" | "observacao">>) => void;
-  onRemoveItem: (id: string) => void;
   onConfirm: () => void;
 }
 
-export function CartDrawer({
-  isOpen,
-  items,
-  integrantes,
-  isSubmitting,
-  onClose,
-  onUpdateItem,
-  onRemoveItem,
-  onConfirm,
-}: CartDrawerProps) {
+export function CartDrawer({ isOpen, carrinho, integrantes, isSubmitting, onClose, onConfirm }: CartDrawerProps) {
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -45,7 +35,7 @@ export function CartDrawer({
     return null;
   }
 
-  const total = items.reduce((soma, item) => soma + item.precoUnitario * item.quantidade, 0);
+  const opcoesIntegrante = integrantes.map((integrante) => ({ id: integrante.integrante_id, nome: integrante.nome }));
 
   return (
     <div
@@ -73,87 +63,20 @@ export function CartDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-3">
-          {items.length === 0 ? (
+          {carrinho.itens.length === 0 ? (
             <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
               Nenhum item selecionado ainda.
             </p>
           ) : (
             <div className="flex flex-col gap-3">
-              {items.map((item) => (
-                <div
+              {carrinho.itens.map((item) => (
+                <LinhaCarrinho
                   key={item.id}
-                  className="flex flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-medium text-slate-900 dark:text-white">{item.produtoNome}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {formatCurrency(item.precoUnitario)} / un.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onRemoveItem(item.id)}
-                      aria-label={`Remover ${item.produtoNome} do pedido`}
-                      className="shrink-0 rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onUpdateItem(item.id, { quantidade: Math.max(1, item.quantidade - 1) })}
-                      disabled={item.quantidade <= 1}
-                      aria-label={`Diminuir quantidade de ${item.produtoNome}`}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-300 text-slate-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <span className="w-6 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                      {item.quantidade}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onUpdateItem(item.id, { quantidade: item.quantidade + 1 })}
-                      aria-label={`Aumentar quantidade de ${item.produtoNome}`}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-300"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-                    <span className="ml-auto text-sm font-semibold text-slate-900 dark:text-white">
-                      {formatCurrency(item.precoUnitario * item.quantidade)}
-                    </span>
-                  </div>
-
-                  <label className="flex flex-col gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Para quem?
-                    <select
-                      value={item.integranteId ?? ""}
-                      onChange={(event) => onUpdateItem(item.id, { integranteId: event.target.value || null })}
-                      className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                      <option value="">Compartilhado (toda a mesa)</option>
-                      {integrantes.map((integrante) => (
-                        <option key={integrante.integrante_id} value={integrante.integrante_id}>
-                          {integrante.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Observação
-                    <input
-                      type="text"
-                      placeholder="Ex.: sem cebola"
-                      value={item.observacao}
-                      onChange={(event) => onUpdateItem(item.id, { observacao: event.target.value })}
-                      className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-                    />
-                  </label>
-                </div>
+                  item={item}
+                  integrantes={opcoesIntegrante}
+                  onAlterar={carrinho.alterar}
+                  onRemover={carrinho.remover}
+                />
               ))}
             </div>
           )}
@@ -162,9 +85,9 @@ export function CartDrawer({
         <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800">
           <div className="mb-3 flex items-center justify-between text-base font-semibold text-slate-900 dark:text-white">
             <span>Total</span>
-            <span>{formatCurrency(total)}</span>
+            <span>{formatCurrency(carrinho.totalEstimado)}</span>
           </div>
-          <Button onClick={onConfirm} isLoading={isSubmitting} disabled={items.length === 0} className="w-full">
+          <Button onClick={onConfirm} isLoading={isSubmitting} disabled={carrinho.itens.length === 0} className="w-full">
             <Send className="h-4 w-4" />
             Confirmar e Enviar Pedido
           </Button>

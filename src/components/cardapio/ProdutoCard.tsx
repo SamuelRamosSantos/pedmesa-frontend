@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
-import { formatCurrency } from "../../../lib/format";
-import type { Produto } from "../../../types/produto";
+import { formatCurrency } from "../../lib/format";
+import type { Produto } from "../../types/produto";
 
 interface ProdutoCardProps {
   produto: Produto;
