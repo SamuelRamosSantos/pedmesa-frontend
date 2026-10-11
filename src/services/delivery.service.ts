@@ -19,6 +19,7 @@ export interface ItemPedidoDeliveryPayload {
 
 export interface CotacaoDeliveryPayload {
   endereco: { cidade: string; bairro: string };
+  // Pode ir vazio: cota só o frete, antes de montar o carrinho (PED-108).
   itens: ItemPedidoDeliveryPayload[];
   forma_pagamento: FormaPagamento;
   // Valor em reais que o cliente vai entregar; null ou ausente = valor exato.
@@ -62,8 +63,8 @@ export interface CreateTaxaEntregaPayload {
 // Atualização parcial. tempo_estimado_min: null remove a estimativa; ausente mantém.
 export type UpdateTaxaEntregaPayload = Partial<CreateTaxaEntregaPayload>;
 
-export async function cotarPedidoDelivery(payload: CotacaoDeliveryPayload): Promise<CotacaoDelivery> {
-  const { data } = await api.post<CotacaoDelivery>("/delivery/cotacao", payload);
+export async function cotarPedidoDelivery(payload: CotacaoDeliveryPayload, signal?: AbortSignal): Promise<CotacaoDelivery> {
+  const { data } = await api.post<CotacaoDelivery>("/delivery/cotacao", payload, { signal });
   return data;
 }
 
