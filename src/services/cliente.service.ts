@@ -28,9 +28,9 @@ export type UpdateEnderecoClientePayload = Partial<Omit<CreateEnderecoClientePay
   principal?: true;
 };
 
-// null quando não há cliente com esse telefone.
-export async function buscarClientePorTelefone(telefone: string): Promise<Cliente | null> {
-  const { data } = await api.get<Cliente | null>("/clientes", { params: { telefone } });
+// null quando não há cliente com esse telefone. `signal` cancela a busca se o telefone mudar.
+export async function buscarClientePorTelefone(telefone: string, signal?: AbortSignal): Promise<Cliente | null> {
+  const { data } = await api.get<Cliente | null>("/clientes", { params: { telefone }, signal });
   return data;
 }
 

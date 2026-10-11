@@ -1,13 +1,15 @@
 import { useId } from "react";
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, Ref } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   icon?: ReactNode;
+  // Para quem precisa mover o foco (ex.: formulário do delivery operado pelo teclado).
+  ref?: Ref<HTMLInputElement>;
 }
 
-export function Input({ label, error, icon, id, className = "", ...rest }: InputProps) {
+export function Input({ label, error, icon, id, className = "", ref, ...rest }: InputProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
@@ -24,6 +26,7 @@ export function Input({ label, error, icon, id, className = "", ...rest }: Input
           </span>
         )}
         <input
+          ref={ref}
           id={inputId}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
