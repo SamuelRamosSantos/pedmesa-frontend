@@ -5,6 +5,7 @@ import { SuperAdminProtectedRoute } from "./components/SuperAdminProtectedRoute"
 import { ConfiguracoesEmpresa } from "./pages/admin/ConfiguracoesEmpresa";
 import { DashboardProprietario } from "./pages/admin/DashboardProprietario";
 import { Produtos } from "./pages/admin/Produtos";
+import { TaxasEntrega } from "./pages/admin/TaxasEntrega";
 import { Usuarios } from "./pages/admin/Usuarios";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
 import { NovoPedidoDelivery } from "./pages/caixa/delivery/NovoPedidoDelivery";
@@ -160,6 +161,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ConfiguracoesEmpresa />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/delivery/taxas"
+          element={
+            // Só o dono configura onde entrega e quanto cobra (backend: GERENCIAR_TAXAS_ROLES).
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <TaxasEntrega />
             </ProtectedRoute>
           }
         />

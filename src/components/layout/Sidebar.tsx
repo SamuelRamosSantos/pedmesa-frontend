@@ -3,6 +3,7 @@ import {
   ChefHat,
   LayoutDashboard,
   LogOut,
+  MapPinned,
   Menu,
   Package,
   Settings,
@@ -31,6 +32,7 @@ const ROLE_ICON: Record<UserRole, LucideIcon> = {
 const ADMIN_SUBITENS: { label: string; route: string; icon: LucideIcon }[] = [
   { label: "Produtos", route: "/admin/produtos", icon: Package },
   { label: "Usuários", route: "/admin/usuarios", icon: Users },
+  { label: "Bairros e taxas", route: "/admin/delivery/taxas", icon: MapPinned },
   { label: "Configurações", route: "/admin/configuracoes", icon: Settings },
 ];
 
