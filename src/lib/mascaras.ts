@@ -3,7 +3,7 @@
 
 const CODIGO_PAIS_BRASIL = "55";
 const DIGITOS_TELEFONE = 11;
-const DIGITOS_CEP = 8;
+export const DIGITOS_CEP = 8;
 
 export function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, "");
