@@ -1,6 +1,6 @@
 # Arquitetura — pedmesa-frontend
 
-> Estado descrito: branch `main`. As telas do delivery estão na branch do épico PED-82 (ver `docs/ANDAMENTO.md`).
+> Estado descrito: branch `main`. As telas de delivery (novo pedido, Kanban de expedição e taxas) estão na branch do épico PED-82 (ver `docs/ANDAMENTO.md`).
 
 ## 1. Stack
 
@@ -9,7 +9,7 @@
 | UI        | React 19, Tailwind CSS 4 (`@tailwindcss/vite`), lucide-react |
 | Build     | Vite 8, TypeScript com `strict`                              |
 | Rotas     | React Router 7                                               |
-| HTTP      | Axios (instância única `api`)                                |
+| HTTP      | Axios (instância única `api`, com `withCredentials`)         |
 | Gráficos  | Recharts (dashboard)                                         |
 | Qualidade | Biome, Husky e Commitlint                                    |
 
@@ -18,10 +18,10 @@
 ```mermaid
 flowchart LR
     U["Usuário do estabelecimento<br/>ou super-admin"] --> SPA["pedmesa-frontend (SPA + PWA)"]
-    SPA -- "Authorization: Bearer" --> API["pedmesa-backend /api/v1"]
+    SPA -- "cookie HttpOnly (withCredentials)" --> API["pedmesa-backend /api/v1"]
 ```
 
-A regra de negócio e os valores definitivos (totais, descontos, troco) ficam no backend; a interface exibe e coleta dados.
+A regra de negócio e os valores definitivos (totais, descontos, taxa de entrega, troco) ficam no backend; a interface exibe e coleta dados.
 
 ## 3. Estrutura de pastas
 
@@ -34,15 +34,16 @@ src/
     admin/             # DashboardProprietario, Produtos, Usuarios, ConfiguracoesEmpresa
     caixa/             # MapaMesas, ComandaFechamento, PreContaImpressao
     cozinha/           # Kds
+    expedicao/         # Expedicao
     garcom/            # Mesas, ComandaDetalhe
     superadmin/        # PainelSuperAdmin, PainelLeads
     <papel>/components/  # componentes usados só pelas telas daquele papel
-  components/ui/       # Button, Card, ConfirmDialog, CurrencyInput, Input, Modal, Switch, ThemeToggle, Toast
+  components/ui/       # Button, Card, ConfirmDialog, CurrencyInput, ImageUpload, Input, Modal, Switch, ThemeToggle, Toast
   components/layout/   # AppShell, Sidebar
   components/          # ProtectedRoute, SuperAdminProtectedRoute, ImpersonationBanner
   services/            # api.ts, admin-api.ts e um service por recurso
   contexts/            # AuthContext, SuperAdminAuthContext, TenantContext, ThemeContext, ToastContext
-  lib/                 # api-error, auth-storage, money, format, desconto, role-routes...
+  lib/                 # api-error, auth-storage, money, format, desconto, role-routes, role-labels...
   types/               # contrato da API em snake_case
 ```
 
@@ -55,15 +56,18 @@ src/
 | `/garcom/mesas`, `/garcom/comanda/:id`                                              | Mesas e comanda       | garcom                           |
 | `/cozinha/kds`                                                                      | KDS                   | cozinha                          |
 | `/caixa/mapa-mesas`, `/caixa/comanda/:id/fechamento`, `/caixa/comanda/:id/preconta` | Caixa                 | caixa                            |
+| `/expedicao`                                                                        | Visão de expedição    | expedicao                        |
 | `/admin/dashboard`, `/admin/produtos`, `/admin/usuarios`, `/admin/configuracoes`    | Administração         | admin                            |
 | `/admin`, `/admin/leads`                                                            | Painel de super-admin | super-admin                      |
 | `/nao-autorizado`, `*`                                                              | Erro de acesso e 404  | —                                |
 
-Depois do login, `src/lib/role-routes.ts` decide a tela inicial pelo papel de maior prioridade (`admin`, `caixa`, `garcom`, `cozinha`).
+Depois do login, `src/lib/role-routes.ts` decide a tela inicial pelo papel de maior prioridade; os nomes exibidos dos papéis ficam em `src/lib/role-labels.ts`.
 
 ## 5. Autenticação e acesso
 
-- O token e o usuário ficam no `localStorage` (`src/lib/auth-storage.ts`). A instância `api` envia `Authorization: Bearer <token>` e o `X-Tenant-ID` em toda requisição. A migração para cookie HttpOnly está na branch do PED-53 (PED-76).
+- A sessão é um cookie HttpOnly gravado pela API no login (PED-76): o JavaScript não lê nem guarda o token. A instância `api` usa `withCredentials: true` para o navegador enviar o cookie.
+- O `localStorage` guarda só os dados de exibição do usuário (`src/lib/auth-storage.ts` e `super-admin-auth-storage.ts`).
+- Um interceptor de resposta trata o 401 (PED-77): limpa os dados do usuário, chama `POST /auth/logout` e redireciona para `/login`, ou para `/admin` quando um super-admin estava impersonando.
 - `ProtectedRoute` exige login e papel; `SuperAdminProtectedRoute` protege o painel de super-admin, que tem sessão própria (`SuperAdminAuthContext`). Durante a impersonação, o `ImpersonationBanner` fica visível.
 - Esconder um botão não é controle de acesso: o backend valida o papel de novo em toda rota.
 
@@ -72,10 +76,11 @@ Depois do login, `src/lib/role-routes.ts` decide a tela inicial pelo papel de ma
 - Estado global por contexts (auth, tenant, tema e toasts); estado de tela com `useState`/`useEffect`.
 - Erros de API viram mensagem amigável por `src/lib/api-error.ts` e são exibidos pelo `ToastContext`.
 - Dinheiro em tela passa por `src/lib/money.ts` e `src/lib/format.ts`.
+- Imagens (produtos e usuários) são enviadas pelo `ImageUpload` (arrastar e soltar, com prévia) para `POST /uploads`.
 
 ## 7. PWA
 
-`public/manifest.webmanifest`, ícones e service worker (`src/lib/register-service-worker.ts`). O nginx da imagem precisa servir o `.webmanifest` como `application/manifest+json`, senão a instalação não aparece.
+`public/manifest.webmanifest`, ícones e service worker (`public/sw.js`, registrado por `src/lib/register-service-worker.ts`). O nginx da imagem precisa servir o `.webmanifest` como `application/manifest+json`, senão a instalação não aparece.
 
 ## 8. Diretrizes arquiteturais
 
@@ -83,8 +88,7 @@ As regras completas (cliente HTTP único da API, integrações externas isoladas
 
 ## 9. Limitações conhecidas
 
-- Sem testes automatizados (planejado na PED-104).
-- Token em `localStorage` até o PED-76 ser mesclado.
+- Sem testes automatizados na `main`; o Vitest entra com a PED-104, que está na branch PED-82.
 - O Dockerfile gera a configuração do nginx por `echo`; a padronização está na PED-118.
 
 ## 10. Setup local e fluxo de trabalho

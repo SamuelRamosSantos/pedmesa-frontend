@@ -8,6 +8,7 @@
 | ----------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | Garçom      | Mesas, Comanda (carrinho, integrantes, pedidos enviados)                                       | RF-12, RF-13, RF-15                       |
 | Cozinha     | KDS                                                                                            | RF-11, RF-14                              |
+| Expedição   | Visão de expedição (novo pedido delivery e Kanban na branch PED-82)                            | RF-26 a RF-28                             |
 | Caixa       | Mapa de mesas, Fechamento (extrato, desconto, pagamentos, junção), Pré-conta                   | RF-16 a RF-20                             |
 | Admin       | Dashboard, Produtos, Usuários, Configurações da empresa (inclui impressoras e token do agente) | RF-03, RF-04, RF-08 a RF-10, RF-21, RF-24 |
 | Super-admin | Tenants, Leads                                                                                 | RF-05 a RF-07                             |

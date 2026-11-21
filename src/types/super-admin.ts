@@ -8,7 +8,6 @@ export interface SuperAdminUser {
 
 export interface LoginResponseSuperAdmin {
   tipo: "super_admin";
-  token: string;
   super_admin: SuperAdminUser;
 }
 

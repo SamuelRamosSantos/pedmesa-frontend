@@ -4,11 +4,12 @@ Interface do **PedMesa** para os estabelecimentos: garçom, cozinha (KDS), caixa
 
 ## Funcionalidades
 
-- Login com escolha de visão para quem tem mais de um papel.
+- Login com sessão em cookie HttpOnly e escolha de visão para quem tem mais de um papel.
 - **Garçom:** mesas, comanda, integrantes e lançamento de pedidos pelo carrinho.
 - **Cozinha:** KDS em colunas com o avanço do preparo e a disponibilidade dos produtos.
 - **Caixa:** mapa de mesas, fechamento com divisão de conta, desconto, pagamentos, junção de comandas e pré-conta para impressão.
-- **Admin:** dashboard, produtos e categorias, usuários, impressoras e configurações da empresa.
+- **Expedição:** visão de expedição do delivery (as telas completas de novo pedido e Kanban estão na branch PED-82).
+- **Admin:** dashboard, produtos e categorias (com imagem), usuários, impressoras e configurações da empresa.
 - **Super-admin:** tenants (cadastro, edição, status e impersonação) e leads da landing page.
 - Tema claro, escuro ou do sistema.
 

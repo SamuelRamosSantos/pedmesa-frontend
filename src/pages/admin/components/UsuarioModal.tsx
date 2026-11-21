@@ -2,12 +2,14 @@ import { LockKeyhole, Save, ShieldCheck } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
+import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { Switch } from "../../../components/ui/Switch";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
+import { ROLE_LABEL, ROLES_EM_ORDEM } from "../../../lib/role-labels";
 import {
   createUsuario,
   updateUsuario,
@@ -28,12 +30,10 @@ interface OpcaoRole {
   label: string;
 }
 
-const OPCOES_ROLE: OpcaoRole[] = [
-  { role: "admin", label: "Admin" },
-  { role: "garcom", label: "Garçom" },
-  { role: "cozinha", label: "Cozinha" },
-  { role: "caixa", label: "Caixa" },
-];
+const OPCOES_ROLE: OpcaoRole[] = ROLES_EM_ORDEM.map((role) => ({
+  role,
+  label: ROLE_LABEL[role],
+}));
 
 export function UsuarioModal({
   isOpen,
@@ -49,6 +49,7 @@ export function UsuarioModal({
   const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] =
     useState(false);
   const [podeConcederDesconto, setPodeConcederDesconto] = useState(false);
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [emailError, setEmailError] = useState<string | undefined>();
@@ -76,12 +77,14 @@ export function UsuarioModal({
         usuarioEditando.pode_excluir_item_fechamento,
       );
       setPodeConcederDesconto(usuarioEditando.pode_conceder_desconto);
+      setFotoUrl(usuarioEditando.foto_url);
     } else {
       setNome("");
       setEmail("");
       setRoles([]);
       setPodeExcluirItemFechamento(false);
       setPodeConcederDesconto(false);
+      setFotoUrl(null);
     }
 
     setSenha("");
@@ -147,6 +150,7 @@ export function UsuarioModal({
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
+          foto_url: fotoUrl,
         });
         showToast(
           `Usuário "${nome.trim()}" atualizado com sucesso.`,
@@ -160,6 +164,7 @@ export function UsuarioModal({
           roles,
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
+          foto_url: fotoUrl,
         });
         showToast(
           `Usuário "${nome.trim()}" cadastrado com sucesso.`,
@@ -187,6 +192,15 @@ export function UsuarioModal({
       title={isEdicao ? "Editar usuário" : "Novo usuário"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <div className="flex justify-center">
+          <ImageUpload
+            label="Foto do usuário"
+            value={fotoUrl}
+            onChange={setFotoUrl}
+            shape="circle"
+          />
+        </div>
+
         <Input
           label="Nome"
           placeholder="Ex.: Maria Silva"

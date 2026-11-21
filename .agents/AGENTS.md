@@ -60,6 +60,7 @@ flowchart TD
 ### Branches: uma por épico
 
 - GitLab Flow (ver `docs/GITFLOW.md`): toda branch sai da `main` mais recente.
+- **Antes de criar, comparar ou recomendar branches, a IA roda `git fetch origin`** (só lê o remoto) e confere se a `main` local está igual à `origin/main`.
 - A branch é do **épico**: `PED-<ID-do-épico>-<titulo-do-epico-em-slug>`, em minúsculas, com hífens e sem acentos. Ex.: `PED-82-delivery-frontend`. Todas as tarefas do épico são commitadas nela; confira com `git branch -a` se ela já existe antes de sugerir o `git checkout -b`.
 
 ### Commits: um por tarefa

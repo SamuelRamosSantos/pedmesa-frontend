@@ -336,7 +336,7 @@ export function DashboardProprietario() {
                         <thead>
                           <tr className="text-left text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                             <th className="py-2 pr-4">Data</th>
-                            <th className="py-2 pr-4">Mesa</th>
+                            <th className="py-2 pr-4">Atendimento</th>
                             <th className="py-2 pr-4 text-right">Valor</th>
                             <th className="py-2">Forma de Pagamento</th>
                           </tr>
@@ -348,7 +348,7 @@ export function DashboardProprietario() {
                                 {formatDataHora(linha.fechada_em)}
                               </td>
                               <td className="py-2.5 pr-4 text-slate-700 dark:text-slate-300">
-                                Mesa {linha.mesa}
+                                {linha.identificador}
                               </td>
                               <td className="py-2.5 pr-4 text-right font-medium text-slate-900 dark:text-white">
                                 {formatCurrency(linha.valor)}

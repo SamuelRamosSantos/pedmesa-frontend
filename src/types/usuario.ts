@@ -8,5 +8,6 @@ export interface Usuario {
   pode_excluir_item_fechamento: boolean;
   pode_conceder_desconto: boolean;
   ativo: boolean;
+  foto_url: string | null;
   criado_em: string;
 }

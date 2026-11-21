@@ -16,21 +16,14 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { ROLE_LABEL } from "../../lib/role-labels";
 import {
   listUsuarios,
   updateUsuarioAtivo,
 } from "../../services/usuario.service";
-import type { UserRole } from "../../types/auth";
 import type { Usuario } from "../../types/usuario";
 import { AlterarSenhaModal } from "./components/AlterarSenhaModal";
 import { UsuarioModal } from "./components/UsuarioModal";
-
-const ROLE_LABEL: Record<UserRole, string> = {
-  admin: "Admin",
-  garcom: "Garçom",
-  cozinha: "Cozinha",
-  caixa: "Caixa",
-};
 
 export function Usuarios() {
   const { user: usuarioLogado } = useAuth();
@@ -192,18 +185,31 @@ export function Usuarios() {
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white">
-                            {usuario.nome}
-                            {isSelf && (
-                              <span className="ml-1.5 text-xs font-normal text-slate-400">
-                                (você)
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {usuario.email}
-                          </p>
+                        <div className="flex items-start gap-3">
+                          {usuario.foto_url ? (
+                            <img
+                              src={usuario.foto_url}
+                              alt=""
+                              className="h-10 w-10 shrink-0 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                              {usuario.nome.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                              {usuario.nome}
+                              {isSelf && (
+                                <span className="ml-1.5 text-xs font-normal text-slate-400">
+                                  (você)
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {usuario.email}
+                            </p>
+                          </div>
                         </div>
                         {!usuario.ativo && (
                           <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/60 dark:text-red-300">
