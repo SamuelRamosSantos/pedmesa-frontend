@@ -38,6 +38,23 @@ jobs:
       - name: Compilar (npm run build)
         run: npm run build
 
+      - name: Procurar IP privado no bundle (PED-120)
+        env:
+          # Exemplo do campo de IP da impressora de rede (ImpressoraModal), não é vazamento
+          IPS_PERMITIDOS: "192.168.0.100"
+        run: |
+          padrao='(10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}|192\.168\.[0-9]{1,3}\.[0-9]{1,3})'
+          encontrados="$(grep -rhoEI "$padrao" dist/ | sort -u || true)"
+          for ip in $IPS_PERMITIDOS; do
+            encontrados="$(printf '%s\n' "$encontrados" | grep -vxF "$ip" || true)"
+          done
+          if [ -n "$encontrados" ]; then
+            echo "::error::IP privado no bundle (vazamento de rede interna, ver PED-64):"
+            printf '%s\n' "$encontrados"
+            exit 1
+          fi
+          echo "Nenhum IP privado no bundle."
+
   commits:
     name: Commits
     # O Dependabot gera mensagens fora do padrão do projeto

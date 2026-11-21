@@ -23,6 +23,7 @@
 - Upload de imagem com arrastar e soltar (PED-46).
 - PWA e tema claro/escuro.
 - Organização do repositório: Biome no lugar do oxlint, `strict` no TypeScript, Husky + Commitlint, guardrails de IA (`.agents/`), documentação em `docs/`, CI e Dependabot.
+- Imagem Docker padronizada (Node 26, nginx sem root na porta 8080, `nginx.conf` versionado) e deploy por GitHub Actions + GHCR + Coolify com verificação de segurança (PED-118 a PED-120).
 
 ## 3. Em andamento (fora da `main`)
 
@@ -31,7 +32,6 @@
 ## 4. Planejado
 
 - PED-112: navegação, permissões e badges do delivery.
-- PED-118 e PED-119: Dockerfile padronizado (nginx versionado, não-root) e pipeline de deploy.
 - PED-59, PED-64 e PED-69: cabeçalhos de segurança, `Cache-Control` e compressão no nginx da imagem.
 
 ## 5. Pendências conhecidas
