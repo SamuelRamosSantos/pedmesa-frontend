@@ -62,11 +62,20 @@ Ainda não há testes automatizados no frontend; a adoção do Vitest está plan
 
 ## Docker
 
-O `Dockerfile` faz o build com Node e serve o `dist/` com nginx (fallback de SPA e `Content-Type` correto do `.webmanifest`). A padronização com `nginx.conf` versionado e imagem não-root está planejada na PED-118.
+O `Dockerfile` faz o build com Node 26 (recebendo `VITE_API_BASE_URL` como argumento de build) e serve o `dist/` com `nginx-unprivileged` na porta **8080**, sem root. A configuração do nginx fica versionada em `nginx.conf` (fallback de SPA e `Content-Type` do `.webmanifest`), e os cabeçalhos de segurança em `security-headers.conf` (PED-59).
+
+```bash
+docker build -t pedmesa-frontend:local --build-arg VITE_API_BASE_URL=http://localhost:3000/api/v1 .
+docker run --rm -p 8080:8080 pedmesa-frontend:local
+```
 
 ## CI/CD
 
-O workflow `.github/workflows/ci.yml` roda em todo Pull Request para `main` e `prod` com os jobs **Qualidade** (`npm run check` e `npm run build`) e **Commits** (Commitlint). O Dependabot abre PRs de npm, GitHub Actions e Docker. Detalhes em `docs/CICD.md`.
+- `ci.yml`: em todo Pull Request para `main` e `prod`, jobs **Qualidade** (`npm run check`, `npm run build` e busca de IP privado no bundle) e **Commits** (Commitlint).
+- `deploy.yml`: no push em `main` (homologação) ou `prod` (produção), constrói a imagem com as `VITE_*` do ambiente, publica no GHCR, pede o deploy ao Coolify, confere `GET /` e roda a verificação de segurança.
+- Dependabot: npm, GitHub Actions e imagens Docker.
+
+Configuração do Coolify e dos GitHub Environments em `docs/CICD.md`.
 
 ## Estrutura do projeto
 

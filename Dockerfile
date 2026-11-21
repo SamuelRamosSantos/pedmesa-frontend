@@ -1,37 +1,41 @@
-# Etapa 1: Build da aplicação React
-FROM node:22-alpine AS builder
+# =============================================================
+# PedMesa app (PED-118)
+# Versões das imagens base fixas: o Dependabot abre PR quando sair uma nova
+# (a troca de major do Node é manual).
+# =============================================================
+
+# ---- Estágio 1: build da SPA ----
+FROM node:26.13.1-alpine3.24 AS build
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+# --ignore-scripts: o "prepare" (Husky) não tem utilidade dentro da imagem
+RUN npm ci --ignore-scripts
 
 COPY . .
+
+# O Vite embute as VITE_* no bundle NO BUILD (não em runtime): por isso chegam
+# como build args, uma imagem por ambiente. No pipeline vêm das variáveis do
+# GitHub Environment (ver docs/CICD.md).
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 RUN npm run build
 
-# Etapa 2: Servidor Web Nginx leve para produção
-FROM nginx:alpine
+# Commit da imagem, informado pelo pipeline. Servido em /versao.txt: a verificação
+# final do deploy compara este valor com o commit publicado.
+ARG GIT_SHA=desenvolvimento
+RUN printf "%s" "$GIT_SHA" > dist/versao.txt
 
-# Copia os arquivos compilados para o diretório do Nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
+# ---- Estágio 2: nginx sem root, porta 8080 ----
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine3.24 AS runtime
 
-# Configuração de SPA para evitar 404 em rotas do React Router. O bloco do
-# .webmanifest existe porque o mime.types padrão do nginx:alpine não conhece
-# essa extensão — sem isso, o Chrome recebe Content-Type: application/octet-stream
-# e recusa silenciosamente o manifest, e a opção de instalar o PWA nunca aparece.
-RUN echo 'server { \
-    listen 80; \
-    location ~* \.webmanifest$ { \
-    root /usr/share/nginx/html; \
-    default_type application/manifest+json; \
-    } \
-    location / { \
-    root /usr/share/nginx/html; \
-    index index.html index.htm; \
-    try_files $uri $uri/ /index.html; \
-    } \
-    }' > /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.conf /etc/nginx/snippets/security-headers.conf
+COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:8080/ || exit 1

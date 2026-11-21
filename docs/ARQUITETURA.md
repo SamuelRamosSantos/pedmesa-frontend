@@ -89,7 +89,6 @@ As regras completas (cliente HTTP único da API, integrações externas isoladas
 ## 9. Limitações conhecidas
 
 - Sem testes automatizados na `main`; o Vitest entra com a PED-104, que está na branch PED-82.
-- O Dockerfile gera a configuração do nginx por `echo`; a padronização está na PED-118.
 
 ## 10. Setup local e fluxo de trabalho
 
