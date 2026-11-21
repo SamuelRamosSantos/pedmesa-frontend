@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
-import { useEffect } from "react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -30,20 +30,28 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: o clique no fundo só complementa o Escape, tratado no document acima
     <div
       className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4"
       role="presentation"
-      onClick={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
-        onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
-          {title && <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>}
+          {title && (
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              {title}
+            </h2>
+          )}
           <button
             type="button"
             onClick={onClose}

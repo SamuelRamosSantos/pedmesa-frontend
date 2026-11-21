@@ -5,7 +5,10 @@ interface ApiErrorResponse {
 }
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError<ApiErrorResponse>(error) && error.response?.data?.message) {
+  if (
+    axios.isAxiosError<ApiErrorResponse>(error) &&
+    error.response?.data?.message
+  ) {
     return error.response.data.message;
   }
 

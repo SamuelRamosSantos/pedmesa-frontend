@@ -21,7 +21,10 @@ export function getStoredSuperAdminUser(): SuperAdminUser | null {
   }
 }
 
-export function setStoredSuperAdminAuth(token: string, user: SuperAdminUser): void {
+export function setStoredSuperAdminAuth(
+  token: string,
+  user: SuperAdminUser,
+): void {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }

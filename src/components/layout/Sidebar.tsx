@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   Building2,
   ChefHat,
@@ -6,11 +7,10 @@ import {
   Menu,
   Package,
   Settings,
-  UtensilsCrossed,
   Users,
+  UtensilsCrossed,
   X,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
 import { useAuth } from "../../contexts/AuthContext";
@@ -41,7 +41,12 @@ interface SidebarProps {
   onToggleDesktop: () => void;
 }
 
-export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onToggleDesktop }: SidebarProps) {
+export function Sidebar({
+  isMobileOpen,
+  onCloseMobile,
+  isDesktopExpanded,
+  onToggleDesktop,
+}: SidebarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,7 +59,9 @@ export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onTogg
     return user!.roles.includes(role) || user!.roles.includes("admin");
   }
 
-  const itensTrocarVisao = Object.values(ROLE_VIEW_INFO).filter((item) => podeAcessar(item.role));
+  const itensTrocarVisao = Object.values(ROLE_VIEW_INFO).filter((item) =>
+    podeAcessar(item.role),
+  );
   const ehAdmin = user.roles.includes("admin");
 
   function handleLogout() {
@@ -94,8 +101,14 @@ export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onTogg
             </button>
           ) : (
             <>
-              <img src={logoIcon} alt="PedMesa" className="h-10 w-10 rounded-xl" />
-              <span className="text-lg font-bold text-slate-900 dark:text-white">PedMesa</span>
+              <img
+                src={logoIcon}
+                alt="PedMesa"
+                className="h-10 w-10 rounded-xl"
+              />
+              <span className="text-lg font-bold text-slate-900 dark:text-white">
+                PedMesa
+              </span>
               <button
                 type="button"
                 onClick={mode === "mobile" ? onCloseMobile : onToggleDesktop}
@@ -108,7 +121,9 @@ export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onTogg
           )}
         </div>
 
-        <nav className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}>
+        <nav
+          className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}
+        >
           {!collapsed && (
             <p className="px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Trocar visão
@@ -192,10 +207,16 @@ export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onTogg
             </>
           ) : (
             <>
-              <p className="truncate text-sm font-medium text-slate-900 dark:text-white">{user!.nome}</p>
+              <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                {user!.nome}
+              </p>
               <div className="mt-3 flex items-center gap-2">
                 <ThemeToggle />
-                <Button variant="secondary" onClick={handleLogout} className="flex-1">
+                <Button
+                  variant="secondary"
+                  onClick={handleLogout}
+                  className="flex-1"
+                >
                   <LogOut className="h-4 w-4" />
                   Sair
                 </Button>
@@ -219,8 +240,14 @@ export function Sidebar({ isMobileOpen, onCloseMobile, isDesktopExpanded, onTogg
 
       {isMobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={onCloseMobile} aria-hidden="true" />
-          <div className="fixed inset-y-0 left-0 z-50 w-72 shadow-xl">{renderContent("mobile")}</div>
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={onCloseMobile}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 left-0 z-50 w-72 shadow-xl">
+            {renderContent("mobile")}
+          </div>
         </div>
       )}
     </>

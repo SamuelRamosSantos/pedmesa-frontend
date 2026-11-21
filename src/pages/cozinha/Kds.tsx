@@ -1,5 +1,13 @@
-import { CheckCircle2, Clock3, Flame, Menu, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  Flame,
+  Menu,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "../../components/layout/AppShell";
 import { useToast } from "../../contexts/ToastContext";
@@ -7,17 +15,25 @@ import { getApiErrorMessage } from "../../lib/api-error";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
 import type { PedidoAtivo, StatusItem } from "../../types/pedido";
 import { KanbanColumn } from "./components/KanbanColumn";
-import { COLUNAS_KANBAN, PROXIMA_ACAO_ITEM, REGRESSAO_ACAO_ITEM } from "./status-flow";
+import {
+  COLUNAS_KANBAN,
+  PROXIMA_ACAO_ITEM,
+  REGRESSAO_ACAO_ITEM,
+} from "./status-flow";
 import type { GrupoPreparo } from "./types";
 
 const POLL_INTERVAL_MS = 8000;
 
 const STATUS_FORA_DA_FILA: StatusItem[] = ["entregue", "cancelado"];
 
-const COLUNA_VISUAL: Record<StatusItem, { icon: LucideIcon; headerClass: string }> = {
+const COLUNA_VISUAL: Record<
+  StatusItem,
+  { icon: LucideIcon; headerClass: string }
+> = {
   pendente: {
     icon: Clock3,
-    headerClass: "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-300",
+    headerClass:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-300",
   },
   em_preparo: {
     icon: Flame,
@@ -31,11 +47,13 @@ const COLUNA_VISUAL: Record<StatusItem, { icon: LucideIcon; headerClass: string 
   },
   entregue: {
     icon: CheckCircle2,
-    headerClass: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+    headerClass:
+      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
   },
   cancelado: {
     icon: CheckCircle2,
-    headerClass: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+    headerClass:
+      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
   },
 };
 
@@ -56,7 +74,8 @@ function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
 
   for (const pedido of pedidos) {
     const itensPreparo = pedido.itens.filter(
-      (item) => item.precisa_preparo && !STATUS_FORA_DA_FILA.includes(item.status_item)
+      (item) =>
+        item.precisa_preparo && !STATUS_FORA_DA_FILA.includes(item.status_item),
     );
 
     if (itensPreparo.length === 0) {
@@ -68,7 +87,9 @@ function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
       numeroComanda: pedido.numero_comanda,
       garcomNome: pedido.garcom_nome,
       criadoEm: pedido.criado_em,
-      statusGrupo: calcularStatusGrupo(itensPreparo.map((item) => item.status_item)),
+      statusGrupo: calcularStatusGrupo(
+        itensPreparo.map((item) => item.status_item),
+      ),
       itens: itensPreparo.map((item) => ({
         id: item.id,
         produtoNome: item.produto_nome,
@@ -105,7 +126,9 @@ export function Kds() {
       setIsConnected(false);
 
       if (isFirstLoadRef.current) {
-        setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar os pedidos."));
+        setErrorMessage(
+          getApiErrorMessage(error, "Não foi possível carregar os pedidos."),
+        );
       }
     } finally {
       setIsRefreshing(false);
@@ -120,7 +143,11 @@ export function Kds() {
     return () => clearInterval(interval);
   }, [fetchPedidos]);
 
-  function atualizarStatusItensLocal(pedidoId: string, itemIds: string[], novoStatus: StatusItem) {
+  function atualizarStatusItensLocal(
+    pedidoId: string,
+    itemIds: string[],
+    novoStatus: StatusItem,
+  ) {
     setPedidos((current) =>
       current.map((pedido) =>
         pedido.id !== pedidoId
@@ -128,19 +155,25 @@ export function Kds() {
           : {
               ...pedido,
               itens: pedido.itens.map((item) =>
-                itemIds.includes(item.id) ? { ...item, status_item: novoStatus } : item
+                itemIds.includes(item.id)
+                  ? { ...item, status_item: novoStatus }
+                  : item,
               ),
-            }
-      )
+            },
+      ),
     );
   }
 
-  async function aplicarMudancaGrupo(grupo: GrupoPreparo, novoStatus: StatusItem, mensagemErro: string) {
+  async function aplicarMudancaGrupo(
+    grupo: GrupoPreparo,
+    novoStatus: StatusItem,
+    mensagemErro: string,
+  ) {
     setUpdatingPedidoId(grupo.pedidoId);
 
     try {
       const resultados = await Promise.allSettled(
-        grupo.itens.map((item) => updateItemStatus(item.id, novoStatus))
+        grupo.itens.map((item) => updateItemStatus(item.id, novoStatus)),
       );
 
       const itensComSucesso = grupo.itens
@@ -166,7 +199,11 @@ export function Kds() {
       return;
     }
 
-    await aplicarMudancaGrupo(grupo, acao.proximoStatus, "Não foi possível atualizar o status de alguns itens do pedido.");
+    await aplicarMudancaGrupo(
+      grupo,
+      acao.proximoStatus,
+      "Não foi possível atualizar o status de alguns itens do pedido.",
+    );
   }
 
   async function handleRegredir(grupo: GrupoPreparo) {
@@ -176,7 +213,11 @@ export function Kds() {
       return;
     }
 
-    await aplicarMudancaGrupo(grupo, acao.proximoStatus, "Não foi possível desfazer o status de alguns itens do pedido.");
+    await aplicarMudancaGrupo(
+      grupo,
+      acao.proximoStatus,
+      "Não foi possível desfazer o status de alguns itens do pedido.",
+    );
   }
 
   const gruposPorStatus = useMemo(() => {
@@ -195,7 +236,10 @@ export function Kds() {
     }
 
     for (const status of Object.keys(colunas) as StatusItem[]) {
-      colunas[status].sort((a, b) => new Date(a.criadoEm).getTime() - new Date(b.criadoEm).getTime());
+      colunas[status].sort(
+        (a, b) =>
+          new Date(a.criadoEm).getTime() - new Date(b.criadoEm).getTime(),
+      );
     }
 
     return colunas;
@@ -215,13 +259,19 @@ export function Kds() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Painel da Cozinha</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Painel da Cozinha
+            </h1>
 
             <div className="ml-auto flex items-center gap-4">
               <span
                 className={`flex items-center gap-1.5 text-xs font-semibold ${isConnected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
               >
-                {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
+                {isConnected ? (
+                  <Wifi className="h-4 w-4" />
+                ) : (
+                  <WifiOff className="h-4 w-4 animate-pulse" />
+                )}
                 {isConnected ? "Conectado" : "Sem conexão"}
               </span>
 
@@ -231,7 +281,9 @@ export function Kds() {
                 aria-label="Atualizar pedidos"
                 className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
-                <RefreshCw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
           </header>
@@ -246,7 +298,9 @@ export function Kds() {
 
             {!isLoading && errorMessage && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/40 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <button
                   type="button"
                   onClick={fetchPedidos}

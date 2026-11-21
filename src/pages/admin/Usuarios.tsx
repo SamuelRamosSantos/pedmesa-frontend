@@ -16,7 +16,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
-import { listUsuarios, updateUsuarioAtivo } from "../../services/usuario.service";
+import {
+  listUsuarios,
+  updateUsuarioAtivo,
+} from "../../services/usuario.service";
 import type { UserRole } from "../../types/auth";
 import type { Usuario } from "../../types/usuario";
 import { AlterarSenhaModal } from "./components/AlterarSenhaModal";
@@ -41,7 +44,8 @@ export function Usuarios() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
-  const [usuarioAlterandoSenha, setUsuarioAlterandoSenha] = useState<Usuario | null>(null);
+  const [usuarioAlterandoSenha, setUsuarioAlterandoSenha] =
+    useState<Usuario | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchUsuarios = useCallback(async () => {
@@ -52,7 +56,9 @@ export function Usuarios() {
       const data = await listUsuarios();
       setUsuarios(data);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar os usuários."));
+      setErrorMessage(
+        getApiErrorMessage(error, "Não foi possível carregar os usuários."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -87,13 +93,23 @@ export function Usuarios() {
 
     try {
       const atualizado = await updateUsuarioAtivo(usuario.id, !usuario.ativo);
-      setUsuarios((current) => current.map((item) => (item.id === usuario.id ? atualizado : item)));
+      setUsuarios((current) =>
+        current.map((item) => (item.id === usuario.id ? atualizado : item)),
+      );
       showToast(
-        atualizado.ativo ? `"${usuario.nome}" reativado.` : `"${usuario.nome}" desativado.`,
-        "success"
+        atualizado.ativo
+          ? `"${usuario.nome}" reativado.`
+          : `"${usuario.nome}" desativado.`,
+        "success",
       );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar o status do usuário."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível atualizar o status do usuário.",
+        ),
+        "error",
+      );
     } finally {
       setTogglingId(null);
     }
@@ -113,7 +129,9 @@ export function Usuarios() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Gestão de Usuários</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Gestão de Usuários
+            </h1>
 
             <div className="ml-auto flex items-center gap-3">
               <button
@@ -123,7 +141,9 @@ export function Usuarios() {
                 aria-label="Atualizar lista de usuários"
                 className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
               >
-                <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+                />
               </button>
               <Button onClick={handleNovoUsuario}>
                 <PlusCircle className="h-4 w-4" />
@@ -142,7 +162,9 @@ export function Usuarios() {
 
             {!isLoading && errorMessage && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <Button variant="danger" onClick={fetchUsuarios}>
                   Tentar novamente
                 </Button>
@@ -173,9 +195,15 @@ export function Usuarios() {
                         <div>
                           <p className="font-semibold text-slate-900 dark:text-white">
                             {usuario.nome}
-                            {isSelf && <span className="ml-1.5 text-xs font-normal text-slate-400">(você)</span>}
+                            {isSelf && (
+                              <span className="ml-1.5 text-xs font-normal text-slate-400">
+                                (você)
+                              </span>
+                            )}
                           </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{usuario.email}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {usuario.email}
+                          </p>
                         </div>
                         {!usuario.ativo && (
                           <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/60 dark:text-red-300">
@@ -194,7 +222,9 @@ export function Usuarios() {
                                 : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                             }`}
                           >
-                            {role === "admin" && <ShieldCheck className="h-3 w-3" />}
+                            {role === "admin" && (
+                              <ShieldCheck className="h-3 w-3" />
+                            )}
                             {ROLE_LABEL[role]}
                           </span>
                         ))}
@@ -230,11 +260,23 @@ export function Usuarios() {
                           type="button"
                           onClick={() => handleToggleAtivo(usuario)}
                           disabled={togglingId === usuario.id || isSelf}
-                          title={isSelf ? "Você não pode desativar sua própria conta." : undefined}
-                          aria-label={usuario.ativo ? `Desativar ${usuario.nome}` : `Reativar ${usuario.nome}`}
+                          title={
+                            isSelf
+                              ? "Você não pode desativar sua própria conta."
+                              : undefined
+                          }
+                          aria-label={
+                            usuario.ativo
+                              ? `Desativar ${usuario.nome}`
+                              : `Reativar ${usuario.nome}`
+                          }
                           className="flex shrink-0 items-center justify-center rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-400 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                         >
-                          {usuario.ativo ? <Trash2 className="h-4 w-4" /> : <Undo2 className="h-4 w-4" />}
+                          {usuario.ativo ? (
+                            <Trash2 className="h-4 w-4" />
+                          ) : (
+                            <Undo2 className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>

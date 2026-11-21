@@ -17,7 +17,11 @@ import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
 import { listCategorias } from "../../services/categoria.service";
-import { deleteProduto, listProdutos, updateProdutoDisponibilidade } from "../../services/produto.service";
+import {
+  deleteProduto,
+  listProdutos,
+  updateProdutoDisponibilidade,
+} from "../../services/produto.service";
 import type { Categoria } from "../../types/categoria";
 import type { Produto } from "../../types/produto";
 import { ProdutoModal } from "./components/ProdutoModal";
@@ -45,11 +49,18 @@ export function Produtos() {
     setErrorMessage(null);
 
     try {
-      const [produtosData, categoriasData] = await Promise.all([listProdutos(), listCategorias()]);
+      const [produtosData, categoriasData] = await Promise.all([
+        listProdutos(),
+        listCategorias(),
+      ]);
       setProdutos(produtosData);
-      setCategorias([...categoriasData].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao));
+      setCategorias(
+        [...categoriasData].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao),
+      );
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar os produtos."));
+      setErrorMessage(
+        getApiErrorMessage(error, "Não foi possível carregar os produtos."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -59,15 +70,19 @@ export function Produtos() {
     fetchDados();
   }, [fetchDados]);
 
-  const categoriasPorId = useMemo(() => new Map(categorias.map((categoria) => [categoria.id, categoria])), [
-    categorias,
-  ]);
+  const categoriasPorId = useMemo(
+    () => new Map(categorias.map((categoria) => [categoria.id, categoria])),
+    [categorias],
+  );
 
   const produtosFiltrados = useMemo(() => {
     const termo = searchTerm.trim().toLowerCase();
 
     return produtos
-      .filter((produto) => !categoriaFiltro || produto.categoria_id === categoriaFiltro)
+      .filter(
+        (produto) =>
+          !categoriaFiltro || produto.categoria_id === categoriaFiltro,
+      )
       .filter((produto) => !termo || produto.nome.toLowerCase().includes(termo))
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [produtos, searchTerm, categoriaFiltro]);
@@ -92,23 +107,38 @@ export function Produtos() {
     setTogglingId(produto.id);
 
     try {
-      const atualizado = await updateProdutoDisponibilidade(produto.id, !produto.disponivel);
-      setProdutos((current) => current.map((item) => (item.id === produto.id ? atualizado : item)));
+      const atualizado = await updateProdutoDisponibilidade(
+        produto.id,
+        !produto.disponivel,
+      );
+      setProdutos((current) =>
+        current.map((item) => (item.id === produto.id ? atualizado : item)),
+      );
       showToast(
         atualizado.disponivel
           ? `"${produto.nome}" marcado como disponível.`
           : `"${produto.nome}" marcado como esgotado.`,
-        "success"
+        "success",
       );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar a disponibilidade."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível atualizar a disponibilidade.",
+        ),
+        "error",
+      );
     } finally {
       setTogglingId(null);
     }
   }
 
   async function handleExcluir(produto: Produto) {
-    if (!window.confirm(`Tem certeza que deseja excluir "${produto.nome}"? Esta ação não pode ser desfeita.`)) {
+    if (
+      !window.confirm(
+        `Tem certeza que deseja excluir "${produto.nome}"? Esta ação não pode ser desfeita.`,
+      )
+    ) {
       return;
     }
 
@@ -116,10 +146,15 @@ export function Produtos() {
 
     try {
       await deleteProduto(produto.id);
-      setProdutos((current) => current.filter((item) => item.id !== produto.id));
+      setProdutos((current) =>
+        current.filter((item) => item.id !== produto.id),
+      );
       showToast(`Produto "${produto.nome}" excluído.`, "success");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível excluir o produto."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir o produto."),
+        "error",
+      );
     } finally {
       setDeletingId(null);
     }
@@ -139,7 +174,9 @@ export function Produtos() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Gestão de Produtos</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Gestão de Produtos
+            </h1>
 
             <div className="ml-auto flex items-center gap-3">
               <button
@@ -149,7 +186,9 @@ export function Produtos() {
                 aria-label="Atualizar lista de produtos"
                 className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
               >
-                <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+                />
               </button>
               <Button onClick={handleNovoProduto}>
                 <PlusCircle className="h-4 w-4" />
@@ -202,7 +241,9 @@ export function Produtos() {
 
             {!isLoading && errorMessage && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <Button variant="danger" onClick={fetchDados}>
                   Tentar novamente
                 </Button>
@@ -215,7 +256,9 @@ export function Produtos() {
                 {produtos.length === 0 ? (
                   <p className="text-sm">Nenhum produto cadastrado ainda.</p>
                 ) : (
-                  <p className="text-sm">Nenhum produto encontrado para os filtros selecionados.</p>
+                  <p className="text-sm">
+                    Nenhum produto encontrado para os filtros selecionados.
+                  </p>
                 )}
               </div>
             )}
@@ -232,9 +275,12 @@ export function Produtos() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">{produto.nome}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">
+                          {produto.nome}
+                        </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {categoriasPorId.get(produto.categoria_id)?.nome ?? "Sem categoria"}
+                          {categoriasPorId.get(produto.categoria_id)?.nome ??
+                            "Sem categoria"}
                         </p>
                       </div>
                       {!produto.disponivel && (
@@ -245,7 +291,9 @@ export function Produtos() {
                     </div>
 
                     {produto.descricao && (
-                      <p className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{produto.descricao}</p>
+                      <p className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
+                        {produto.descricao}
+                      </p>
                     )}
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -283,7 +331,9 @@ export function Produtos() {
                         disabled={togglingId === produto.id}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                       >
-                        {produto.disponivel ? "Marcar esgotado" : "Marcar disponível"}
+                        {produto.disponivel
+                          ? "Marcar esgotado"
+                          : "Marcar disponível"}
                       </button>
 
                       <button

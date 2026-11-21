@@ -26,7 +26,12 @@ export function Mesas() {
       const data = await listComandas();
       setComandas(data);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar as mesas do salão."));
+      setErrorMessage(
+        getApiErrorMessage(
+          error,
+          "Não foi possível carregar as mesas do salão.",
+        ),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +48,9 @@ export function Mesas() {
       return comandas;
     }
 
-    return comandas.filter((comanda) => String(comanda.numero_comanda).includes(termo));
+    return comandas.filter((comanda) =>
+      String(comanda.numero_comanda).includes(termo),
+    );
   }, [comandas, searchTerm]);
 
   function handleComandaCriada() {
@@ -65,7 +72,9 @@ export function Mesas() {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Salão</h1>
+              <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
+                Salão
+              </h1>
             </div>
             <button
               type="button"
@@ -74,7 +83,9 @@ export function Mesas() {
               aria-label="Atualizar lista de mesas"
               className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
           </header>
 
@@ -106,7 +117,9 @@ export function Mesas() {
 
             {!isLoading && errorMessage && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <Button variant="danger" onClick={fetchComandas}>
                   Tentar novamente
                 </Button>
@@ -119,7 +132,9 @@ export function Mesas() {
                 {comandas.length === 0 ? (
                   <p className="text-sm">Nenhuma mesa aberta no momento.</p>
                 ) : (
-                  <p className="text-sm">Nenhuma mesa encontrada para "{searchTerm}".</p>
+                  <p className="text-sm">
+                    Nenhuma mesa encontrada para "{searchTerm}".
+                  </p>
                 )}
               </div>
             )}
@@ -148,7 +163,11 @@ export function Mesas() {
             </button>
           )}
 
-          <NovaComandaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={handleComandaCriada} />
+          <NovaComandaModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onCreated={handleComandaCriada}
+          />
         </>
       )}
     </AppShell>

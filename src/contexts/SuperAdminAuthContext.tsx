@@ -1,5 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import {
   clearStoredSuperAdminAuth,
   getStoredSuperAdminToken,
@@ -16,17 +22,26 @@ interface SuperAdminAuthContextValue {
   logout: () => void;
 }
 
-const SuperAdminAuthContext = createContext<SuperAdminAuthContextValue | undefined>(undefined);
+const SuperAdminAuthContext = createContext<
+  SuperAdminAuthContextValue | undefined
+>(undefined);
 
 export function SuperAdminAuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => getStoredSuperAdminToken());
-  const [superAdmin, setSuperAdmin] = useState<SuperAdminUser | null>(() => getStoredSuperAdminUser());
+  const [token, setToken] = useState<string | null>(() =>
+    getStoredSuperAdminToken(),
+  );
+  const [superAdmin, setSuperAdmin] = useState<SuperAdminUser | null>(() =>
+    getStoredSuperAdminUser(),
+  );
 
-  const login = useCallback((newToken: string, newSuperAdmin: SuperAdminUser) => {
-    setStoredSuperAdminAuth(newToken, newSuperAdmin);
-    setToken(newToken);
-    setSuperAdmin(newSuperAdmin);
-  }, []);
+  const login = useCallback(
+    (newToken: string, newSuperAdmin: SuperAdminUser) => {
+      setStoredSuperAdminAuth(newToken, newSuperAdmin);
+      setToken(newToken);
+      setSuperAdmin(newSuperAdmin);
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     clearStoredSuperAdminAuth();
@@ -35,18 +50,30 @@ export function SuperAdminAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<SuperAdminAuthContextValue>(
-    () => ({ token, superAdmin, isAuthenticated: Boolean(token && superAdmin), login, logout }),
-    [token, superAdmin, login, logout]
+    () => ({
+      token,
+      superAdmin,
+      isAuthenticated: Boolean(token && superAdmin),
+      login,
+      logout,
+    }),
+    [token, superAdmin, login, logout],
   );
 
-  return <SuperAdminAuthContext.Provider value={value}>{children}</SuperAdminAuthContext.Provider>;
+  return (
+    <SuperAdminAuthContext.Provider value={value}>
+      {children}
+    </SuperAdminAuthContext.Provider>
+  );
 }
 
 export function useSuperAdminAuth(): SuperAdminAuthContextValue {
   const context = useContext(SuperAdminAuthContext);
 
   if (!context) {
-    throw new Error("useSuperAdminAuth deve ser usado dentro de um SuperAdminAuthProvider.");
+    throw new Error(
+      "useSuperAdminAuth deve ser usado dentro de um SuperAdminAuthProvider.",
+    );
   }
 
   return context;

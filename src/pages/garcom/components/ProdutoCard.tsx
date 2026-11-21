@@ -15,14 +15,20 @@ export function ProdutoCard({ produto, onAdd }: ProdutoCardProps) {
       }`}
     >
       <div>
-        <p className="line-clamp-2 text-sm font-semibold text-slate-900 dark:text-white">{produto.nome}</p>
+        <p className="line-clamp-2 text-sm font-semibold text-slate-900 dark:text-white">
+          {produto.nome}
+        </p>
         {produto.descricao && (
-          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{produto.descricao}</p>
+          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
+            {produto.descricao}
+          </p>
         )}
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(produto.preco)}</span>
+        <span className="text-sm font-bold text-slate-900 dark:text-white">
+          {formatCurrency(produto.preco)}
+        </span>
 
         {produto.disponivel ? (
           <button

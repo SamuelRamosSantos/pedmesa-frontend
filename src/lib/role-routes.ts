@@ -22,7 +22,9 @@ export function getHomeRouteForRoles(roles: UserRole[]): string {
     return "/login";
   }
 
-  const papelPrioritario = PRIORIDADE_PAPEIS.find((role) => roles.includes(role));
+  const papelPrioritario = PRIORIDADE_PAPEIS.find((role) =>
+    roles.includes(role),
+  );
 
   return getHomeRouteForRole(papelPrioritario ?? roles[0]);
 }
@@ -38,7 +40,8 @@ export const ROLE_VIEW_INFO: Record<UserRole, RoleViewInfo> = {
   admin: {
     role: "admin",
     label: "Administração",
-    description: "Dashboard, produtos, usuários e configurações do estabelecimento",
+    description:
+      "Dashboard, produtos, usuários e configurações do estabelecimento",
     route: "/admin/dashboard",
   },
   garcom: {

@@ -1,6 +1,17 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { clearStoredAuth, getStoredToken, getStoredUser, setStoredAuth } from "../lib/auth-storage";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import {
+  clearStoredAuth,
+  getStoredToken,
+  getStoredUser,
+  setStoredAuth,
+} from "../lib/auth-storage";
 import type { AuthUser } from "../types/auth";
 
 interface AuthContextValue {
@@ -37,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
     }),
-    [token, user, login, logout]
+    [token, user, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

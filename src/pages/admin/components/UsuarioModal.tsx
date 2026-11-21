@@ -1,6 +1,6 @@
 import { LockKeyhole, Save, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -8,7 +8,10 @@ import { Switch } from "../../../components/ui/Switch";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
-import { createUsuario, updateUsuario } from "../../../services/usuario.service";
+import {
+  createUsuario,
+  updateUsuario,
+} from "../../../services/usuario.service";
 import type { UserRole } from "../../../types/auth";
 import type { Usuario } from "../../../types/usuario";
 
@@ -43,7 +46,8 @@ export function UsuarioModal({
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [roles, setRoles] = useState<UserRole[]>([]);
-  const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] = useState(false);
+  const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] =
+    useState(false);
   const [podeConcederDesconto, setPodeConcederDesconto] = useState(false);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
@@ -55,7 +59,8 @@ export function UsuarioModal({
   const { user: usuarioLogado } = useAuth();
   const { showToast } = useToast();
   const isEdicao = usuarioEditando !== null;
-  const isEditandoProprioUsuario = isEdicao && usuarioEditando.id === usuarioLogado?.id;
+  const isEditandoProprioUsuario =
+    isEdicao && usuarioEditando.id === usuarioLogado?.id;
   const alvoJaEhAdmin = usuarioEditando?.roles.includes("admin") ?? false;
 
   useEffect(() => {
@@ -67,7 +72,9 @@ export function UsuarioModal({
       setNome(usuarioEditando.nome);
       setEmail(usuarioEditando.email);
       setRoles(usuarioEditando.roles);
-      setPodeExcluirItemFechamento(usuarioEditando.pode_excluir_item_fechamento);
+      setPodeExcluirItemFechamento(
+        usuarioEditando.pode_excluir_item_fechamento,
+      );
       setPodeConcederDesconto(usuarioEditando.pode_conceder_desconto);
     } else {
       setNome("");
@@ -90,7 +97,11 @@ export function UsuarioModal({
       return;
     }
 
-    setRoles((current) => (current.includes(role) ? current.filter((r) => r !== role) : [...current, role]));
+    setRoles((current) =>
+      current.includes(role)
+        ? current.filter((r) => r !== role)
+        : [...current, role],
+    );
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -137,7 +148,10 @@ export function UsuarioModal({
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
         });
-        showToast(`Usuário "${nome.trim()}" atualizado com sucesso.`, "success");
+        showToast(
+          `Usuário "${nome.trim()}" atualizado com sucesso.`,
+          "success",
+        );
       } else {
         await createUsuario({
           nome: nome.trim(),
@@ -147,18 +161,31 @@ export function UsuarioModal({
           pode_excluir_item_fechamento: podeExcluirItemFechamento,
           pode_conceder_desconto: podeConcederDesconto,
         });
-        showToast(`Usuário "${nome.trim()}" cadastrado com sucesso.`, "success");
+        showToast(
+          `Usuário "${nome.trim()}" cadastrado com sucesso.`,
+          "success",
+        );
       }
 
       onSaved();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível salvar o usuário. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível salvar o usuário. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEdicao ? "Editar usuário" : "Novo usuário"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEdicao ? "Editar usuário" : "Novo usuário"}
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <Input
           label="Nome"
@@ -191,7 +218,9 @@ export function UsuarioModal({
         )}
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Visões (papéis de acesso)</p>
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Visões (papéis de acesso)
+          </p>
 
           <div className="flex flex-col gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
             {OPCOES_ROLE.map((opcao) => {
@@ -215,7 +244,10 @@ export function UsuarioModal({
                   />
                   {opcao.label}
                   {opcao.role === "admin" && (
-                    <ShieldCheck className="h-3.5 w-3.5 text-orange-500" aria-hidden="true" />
+                    <ShieldCheck
+                      className="h-3.5 w-3.5 text-orange-500"
+                      aria-hidden="true"
+                    />
                   )}
                 </label>
               );
@@ -230,12 +262,17 @@ export function UsuarioModal({
 
           {!usaModuloCozinha && (
             <p className="text-xs text-slate-400 dark:text-slate-500">
-              O módulo de visão e preparo na cozinha está desativado nas configurações da empresa — não é possível
-              conceder ou remover a visão de Cozinha enquanto isso.
+              O módulo de visão e preparo na cozinha está desativado nas
+              configurações da empresa — não é possível conceder ou remover a
+              visão de Cozinha enquanto isso.
             </p>
           )}
 
-          {rolesError && <p className="text-sm text-red-600 dark:text-red-400">{rolesError}</p>}
+          {rolesError && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {rolesError}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
@@ -257,7 +294,12 @@ export function UsuarioModal({
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

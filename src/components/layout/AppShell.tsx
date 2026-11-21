@@ -1,5 +1,5 @@
-import { useState } from "react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 
 const SIDEBAR_EXPANDED_STORAGE_KEY = "pedmesa-sidebar-expanded";
@@ -29,7 +29,9 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className={`min-h-svh bg-slate-50 dark:bg-slate-950 ${isDesktopExpanded ? "lg:pl-64" : "lg:pl-20"}`}>
+    <div
+      className={`min-h-svh bg-slate-50 dark:bg-slate-950 ${isDesktopExpanded ? "lg:pl-64" : "lg:pl-20"}`}
+    >
       <Sidebar
         isMobileOpen={isMobileOpen}
         onCloseMobile={() => setIsMobileOpen(false)}

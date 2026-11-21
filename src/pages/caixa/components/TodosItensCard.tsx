@@ -2,7 +2,10 @@ import { Loader2, Receipt, Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { Card } from "../../../components/ui/Card";
 import { formatCurrency } from "../../../lib/format";
-import type { ExtratoItemCompartilhadoLinha, ExtratoIntegranteResumo } from "../../../types/comanda";
+import type {
+  ExtratoIntegranteResumo,
+  ExtratoItemCompartilhadoLinha,
+} from "../../../types/comanda";
 
 interface TodosItensCardProps {
   divisaoPorIntegrante: ExtratoIntegranteResumo[];
@@ -76,7 +79,7 @@ export function TodosItensCard({
         subtotal: item.subtotal,
         pessoaNome: integrante.nome,
         valorPorPessoa: null,
-      }))
+      })),
     ),
     ...itensCompartilhados.map((item) => ({
       id: item.id,
@@ -103,7 +106,9 @@ export function TodosItensCard({
     <Card data-testid="card-todos-itens">
       <div className="flex items-center gap-2">
         <Receipt className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Todos os Itens</h2>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          Todos os Itens
+        </h2>
       </div>
 
       {/* Telas estreitas: cada item vira um cartão empilhado, evitando uma grade
@@ -120,10 +125,14 @@ export function TodosItensCard({
               className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3 dark:border-slate-800"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">{linha.produto}</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  {linha.produto}
+                </p>
                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {linha.qtd}x · {formatCurrency(linha.subtotal)}
-                  {temDesconto && desconto > 0 && ` · -${formatCurrency(desconto)}`}
+                  {temDesconto &&
+                    desconto > 0 &&
+                    ` · -${formatCurrency(desconto)}`}
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   <DestinoBadge linha={linha} />
@@ -178,8 +187,12 @@ export function TodosItensCard({
 
             return (
               <Fragment key={linha.chave}>
-                <span className="text-sm text-slate-700 dark:text-slate-300">{linha.produto}</span>
-                <span className="text-right text-sm text-slate-700 dark:text-slate-300">{linha.qtd}</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  {linha.produto}
+                </span>
+                <span className="text-right text-sm text-slate-700 dark:text-slate-300">
+                  {linha.qtd}
+                </span>
                 <span className="text-right text-sm font-medium text-slate-700 dark:text-slate-300">
                   {formatCurrency(linha.subtotal)}
                 </span>

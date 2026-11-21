@@ -13,15 +13,24 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) {
+  if (
+    request.method !== "GET" ||
+    new URL(request.url).origin !== self.location.origin
+  ) {
     return;
   }
 
@@ -29,9 +38,13 @@ self.addEventListener("fetch", (event) => {
     fetch(request)
       .then((response) => {
         const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+        caches
+          .open(CACHE_NAME)
+          .then((cache) => cache.put(request, responseClone));
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached ?? caches.match("/")))
+      .catch(() =>
+        caches.match(request).then((cached) => cached ?? caches.match("/")),
+      ),
   );
 });

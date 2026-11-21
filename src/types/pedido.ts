@@ -1,6 +1,11 @@
 export type StatusPreparo = "pendente" | "em_preparo" | "pronto" | "entregue";
 
-export type StatusItem = "pendente" | "em_preparo" | "pronto" | "entregue" | "cancelado";
+export type StatusItem =
+  | "pendente"
+  | "em_preparo"
+  | "pronto"
+  | "entregue"
+  | "cancelado";
 
 export interface PedidoCreatedResponse {
   pedido_id: string;

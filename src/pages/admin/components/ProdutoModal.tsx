@@ -1,13 +1,16 @@
 import { Banknote, Save } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { Switch } from "../../../components/ui/Switch";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
-import { createProduto, updateProduto } from "../../../services/produto.service";
+import {
+  createProduto,
+  updateProduto,
+} from "../../../services/produto.service";
 import type { Categoria } from "../../../types/categoria";
 import type { Produto } from "../../../types/produto";
 
@@ -112,21 +115,37 @@ export function ProdutoModal({
     try {
       if (produtoEditando) {
         await updateProduto(produtoEditando.id, payload);
-        showToast(`Produto "${payload.nome}" atualizado com sucesso.`, "success");
+        showToast(
+          `Produto "${payload.nome}" atualizado com sucesso.`,
+          "success",
+        );
       } else {
         await createProduto(payload);
-        showToast(`Produto "${payload.nome}" cadastrado com sucesso.`, "success");
+        showToast(
+          `Produto "${payload.nome}" cadastrado com sucesso.`,
+          "success",
+        );
       }
 
       onSaved();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível salvar o produto. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível salvar o produto. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEdicao ? "Editar produto" : "Novo produto"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEdicao ? "Editar produto" : "Novo produto"}
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <Input
           label="Nome do produto"
@@ -151,7 +170,10 @@ export function ProdutoModal({
         />
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="produto-categoria" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="produto-categoria"
+            className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Categoria
           </label>
           <select
@@ -171,12 +193,22 @@ export function ProdutoModal({
               </option>
             ))}
           </select>
-          {categoriaError && <p className="text-sm text-red-600 dark:text-red-400">{categoriaError}</p>}
+          {categoriaError && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {categoriaError}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="produto-descricao" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Descrição <span className="font-normal text-slate-400 dark:text-slate-500">(opcional)</span>
+          <label
+            htmlFor="produto-descricao"
+            className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
+            Descrição{" "}
+            <span className="font-normal text-slate-400 dark:text-slate-500">
+              (opcional)
+            </span>
           </label>
           <textarea
             id="produto-descricao"
@@ -189,7 +221,11 @@ export function ProdutoModal({
         </div>
 
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-          <Switch checked={disponivel} onChange={setDisponivel} label="Disponível para venda" />
+          <Switch
+            checked={disponivel}
+            onChange={setDisponivel}
+            label="Disponível para venda"
+          />
 
           {usaModuloCozinha && (
             <>
@@ -209,7 +245,12 @@ export function ProdutoModal({
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

@@ -1,4 +1,3 @@
-import { api } from "./api";
 import type {
   ComandaDetail,
   ComandaExtratoResumo,
@@ -10,6 +9,7 @@ import type {
   PagamentoComanda,
   RateioIntegranteComDesconto,
 } from "../types/comanda";
+import { api } from "./api";
 
 export interface CreateComandaPayload {
   numero_comanda: number;
@@ -21,18 +21,30 @@ export async function listComandas(): Promise<ComandaListItem[]> {
   return data;
 }
 
-export async function createComanda(payload: CreateComandaPayload): Promise<ComandaDetail> {
+export async function createComanda(
+  payload: CreateComandaPayload,
+): Promise<ComandaDetail> {
   const { data } = await api.post<ComandaDetail>("/comandas", payload);
   return data;
 }
 
-export async function getComandaExtrato(comandaId: string): Promise<ComandaExtratoResumo> {
-  const { data } = await api.get<ComandaExtratoResumo>(`/comandas/${comandaId}/extrato`);
+export async function getComandaExtrato(
+  comandaId: string,
+): Promise<ComandaExtratoResumo> {
+  const { data } = await api.get<ComandaExtratoResumo>(
+    `/comandas/${comandaId}/extrato`,
+  );
   return data;
 }
 
-export async function addIntegrante(comandaId: string, nome: string): Promise<Integrante> {
-  const { data } = await api.post<Integrante>(`/comandas/${comandaId}/integrantes`, { nome });
+export async function addIntegrante(
+  comandaId: string,
+  nome: string,
+): Promise<Integrante> {
+  const { data } = await api.post<Integrante>(
+    `/comandas/${comandaId}/integrantes`,
+    { nome },
+  );
   return data;
 }
 
@@ -46,8 +58,13 @@ export interface JoinComandasResponse {
   comanda_principal_id: string;
 }
 
-export async function joinComandas(payload: JoinComandasPayload): Promise<JoinComandasResponse> {
-  const { data } = await api.post<JoinComandasResponse>("/comandas/juntar", payload);
+export async function joinComandas(
+  payload: JoinComandasPayload,
+): Promise<JoinComandasResponse> {
+  const { data } = await api.post<JoinComandasResponse>(
+    "/comandas/juntar",
+    payload,
+  );
   return data;
 }
 
@@ -56,12 +73,21 @@ export interface AddPagamentoPayload {
   valor: number;
 }
 
-export async function addPagamentoComanda(comandaId: string, payload: AddPagamentoPayload): Promise<PagamentoComanda> {
-  const { data } = await api.post<PagamentoComanda>(`/comandas/${comandaId}/pagamentos`, payload);
+export async function addPagamentoComanda(
+  comandaId: string,
+  payload: AddPagamentoPayload,
+): Promise<PagamentoComanda> {
+  const { data } = await api.post<PagamentoComanda>(
+    `/comandas/${comandaId}/pagamentos`,
+    payload,
+  );
   return data;
 }
 
-export async function removePagamentoComanda(comandaId: string, pagamentoId: string): Promise<void> {
+export async function removePagamentoComanda(
+  comandaId: string,
+  pagamentoId: string,
+): Promise<void> {
   await api.delete(`/comandas/${comandaId}/pagamentos/${pagamentoId}`);
 }
 
@@ -77,9 +103,12 @@ export interface UpdateDescontoResponse {
 
 export async function updateDescontoComanda(
   comandaId: string,
-  payload: UpdateDescontoPayload
+  payload: UpdateDescontoPayload,
 ): Promise<UpdateDescontoResponse> {
-  const { data } = await api.put<UpdateDescontoResponse>(`/comandas/${comandaId}/desconto`, payload);
+  const { data } = await api.put<UpdateDescontoResponse>(
+    `/comandas/${comandaId}/desconto`,
+    payload,
+  );
   return data;
 }
 
@@ -101,9 +130,12 @@ export interface FecharComandaResponse {
 
 export async function fecharComanda(
   comandaId: string,
-  payload: FecharComandaPayload
+  payload: FecharComandaPayload,
 ): Promise<FecharComandaResponse> {
-  const { data } = await api.post<FecharComandaResponse>(`/comandas/${comandaId}/fechar`, payload);
+  const { data } = await api.post<FecharComandaResponse>(
+    `/comandas/${comandaId}/fechar`,
+    payload,
+  );
   return data;
 }
 
@@ -112,7 +144,11 @@ export interface CancelarComandaResponse {
   mensagem: string;
 }
 
-export async function cancelarComanda(comandaId: string): Promise<CancelarComandaResponse> {
-  const { data } = await api.post<CancelarComandaResponse>(`/comandas/${comandaId}/cancelar`);
+export async function cancelarComanda(
+  comandaId: string,
+): Promise<CancelarComandaResponse> {
+  const { data } = await api.post<CancelarComandaResponse>(
+    `/comandas/${comandaId}/cancelar`,
+  );
   return data;
 }
