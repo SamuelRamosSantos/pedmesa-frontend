@@ -2,6 +2,7 @@ import { Banknote, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
+import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { Switch } from "../../../components/ui/Switch";
@@ -34,6 +35,7 @@ export function ProdutoModal({
   const [descricao, setDescricao] = useState("");
   const [disponivel, setDisponivel] = useState(true);
   const [precisaPreparo, setPrecisaPreparo] = useState(true);
+  const [imagemUrl, setImagemUrl] = useState<string | null>(null);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [precoError, setPrecoError] = useState<string | undefined>();
@@ -55,6 +57,7 @@ export function ProdutoModal({
       setDescricao(produtoEditando.descricao ?? "");
       setDisponivel(produtoEditando.disponivel);
       setPrecisaPreparo(produtoEditando.precisa_preparo);
+      setImagemUrl(produtoEditando.imagem_url);
     } else {
       setNome("");
       setPreco("");
@@ -62,6 +65,7 @@ export function ProdutoModal({
       setDescricao("");
       setDisponivel(true);
       setPrecisaPreparo(true);
+      setImagemUrl(null);
     }
 
     setNomeError(undefined);
@@ -107,6 +111,7 @@ export function ProdutoModal({
       descricao: descricao.trim() || null,
       disponivel,
       precisa_preparo: usaModuloCozinha ? precisaPreparo : false,
+      imagem_url: imagemUrl,
     };
 
     try {
@@ -128,6 +133,8 @@ export function ProdutoModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEdicao ? "Editar produto" : "Novo produto"}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <ImageUpload label="Foto do produto" value={imagemUrl} onChange={setImagemUrl} shape="square" />
+
         <Input
           label="Nome do produto"
           placeholder="Ex.: X-Salada"

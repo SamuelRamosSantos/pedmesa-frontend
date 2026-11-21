@@ -13,7 +13,6 @@ export interface AuthUser {
 
 export interface LoginResponseTenant {
   tipo: "tenant";
-  token: string;
   usuario: AuthUser;
 }
 

@@ -1,12 +1,9 @@
 import type { SuperAdminUser } from "../types/super-admin";
 
-const TOKEN_KEY = "pedmesa:admin:token";
 const USER_KEY = "pedmesa:admin:user";
 
-export function getStoredSuperAdminToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
+// PED-76: mesma lógica de auth-storage.ts — o token vive só no cookie HttpOnly,
+// aqui fica só o objeto do super-admin pra UI renderizar (nome, e-mail).
 export function getStoredSuperAdminUser(): SuperAdminUser | null {
   const raw = localStorage.getItem(USER_KEY);
 
@@ -21,12 +18,10 @@ export function getStoredSuperAdminUser(): SuperAdminUser | null {
   }
 }
 
-export function setStoredSuperAdminAuth(token: string, user: SuperAdminUser): void {
-  localStorage.setItem(TOKEN_KEY, token);
+export function setStoredSuperAdminUser(user: SuperAdminUser): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-export function clearStoredSuperAdminAuth(): void {
-  localStorage.removeItem(TOKEN_KEY);
+export function clearStoredSuperAdminUser(): void {
   localStorage.removeItem(USER_KEY);
 }
