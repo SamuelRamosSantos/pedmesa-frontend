@@ -5,7 +5,7 @@
 | Arquivo                                             | Quando roda                                                                        | O que faz                                                                                                     |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `.github/workflows/ci.yml`                          | Pull Request para `main` ou `prod`, chamado pelo deploy (`workflow_call`) e manual | Jobs **Qualidade** e **Commits**                                                                              |
-| `.github/workflows/deploy.yml`                      | push em `main` (homologação) ou `prod` (produção), e manual                        | CI → imagem no GHCR → deploy no Coolify → `GET /` → verificação de segurança                                  |
+| `.github/workflows/deploy.yml`                      | push em `main` (homologação) ou `prod` (produção), e manual                        | CI → imagem no GHCR → deploy no Coolify → **verificação no ar** → verificação de segurança                    |
 | `.github/dependabot.yml`                            | agenda do Dependabot                                                               | npm (semanal, minor e patch agrupados), GitHub Actions (mensal) e imagens Docker (semanal, sem major do Node) |
 | `Dockerfile`, `nginx.conf`, `security-headers.conf` | build da imagem                                                                    | build com Node 26; nginx sem root na porta **8080**; fallback de SPA; `.webmanifest` com o tipo certo         |
 | `scripts/check-security-headers.sh`                 | job **Segurança** do deploy, ou manual                                             | confere cabeçalhos de segurança, compressão e IP privado (PED-120)                                            |
@@ -17,7 +17,11 @@
 
 O job **Testes** entra quando o frontend tiver testes automatizados (PED-104).
 
-O `deploy.yml` tem o mesmo desenho do backend (ver `pedmesa-backend/docs/CICD.md`): job **Entregar** (build com as `VITE_*` do ambiente, push em `ghcr.io/samuelramossantos/pedmesa-frontend` com as tags `<ambiente>`, `sha-<commit>` e `latest` em produção, deploy no Coolify, espera o deploy e confere `GET /` = 200) e job **Segurança** (modo `report` até a PED-59/64/69).
+O `deploy.yml` tem o mesmo desenho do backend (ver `pedmesa-backend/docs/CICD.md`):
+
+- **Entregar:** build com as `VITE_*` do ambiente e o commit (`GIT_SHA`), push em `ghcr.io/samuelramossantos/pedmesa-frontend` com as tags `<ambiente>`, `sha-<commit>` e `latest` em produção, e deploy no Coolify por `scripts/coolify-deploy.sh` (que explica cada erro e mostra o log do Coolify quando o deploy falha).
+- **Verificar no ar** (última etapa, roda mesmo se a entrega falhar): `GET /` precisa responder 200 e `GET /versao.txt` precisa trazer o commit publicado; se for outro, o container antigo continua rodando.
+- **Segurança:** `scripts/check-security-headers.sh` em modo `report` até a PED-59/64/69.
 
 ## 2. Ambientes
 
@@ -67,4 +71,6 @@ Toda imagem fica com a tag `sha-<commit>`: no Coolify, troque a tag para a anter
 - **Job Commits falha:** mensagem fora de `tipo(escopo): [PED-<ID>] descrição` ou acima de 100 caracteres.
 - **CI acusa IP privado no bundle:** algum IP de rede interna entrou no código ou numa `VITE_*`. Se for um exemplo legítimo de interface, acrescente em `IPS_PERMITIDOS` no `ci.yml`.
 - **App fora do ar depois do deploy com 502:** a porta no Coolify ainda está em 80; a imagem escuta na **8080**.
+- **`a versão no ar é X, esperada Y`:** o Coolify terminou, mas o container antigo continua rodando; confira se a aplicação está como _Docker Image_ com a tag do ambiente.
+- **`Método não aceito (405)` ou `COOLIFY_URL deve ser só o endereço do painel`:** o `COOLIFY_URL` deve ser só `https://seu-coolify`, sem caminho.
 - **PWA não instala:** o nginx precisa servir o `.webmanifest` como `application/manifest+json` (já configurado no `nginx.conf`).

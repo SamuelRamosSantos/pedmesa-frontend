@@ -23,6 +23,11 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
 
+# Commit da imagem, informado pelo pipeline. Servido em /versao.txt: a verificação
+# final do deploy compara este valor com o commit publicado.
+ARG GIT_SHA=desenvolvimento
+RUN printf "%s" "$GIT_SHA" > dist/versao.txt
+
 # ---- Estágio 2: nginx sem root, porta 8080 ----
 FROM nginxinc/nginx-unprivileged:1.31.7-alpine3.24 AS runtime
 
