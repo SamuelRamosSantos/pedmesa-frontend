@@ -1,5 +1,5 @@
-import { useState } from "react";
 import type { FormEvent } from "react";
+import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -15,7 +15,12 @@ interface AddIntegranteModalProps {
   onAdded: (integrante: Integrante) => void;
 }
 
-export function AddIntegranteModal({ isOpen, comandaId, onClose, onAdded }: AddIntegranteModalProps) {
+export function AddIntegranteModal({
+  isOpen,
+  comandaId,
+  onClose,
+  onAdded,
+}: AddIntegranteModalProps) {
   const [nome, setNome] = useState("");
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +50,10 @@ export function AddIntegranteModal({ isOpen, comandaId, onClose, onAdded }: AddI
       handleClose();
       onAdded(integrante);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível adicionar o integrante."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível adicionar o integrante."),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
@@ -62,7 +70,12 @@ export function AddIntegranteModal({ isOpen, comandaId, onClose, onAdded }: AddI
           autoFocus
         />
         <div className="flex gap-3">
-          <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

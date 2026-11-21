@@ -1,7 +1,7 @@
 import { ArrowRight, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
 import logoWordmark from "../assets/logo-wordmark.svg";
+import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
 import { Card } from "../components/ui/Card";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
@@ -25,9 +25,19 @@ export function SelecionarVisao() {
       </div>
 
       <div className="mx-auto flex w-full max-w-lg flex-col items-center">
-        <img src={logoWordmark} alt="PedMesa" className="mb-3 h-9 w-auto dark:hidden" />
-        <img src={logoWordmarkDark} alt="PedMesa" className="mb-3 hidden h-9 w-auto dark:block" />
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Qual painel você quer abrir?</h1>
+        <img
+          src={logoWordmark}
+          alt="PedMesa"
+          className="mb-3 h-9 w-auto dark:hidden"
+        />
+        <img
+          src={logoWordmarkDark}
+          alt="PedMesa"
+          className="mb-3 hidden h-9 w-auto dark:block"
+        />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Qual painel você quer abrir?
+        </h1>
         <p className="mt-1 text-center text-sm text-slate-500 dark:text-slate-400">
           Olá, {user?.nome}. Sua conta tem acesso a mais de uma visão.
         </p>
@@ -43,8 +53,12 @@ export function SelecionarVisao() {
             >
               <Card className="flex items-center justify-between gap-3 transition-colors hover:border-orange-300 dark:hover:border-orange-500/50">
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">{opcao.label}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{opcao.description}</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    {opcao.label}
+                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {opcao.description}
+                  </p>
                 </div>
                 <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 dark:text-slate-500" />
               </Card>

@@ -1,5 +1,5 @@
-import { useId } from "react";
 import type { InputHTMLAttributes, ReactNode } from "react";
+import { useId } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -7,14 +7,24 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: ReactNode;
 }
 
-export function Input({ label, error, icon, id, className = "", ...rest }: InputProps) {
+export function Input({
+  label,
+  error,
+  icon,
+  id,
+  className = "",
+  ...rest
+}: InputProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <label
+        htmlFor={inputId}
+        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+      >
         {label}
       </label>
       <div className="relative">

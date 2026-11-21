@@ -5,14 +5,14 @@ import {
   MapPin,
   Menu,
   Pencil,
-  Printer,
   PlusCircle,
+  Printer,
   RefreshCw,
   Save,
   Trash2,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -22,8 +22,15 @@ import { Switch } from "../../components/ui/Switch";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
-import { deleteImpressora, listImpressoras, updateImpressora } from "../../services/impressora.service";
-import { regenerateTokenAgente, updateTenantConfiguracoes } from "../../services/tenant.service";
+import {
+  deleteImpressora,
+  listImpressoras,
+  updateImpressora,
+} from "../../services/impressora.service";
+import {
+  regenerateTokenAgente,
+  updateTenantConfiguracoes,
+} from "../../services/tenant.service";
 import type { Impressora } from "../../types/impressora";
 import { ImpressoraModal } from "./components/ImpressoraModal";
 
@@ -45,21 +52,36 @@ export function ConfiguracoesEmpresa() {
   const [estado, setEstado] = useState("");
   const [cep, setCep] = useState("");
 
-  const [nomeFantasiaError, setNomeFantasiaError] = useState<string | undefined>();
-  const [quantidadeComandasError, setQuantidadeComandasError] = useState<string | undefined>();
-  const [emailEmpresaError, setEmailEmpresaError] = useState<string | undefined>();
-  const [emailProprietarioError, setEmailProprietarioError] = useState<string | undefined>();
+  const [nomeFantasiaError, setNomeFantasiaError] = useState<
+    string | undefined
+  >();
+  const [quantidadeComandasError, setQuantidadeComandasError] = useState<
+    string | undefined
+  >();
+  const [emailEmpresaError, setEmailEmpresaError] = useState<
+    string | undefined
+  >();
+  const [emailProprietarioError, setEmailProprietarioError] = useState<
+    string | undefined
+  >();
   const [isSavingDados, setIsSavingDados] = useState(false);
 
-  const [confirmandoModulo, setConfirmandoModulo] = useState<boolean | null>(null);
+  const [confirmandoModulo, setConfirmandoModulo] = useState<boolean | null>(
+    null,
+  );
   const [isTogglingModulo, setIsTogglingModulo] = useState(false);
 
   const [impressoras, setImpressoras] = useState<Impressora[]>([]);
   const [isLoadingImpressoras, setIsLoadingImpressoras] = useState(true);
   const [isImpressoraModalOpen, setIsImpressoraModalOpen] = useState(false);
-  const [impressoraEditando, setImpressoraEditando] = useState<Impressora | null>(null);
-  const [togglingImpressoraId, setTogglingImpressoraId] = useState<string | null>(null);
-  const [deletingImpressoraId, setDeletingImpressoraId] = useState<string | null>(null);
+  const [impressoraEditando, setImpressoraEditando] =
+    useState<Impressora | null>(null);
+  const [togglingImpressoraId, setTogglingImpressoraId] = useState<
+    string | null
+  >(null);
+  const [deletingImpressoraId, setDeletingImpressoraId] = useState<
+    string | null
+  >(null);
 
   const [isConfirmandoNovoToken, setIsConfirmandoNovoToken] = useState(false);
   const [isRegenerandoToken, setIsRegenerandoToken] = useState(false);
@@ -71,7 +93,10 @@ export function ConfiguracoesEmpresa() {
       const data = await listImpressoras();
       setImpressoras(data);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível carregar as impressoras."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível carregar as impressoras."),
+        "error",
+      );
     } finally {
       setIsLoadingImpressoras(false);
     }
@@ -128,7 +153,10 @@ export function ConfiguracoesEmpresa() {
       hasError = true;
     }
 
-    if (emailProprietario.trim() && !EMAIL_REGEX.test(emailProprietario.trim())) {
+    if (
+      emailProprietario.trim() &&
+      !EMAIL_REGEX.test(emailProprietario.trim())
+    ) {
       setEmailProprietarioError("Informe um e-mail válido.");
       hasError = true;
     }
@@ -156,7 +184,13 @@ export function ConfiguracoesEmpresa() {
       await refetch();
       showToast("Dados da empresa atualizados com sucesso.", "success");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível salvar os dados da empresa."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível salvar os dados da empresa.",
+        ),
+        "error",
+      );
     } finally {
       setIsSavingDados(false);
     }
@@ -170,15 +204,25 @@ export function ConfiguracoesEmpresa() {
     setIsTogglingModulo(true);
 
     try {
-      await updateTenantConfiguracoes({ usa_modulo_cozinha: confirmandoModulo });
+      await updateTenantConfiguracoes({
+        usa_modulo_cozinha: confirmandoModulo,
+      });
       await refetch();
       showToast(
-        confirmandoModulo ? "Módulo de cozinha reativado." : "Módulo de cozinha desativado.",
-        "success"
+        confirmandoModulo
+          ? "Módulo de cozinha reativado."
+          : "Módulo de cozinha desativado.",
+        "success",
       );
       setConfirmandoModulo(null);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar essa configuração."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível atualizar essa configuração.",
+        ),
+        "error",
+      );
     } finally {
       setIsTogglingModulo(false);
     }
@@ -204,21 +248,34 @@ export function ConfiguracoesEmpresa() {
     setTogglingImpressoraId(impressora.id);
 
     try {
-      const atualizada = await updateImpressora(impressora.id, { ativo: !impressora.ativo });
-      setImpressoras((current) => current.map((item) => (item.id === impressora.id ? atualizada : item)));
+      const atualizada = await updateImpressora(impressora.id, {
+        ativo: !impressora.ativo,
+      });
+      setImpressoras((current) =>
+        current.map((item) => (item.id === impressora.id ? atualizada : item)),
+      );
       showToast(
-        atualizada.ativo ? `"${impressora.nome}" ativada.` : `"${impressora.nome}" desativada.`,
-        "success"
+        atualizada.ativo
+          ? `"${impressora.nome}" ativada.`
+          : `"${impressora.nome}" desativada.`,
+        "success",
       );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar a impressora."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível atualizar a impressora."),
+        "error",
+      );
     } finally {
       setTogglingImpressoraId(null);
     }
   }
 
   async function handleExcluirImpressora(impressora: Impressora) {
-    if (!window.confirm(`Tem certeza que deseja excluir a impressora "${impressora.nome}"?`)) {
+    if (
+      !window.confirm(
+        `Tem certeza que deseja excluir a impressora "${impressora.nome}"?`,
+      )
+    ) {
       return;
     }
 
@@ -226,10 +283,15 @@ export function ConfiguracoesEmpresa() {
 
     try {
       await deleteImpressora(impressora.id);
-      setImpressoras((current) => current.filter((item) => item.id !== impressora.id));
+      setImpressoras((current) =>
+        current.filter((item) => item.id !== impressora.id),
+      );
       showToast(`Impressora "${impressora.nome}" excluída.`, "success");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível excluir a impressora."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir a impressora."),
+        "error",
+      );
     } finally {
       setDeletingImpressoraId(null);
     }
@@ -244,7 +306,10 @@ export function ConfiguracoesEmpresa() {
       await navigator.clipboard.writeText(tenant.token_agente);
       showToast("Token copiado para a área de transferência.", "success");
     } catch {
-      showToast("Não foi possível copiar o token. Selecione e copie manualmente.", "error");
+      showToast(
+        "Não foi possível copiar o token. Selecione e copie manualmente.",
+        "error",
+      );
     }
   }
 
@@ -257,7 +322,10 @@ export function ConfiguracoesEmpresa() {
       showToast("Novo token do agente gerado com sucesso.", "success");
       setIsConfirmandoNovoToken(false);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível gerar um novo token."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível gerar um novo token."),
+        "error",
+      );
     } finally {
       setIsRegenerandoToken(false);
     }
@@ -277,7 +345,9 @@ export function ConfiguracoesEmpresa() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Configurações da Empresa</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Configurações da Empresa
+            </h1>
 
             <button
               type="button"
@@ -286,7 +356,9 @@ export function ConfiguracoesEmpresa() {
               aria-label="Atualizar dados da empresa"
               className="ml-auto rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
           </header>
 
@@ -300,7 +372,9 @@ export function ConfiguracoesEmpresa() {
 
             {!isLoading && !tenant && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">Não foi possível carregar os dados da empresa.</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Não foi possível carregar os dados da empresa.
+                </p>
                 <Button variant="danger" onClick={refetch}>
                   Tentar novamente
                 </Button>
@@ -310,14 +384,36 @@ export function ConfiguracoesEmpresa() {
             {tenant && (
               <>
                 <Card>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">Dados da Empresa</h2>
-                  <form onSubmit={handleSubmitDados} className="mt-4 flex flex-col gap-4" noValidate>
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                    Dados da Empresa
+                  </h2>
+                  <form
+                    onSubmit={handleSubmitDados}
+                    className="mt-4 flex flex-col gap-4"
+                    noValidate
+                  >
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Input label="Razão Social" value={tenant.razao_social ?? "Não informado"} disabled />
+                      <Input
+                        label="Razão Social"
+                        value={tenant.razao_social ?? "Não informado"}
+                        disabled
+                      />
                       <Input label="CNPJ" value={tenant.cnpj_cpf} disabled />
-                      <Input label="Inscrição Estadual (IE)" value={tenant.inscricao_estadual ?? "Não informado"} disabled />
-                      <Input label="Nome do Proprietário" value={tenant.nome_proprietario ?? "Não informado"} disabled />
-                      <Input label="CPF do Proprietário" value={tenant.cpf_proprietario ?? "Não informado"} disabled />
+                      <Input
+                        label="Inscrição Estadual (IE)"
+                        value={tenant.inscricao_estadual ?? "Não informado"}
+                        disabled
+                      />
+                      <Input
+                        label="Nome do Proprietário"
+                        value={tenant.nome_proprietario ?? "Não informado"}
+                        disabled
+                      />
+                      <Input
+                        label="CPF do Proprietário"
+                        value={tenant.cpf_proprietario ?? "Não informado"}
+                        disabled
+                      />
                     </div>
 
                     <div className="border-t border-slate-100 dark:border-slate-800" />
@@ -326,7 +422,9 @@ export function ConfiguracoesEmpresa() {
                       <Input
                         label="Nome Fantasia"
                         value={nomeFantasia}
-                        onChange={(event) => setNomeFantasia(event.target.value)}
+                        onChange={(event) =>
+                          setNomeFantasia(event.target.value)
+                        }
                         error={nomeFantasiaError}
                       />
                       <Input
@@ -336,21 +434,27 @@ export function ConfiguracoesEmpresa() {
                         min={1}
                         placeholder="Ex.: 20"
                         value={quantidadeComandas}
-                        onChange={(event) => setQuantidadeComandas(event.target.value)}
+                        onChange={(event) =>
+                          setQuantidadeComandas(event.target.value)
+                        }
                         error={quantidadeComandasError}
                       />
                       <Input
                         label="Ramo de Atividade"
                         placeholder="Ex.: Alimentação"
                         value={ramoAtividade}
-                        onChange={(event) => setRamoAtividade(event.target.value)}
+                        onChange={(event) =>
+                          setRamoAtividade(event.target.value)
+                        }
                       />
                       <Input
                         label="E-mail da Empresa"
                         type="email"
                         placeholder="contato@empresa.com"
                         value={emailEmpresa}
-                        onChange={(event) => setEmailEmpresa(event.target.value)}
+                        onChange={(event) =>
+                          setEmailEmpresa(event.target.value)
+                        }
                         error={emailEmpresaError}
                       />
                       <Input
@@ -358,7 +462,9 @@ export function ConfiguracoesEmpresa() {
                         type="email"
                         placeholder="proprietario@empresa.com"
                         value={emailProprietario}
-                        onChange={(event) => setEmailProprietario(event.target.value)}
+                        onChange={(event) =>
+                          setEmailProprietario(event.target.value)
+                        }
                         error={emailProprietarioError}
                       />
                     </div>
@@ -367,7 +473,9 @@ export function ConfiguracoesEmpresa() {
 
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</span>
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Endereço
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -398,7 +506,9 @@ export function ConfiguracoesEmpresa() {
                         placeholder="Ex.: PR"
                         maxLength={2}
                         value={estado}
-                        onChange={(event) => setEstado(event.target.value.toUpperCase())}
+                        onChange={(event) =>
+                          setEstado(event.target.value.toUpperCase())
+                        }
                       />
                       <Input
                         label="CEP"
@@ -408,7 +518,11 @@ export function ConfiguracoesEmpresa() {
                       />
                     </div>
 
-                    <Button type="submit" isLoading={isSavingDados} className="self-start">
+                    <Button
+                      type="submit"
+                      isLoading={isSavingDados}
+                      className="self-start"
+                    >
                       <Save className="h-4 w-4" />
                       Salvar Alterações
                     </Button>
@@ -418,7 +532,9 @@ export function ConfiguracoesEmpresa() {
                 <Card>
                   <div className="flex items-center gap-2">
                     <ChefHat className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">Módulo de Cozinha</h2>
+                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      Módulo de Cozinha
+                    </h2>
                   </div>
 
                   <div className="mt-4">
@@ -439,7 +555,9 @@ export function ConfiguracoesEmpresa() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <Printer className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Impressoras</h2>
+                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                        Impressoras
+                      </h2>
                     </div>
                     <Button onClick={handleNovaImpressora}>
                       <PlusCircle className="h-4 w-4" />
@@ -448,7 +566,8 @@ export function ConfiguracoesEmpresa() {
                   </div>
 
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Cadastre as impressoras de rede (IP) que devem receber os pedidos enviados pelo garçom.
+                    Cadastre as impressoras de rede (IP) que devem receber os
+                    pedidos enviados pelo garçom.
                   </p>
 
                   <div className="mt-4 flex flex-col gap-2">
@@ -475,7 +594,9 @@ export function ConfiguracoesEmpresa() {
                           }`}
                         >
                           <div>
-                            <p className="font-medium text-slate-900 dark:text-white">{impressora.nome}</p>
+                            <p className="font-medium text-slate-900 dark:text-white">
+                              {impressora.nome}
+                            </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
                               {impressora.ip}:{impressora.porta}
                             </p>
@@ -494,7 +615,9 @@ export function ConfiguracoesEmpresa() {
 
                             <button
                               type="button"
-                              onClick={() => handleToggleAtivoImpressora(impressora)}
+                              onClick={() =>
+                                handleToggleAtivoImpressora(impressora)
+                              }
                               disabled={togglingImpressoraId === impressora.id}
                               className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             >
@@ -512,7 +635,9 @@ export function ConfiguracoesEmpresa() {
 
                             <button
                               type="button"
-                              onClick={() => handleExcluirImpressora(impressora)}
+                              onClick={() =>
+                                handleExcluirImpressora(impressora)
+                              }
                               disabled={deletingImpressoraId === impressora.id}
                               aria-label={`Excluir ${impressora.nome}`}
                               className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
@@ -527,10 +652,13 @@ export function ConfiguracoesEmpresa() {
                   <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
                     <div className="flex items-center gap-2">
                       <KeyRound className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Agente de Impressão Desktop</h3>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                        Agente de Impressão Desktop
+                      </h3>
                     </div>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Use esse token para configurar o aplicativo <strong>pedmesa-print-agent</strong> no computador do
+                      Use esse token para configurar o aplicativo{" "}
+                      <strong>pedmesa-print-agent</strong> no computador do
                       caixa, para imprimir numa impressora USB local.
                     </p>
 
@@ -542,18 +670,29 @@ export function ConfiguracoesEmpresa() {
                           disabled
                           className="flex-1 font-mono text-xs"
                         />
-                        <Button type="button" variant="secondary" onClick={handleCopiarToken}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={handleCopiarToken}
+                        >
                           <Copy className="h-4 w-4" />
                           Copiar
                         </Button>
-                        <Button type="button" variant="secondary" onClick={() => setIsConfirmandoNovoToken(true)}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setIsConfirmandoNovoToken(true)}
+                        >
                           <KeyRound className="h-4 w-4" />
                           Gerar novo token
                         </Button>
                       </div>
                     ) : (
                       <div className="mt-3">
-                        <Button type="button" onClick={() => setIsConfirmandoNovoToken(true)}>
+                        <Button
+                          type="button"
+                          onClick={() => setIsConfirmandoNovoToken(true)}
+                        >
                           <KeyRound className="h-4 w-4" />
                           Gerar Token do Agente
                         </Button>
@@ -567,13 +706,19 @@ export function ConfiguracoesEmpresa() {
 
           <ConfirmDialog
             isOpen={confirmandoModulo !== null}
-            title={confirmandoModulo ? "Reativar módulo de cozinha?" : "Desativar módulo de cozinha?"}
+            title={
+              confirmandoModulo
+                ? "Reativar módulo de cozinha?"
+                : "Desativar módulo de cozinha?"
+            }
             description={
               confirmandoModulo
                 ? 'A partir de agora, novos pedidos voltam a respeitar o campo "Requer preparo na cozinha/bar?" de cada produto, passando pelas etapas normais de preparo na cozinha. Será possível conceder a visão de cozinha para usuários novamente.'
                 : 'A partir de agora, os pedidos enviados pelo garçom já nascerão prontos, pulando as etapas de preparo. Não será possível conceder acesso à visão de cozinha para usuários, e o campo "Requer preparo na cozinha/bar?" do cadastro de produtos ficará oculto (todo produto passa a ser auto-pronto).'
             }
-            confirmLabel={confirmandoModulo ? "Sim, reativar" : "Sim, desativar"}
+            confirmLabel={
+              confirmandoModulo ? "Sim, reativar" : "Sim, desativar"
+            }
             isConfirming={isTogglingModulo}
             onCancel={() => setConfirmandoModulo(null)}
             onConfirm={handleConfirmarModulo}

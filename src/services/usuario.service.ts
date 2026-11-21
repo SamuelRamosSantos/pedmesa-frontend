@@ -1,6 +1,6 @@
-import { api } from "./api";
 import type { UserRole } from "../types/auth";
 import type { Usuario } from "../types/usuario";
+import { api } from "./api";
 
 export interface CreateUsuarioPayload {
   nome: string;
@@ -30,22 +30,36 @@ export async function listUsuarios(): Promise<Usuario[]> {
   return data;
 }
 
-export async function createUsuario(payload: CreateUsuarioPayload): Promise<Usuario> {
+export async function createUsuario(
+  payload: CreateUsuarioPayload,
+): Promise<Usuario> {
   const { data } = await api.post<Usuario>("/usuarios", payload);
   return data;
 }
 
-export async function updateUsuario(id: string, payload: UpdateUsuarioPayload): Promise<Usuario> {
+export async function updateUsuario(
+  id: string,
+  payload: UpdateUsuarioPayload,
+): Promise<Usuario> {
   const { data } = await api.put<Usuario>(`/usuarios/${id}`, payload);
   return data;
 }
 
-export async function updateUsuarioAtivo(id: string, ativo: boolean): Promise<Usuario> {
+export async function updateUsuarioAtivo(
+  id: string,
+  ativo: boolean,
+): Promise<Usuario> {
   const { data } = await api.patch<Usuario>(`/usuarios/${id}/ativo`, { ativo });
   return data;
 }
 
-export async function alterarSenhaUsuario(id: string, novaSenha: string): Promise<AlterarSenhaResponse> {
-  const { data } = await api.patch<AlterarSenhaResponse>(`/usuarios/${id}/senha`, { nova_senha: novaSenha });
+export async function alterarSenhaUsuario(
+  id: string,
+  novaSenha: string,
+): Promise<AlterarSenhaResponse> {
+  const { data } = await api.patch<AlterarSenhaResponse>(
+    `/usuarios/${id}/senha`,
+    { nova_senha: novaSenha },
+  );
   return data;
 }

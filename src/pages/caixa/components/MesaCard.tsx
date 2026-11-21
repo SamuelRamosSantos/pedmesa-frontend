@@ -12,9 +12,15 @@ export function MesaCard({ numero, comanda, onClick }: MesaCardProps) {
   if (!comanda) {
     return (
       <div className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center dark:border-slate-800 dark:bg-slate-900/60">
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">Mesa</span>
-        <p className="text-2xl font-bold text-slate-300 dark:text-slate-700">{numero}</p>
-        <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Livre</span>
+        <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          Mesa
+        </span>
+        <p className="text-2xl font-bold text-slate-300 dark:text-slate-700">
+          {numero}
+        </p>
+        <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+          Livre
+        </span>
       </div>
     );
   }
@@ -34,7 +40,9 @@ export function MesaCard({ numero, comanda, onClick }: MesaCardProps) {
         </span>
       </div>
 
-      <p className="text-3xl font-bold text-slate-900 dark:text-white">{numero}</p>
+      <p className="text-3xl font-bold text-slate-900 dark:text-white">
+        {numero}
+      </p>
 
       <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
         <span className="flex items-center gap-1">

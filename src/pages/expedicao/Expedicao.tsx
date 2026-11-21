@@ -18,8 +18,12 @@ export function Expedicao() {
               <Menu className="h-5 w-5" />
             </button>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Expedição</p>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">Painel de expedição</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                PedMesa · Expedição
+              </p>
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+                Painel de expedição
+              </h1>
             </div>
           </header>
 
@@ -28,9 +32,12 @@ export function Expedicao() {
             className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center"
           >
             <Truck className="h-10 w-10 text-slate-400 dark:text-slate-500" />
-            <p className="font-semibold text-slate-900 dark:text-white">O painel de expedição está em construção.</p>
+            <p className="font-semibold text-slate-900 dark:text-white">
+              O painel de expedição está em construção.
+            </p>
             <p className="max-w-sm text-sm text-slate-500 dark:text-slate-400">
-              Aqui vão aparecer os pedidos de delivery em produção, prontos para envio e em rota.
+              Aqui vão aparecer os pedidos de delivery em produção, prontos para
+              envio e em rota.
             </p>
           </main>
         </>

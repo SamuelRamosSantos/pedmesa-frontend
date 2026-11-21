@@ -1,4 +1,12 @@
-import { Building2, ClipboardList, Menu, Merge, RefreshCw, Search, Users } from "lucide-react";
+import {
+  Building2,
+  ClipboardList,
+  Menu,
+  Merge,
+  RefreshCw,
+  Search,
+  Users,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
@@ -37,11 +45,16 @@ export function MapaMesas() {
     setErrorMessage(null);
 
     try {
-      const [comandasData, tenantData] = await Promise.all([listComandas(), getTenantMe()]);
+      const [comandasData, tenantData] = await Promise.all([
+        listComandas(),
+        getTenantMe(),
+      ]);
       setComandas(comandasData);
       setTenant(tenantData);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar o mapa de mesas."));
+      setErrorMessage(
+        getApiErrorMessage(error, "Não foi possível carregar o mapa de mesas."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -52,8 +65,9 @@ export function MapaMesas() {
   }, [fetchDados]);
 
   const totalClientesAtendidos = useMemo(
-    () => comandas.reduce((soma, comanda) => soma + comanda.total_integrantes, 0),
-    [comandas]
+    () =>
+      comandas.reduce((soma, comanda) => soma + comanda.total_integrantes, 0),
+    [comandas],
   );
 
   const posicoes = useMemo(() => {
@@ -61,11 +75,15 @@ export function MapaMesas() {
       return [];
     }
 
-    const todas = Array.from({ length: tenant.quantidade_comandas }, (_, index) => {
-      const numero = index + 1;
-      const comanda = comandas.find((item) => item.numero_comanda === numero) ?? null;
-      return { numero, comanda };
-    });
+    const todas = Array.from(
+      { length: tenant.quantidade_comandas },
+      (_, index) => {
+        const numero = index + 1;
+        const comanda =
+          comandas.find((item) => item.numero_comanda === numero) ?? null;
+        return { numero, comanda };
+      },
+    );
 
     const porStatus = todas.filter((posicao) => {
       if (filtro === "ocupadas") {
@@ -83,7 +101,9 @@ export function MapaMesas() {
       return porStatus;
     }
 
-    return porStatus.filter((posicao) => String(posicao.numero).includes(termo));
+    return porStatus.filter((posicao) =>
+      String(posicao.numero).includes(termo),
+    );
   }, [tenant, comandas, filtro, searchTerm]);
 
   function handleMesaClick(comanda: ComandaListItem) {
@@ -110,7 +130,9 @@ export function MapaMesas() {
             </button>
 
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Painel do Caixa</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                PedMesa · Painel do Caixa
+              </p>
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">
                 {tenant?.nome_fantasia ?? "Carregando..."}
               </h1>
@@ -123,14 +145,18 @@ export function MapaMesas() {
               aria-label="Atualizar mapa de mesas"
               className="ml-auto rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
           </header>
 
           <main className="mx-auto max-w-7xl px-6 py-6">
             {errorMessage ? (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <Button variant="danger" onClick={fetchDados}>
                   Tentar novamente
                 </Button>
@@ -138,8 +164,16 @@ export function MapaMesas() {
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <StatCard label="Comandas Abertas" value={comandas.length} icon={ClipboardList} />
-                  <StatCard label="Clientes Atendidos" value={totalClientesAtendidos} icon={Users} />
+                  <StatCard
+                    label="Comandas Abertas"
+                    value={comandas.length}
+                    icon={ClipboardList}
+                  />
+                  <StatCard
+                    label="Clientes Atendidos"
+                    value={totalClientesAtendidos}
+                    icon={Users}
+                  />
                   <StatCard
                     label="Capacidade Total de Comandas"
                     value={tenant?.quantidade_comandas ?? "—"}
@@ -185,7 +219,11 @@ export function MapaMesas() {
                     <Button
                       onClick={() => setIsJuntarModalOpen(true)}
                       disabled={comandas.length < 2}
-                      title={comandas.length < 2 ? "É necessário ao menos 2 comandas abertas." : undefined}
+                      title={
+                        comandas.length < 2
+                          ? "É necessário ao menos 2 comandas abertas."
+                          : undefined
+                      }
                     >
                       <Merge className="h-4 w-4" />
                       Juntar Comandas
@@ -201,7 +239,9 @@ export function MapaMesas() {
                     </div>
                   ) : posicoes.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
-                      <p className="text-sm">Nenhuma mesa encontrada para os filtros selecionados.</p>
+                      <p className="text-sm">
+                        Nenhuma mesa encontrada para os filtros selecionados.
+                      </p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3">

@@ -1,6 +1,6 @@
 import { MapPin, Save } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -17,7 +17,11 @@ interface EditarTenantModalProps {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModalProps) {
+export function EditarTenantModal({
+  tenant,
+  onClose,
+  onSaved,
+}: EditarTenantModalProps) {
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [cnpjCpf, setCnpjCpf] = useState("");
   const [razaoSocial, setRazaoSocial] = useState("");
@@ -35,11 +39,19 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
   const [estado, setEstado] = useState("");
   const [cep, setCep] = useState("");
 
-  const [nomeFantasiaError, setNomeFantasiaError] = useState<string | undefined>();
+  const [nomeFantasiaError, setNomeFantasiaError] = useState<
+    string | undefined
+  >();
   const [cnpjCpfError, setCnpjCpfError] = useState<string | undefined>();
-  const [quantidadeComandasError, setQuantidadeComandasError] = useState<string | undefined>();
-  const [emailEmpresaError, setEmailEmpresaError] = useState<string | undefined>();
-  const [emailProprietarioError, setEmailProprietarioError] = useState<string | undefined>();
+  const [quantidadeComandasError, setQuantidadeComandasError] = useState<
+    string | undefined
+  >();
+  const [emailEmpresaError, setEmailEmpresaError] = useState<
+    string | undefined
+  >();
+  const [emailProprietarioError, setEmailProprietarioError] = useState<
+    string | undefined
+  >();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { showToast } = useToast();
@@ -100,7 +112,10 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
       hasError = true;
     }
 
-    if (!Number.isInteger(quantidadeComandasNumero) || quantidadeComandasNumero <= 0) {
+    if (
+      !Number.isInteger(quantidadeComandasNumero) ||
+      quantidadeComandasNumero <= 0
+    ) {
       setQuantidadeComandasError("Informe um número inteiro maior que zero.");
       hasError = true;
     }
@@ -110,7 +125,10 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
       hasError = true;
     }
 
-    if (emailProprietario.trim() && !EMAIL_REGEX.test(emailProprietario.trim())) {
+    if (
+      emailProprietario.trim() &&
+      !EMAIL_REGEX.test(emailProprietario.trim())
+    ) {
       setEmailProprietarioError("Informe um e-mail válido.");
       hasError = true;
     }
@@ -140,17 +158,34 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
         estado: estado.trim() || null,
         cep: cep.trim() || null,
       });
-      showToast(`Estabelecimento "${atualizado.nome_fantasia}" atualizado com sucesso.`, "success");
+      showToast(
+        `Estabelecimento "${atualizado.nome_fantasia}" atualizado com sucesso.`,
+        "success",
+      );
       onSaved(atualizado);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível salvar as alterações. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível salvar as alterações. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Modal isOpen={tenant !== null} onClose={onClose} title="Editar estabelecimento">
-      <form onSubmit={handleSubmit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1" noValidate>
+    <Modal
+      isOpen={tenant !== null}
+      onClose={onClose}
+      title="Editar estabelecimento"
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1"
+        noValidate
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             label="Nome Fantasia"
@@ -165,7 +200,11 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
             onChange={(event) => setCnpjCpf(event.target.value)}
             error={cnpjCpfError}
           />
-          <Input label="Razão Social" value={razaoSocial} onChange={(event) => setRazaoSocial(event.target.value)} />
+          <Input
+            label="Razão Social"
+            value={razaoSocial}
+            onChange={(event) => setRazaoSocial(event.target.value)}
+          />
           <Input
             label="Inscrição Estadual (IE)"
             value={inscricaoEstadual}
@@ -195,7 +234,11 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
             onChange={(event) => setQuantidadeComandas(event.target.value)}
             error={quantidadeComandasError}
           />
-          <Input label="Ramo de Atividade" value={ramoAtividade} onChange={(event) => setRamoAtividade(event.target.value)} />
+          <Input
+            label="Ramo de Atividade"
+            value={ramoAtividade}
+            onChange={(event) => setRamoAtividade(event.target.value)}
+          />
           <Input
             label="E-mail da Empresa"
             type="email"
@@ -216,25 +259,52 @@ export function EditarTenantModal({ tenant, onClose, onSaved }: EditarTenantModa
 
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Endereço
+          </span>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label="Logradouro" value={logradouro} onChange={(event) => setLogradouro(event.target.value)} />
-          <Input label="Número" value={numero} onChange={(event) => setNumero(event.target.value)} />
-          <Input label="Bairro" value={bairro} onChange={(event) => setBairro(event.target.value)} />
-          <Input label="Cidade" value={cidade} onChange={(event) => setCidade(event.target.value)} />
+          <Input
+            label="Logradouro"
+            value={logradouro}
+            onChange={(event) => setLogradouro(event.target.value)}
+          />
+          <Input
+            label="Número"
+            value={numero}
+            onChange={(event) => setNumero(event.target.value)}
+          />
+          <Input
+            label="Bairro"
+            value={bairro}
+            onChange={(event) => setBairro(event.target.value)}
+          />
+          <Input
+            label="Cidade"
+            value={cidade}
+            onChange={(event) => setCidade(event.target.value)}
+          />
           <Input
             label="Estado (UF)"
             maxLength={2}
             value={estado}
             onChange={(event) => setEstado(event.target.value.toUpperCase())}
           />
-          <Input label="CEP" value={cep} onChange={(event) => setCep(event.target.value)} />
+          <Input
+            label="CEP"
+            value={cep}
+            onChange={(event) => setCep(event.target.value)}
+          />
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

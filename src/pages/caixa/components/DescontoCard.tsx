@@ -31,7 +31,9 @@ export function DescontoCard({
     <Card data-testid="card-desconto">
       <div className="flex items-center gap-2">
         <BadgePercent className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Desconto</h2>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          Desconto
+        </h2>
       </div>
 
       <div className="mt-3 flex flex-col gap-3">
@@ -66,7 +68,10 @@ export function DescontoCard({
           <div className="flex-1">
             {tipo === "percentual" ? (
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="desconto-percentual" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="desconto-percentual"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Percentual de desconto
                 </label>
                 <div className="relative">
@@ -79,7 +84,11 @@ export function DescontoCard({
                     step={0.01}
                     placeholder="0"
                     value={valor === 0 ? "" : valor}
-                    onChange={(event) => onChangeValor(Math.max(0, Number(event.target.value) || 0))}
+                    onChange={(event) =>
+                      onChangeValor(
+                        Math.max(0, Number(event.target.value) || 0),
+                      )
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-3.5 pr-8 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                   <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400 dark:text-slate-500">

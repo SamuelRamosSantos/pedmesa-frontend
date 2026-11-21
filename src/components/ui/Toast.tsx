@@ -3,12 +3,17 @@ import type { ComponentType } from "react";
 import type { ToastMessage, ToastVariant } from "../../types/toast";
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-900",
-  error: "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/80 dark:text-red-300 dark:border-red-900",
+  success:
+    "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-900",
+  error:
+    "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/80 dark:text-red-300 dark:border-red-900",
   info: "bg-slate-50 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700",
 };
 
-const VARIANT_ICONS: Record<ToastVariant, ComponentType<{ className?: string }>> = {
+const VARIANT_ICONS: Record<
+  ToastVariant,
+  ComponentType<{ className?: string }>
+> = {
   success: CheckCircle2,
   error: AlertCircle,
   info: Info,

@@ -2,8 +2,8 @@ import { Printer, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useTenant } from "../../contexts/TenantContext";
-import { formatCurrency, formatDataHora } from "../../lib/format";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { formatCurrency, formatDataHora } from "../../lib/format";
 import { getComandaExtrato } from "../../services/comanda.service";
 import type { ComandaExtratoResumo } from "../../types/comanda";
 
@@ -22,7 +22,11 @@ export function PreContaImpressao() {
 
     getComandaExtrato(id)
       .then(setComanda)
-      .catch((error) => setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar a pré-conta.")));
+      .catch((error) =>
+        setErrorMessage(
+          getApiErrorMessage(error, "Não foi possível carregar a pré-conta."),
+        ),
+      );
   }, [id]);
 
   useEffect(() => {
@@ -38,14 +42,20 @@ export function PreContaImpressao() {
     return <Navigate to="/caixa/mapa-mesas" replace />;
   }
 
-  const itensPorIntegrante = comanda?.divisao_por_integrante.filter((integrante) => integrante.itens_individuais.length > 0) ?? [];
+  const itensPorIntegrante =
+    comanda?.divisao_por_integrante.filter(
+      (integrante) => integrante.itens_individuais.length > 0,
+    ) ?? [];
   const itensCompartilhados = comanda?.itens_compartilhados ?? [];
 
   return (
     <div className="min-h-svh bg-slate-100 py-6 print:bg-white print:py-0 dark:bg-slate-900">
       <div className="mx-auto flex max-w-sm flex-col gap-3 px-4 print:hidden">
         <div className="flex items-center justify-between">
-          <Link to={`/caixa/comanda/${id}/fechamento`} className="text-sm font-medium text-slate-600 hover:underline dark:text-slate-300">
+          <Link
+            to={`/caixa/comanda/${id}/fechamento`}
+            className="text-sm font-medium text-slate-600 hover:underline dark:text-slate-300"
+          >
             ← Voltar ao fechamento
           </Link>
           <button
@@ -58,8 +68,9 @@ export function PreContaImpressao() {
           </button>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          A janela de impressão do navegador vai abrir automaticamente. Escolha a impressora térmica instalada no
-          Windows ou "Salvar como PDF" para conferir o cupom.
+          A janela de impressão do navegador vai abrir automaticamente. Escolha
+          a impressora térmica instalada no Windows ou "Salvar como PDF" para
+          conferir o cupom.
         </p>
       </div>
 
@@ -98,7 +109,9 @@ export function PreContaImpressao() {
                   <span>
                     {item.qtd}x {item.produto}
                   </span>
-                  <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
+                  <span className="shrink-0">
+                    {formatCurrency(item.subtotal)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -112,7 +125,9 @@ export function PreContaImpressao() {
                   <span>
                     {item.qtd}x {item.produto}
                   </span>
-                  <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
+                  <span className="shrink-0">
+                    {formatCurrency(item.subtotal)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -121,7 +136,9 @@ export function PreContaImpressao() {
           <p className="mt-2">--------------------------------</p>
           <div className="flex justify-between font-bold">
             <span>TOTAL</span>
-            <span>{formatCurrency(comanda.resumo_financeiro.valor_total_comanda)}</span>
+            <span>
+              {formatCurrency(comanda.resumo_financeiro.valor_total_comanda)}
+            </span>
           </div>
           <p>================================</p>
 

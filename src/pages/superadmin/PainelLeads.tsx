@@ -1,4 +1,10 @@
-import { ArrowLeft, Building2, RefreshCw, Search, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Building2,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
@@ -38,7 +44,9 @@ export function PainelLeads() {
       const data = await listLeads();
       setLeads(data);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar os leads."));
+      setErrorMessage(
+        getApiErrorMessage(error, "Não foi possível carregar os leads."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +67,7 @@ export function PainelLeads() {
       (lead) =>
         lead.nome.toLowerCase().includes(termo) ||
         lead.nome_estabelecimento.toLowerCase().includes(termo) ||
-        lead.email.toLowerCase().includes(termo)
+        lead.email.toLowerCase().includes(termo),
     );
   }, [leads, searchTerm]);
 
@@ -77,8 +85,12 @@ export function PainelLeads() {
           </button>
           <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Painel Super-Admin</p>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Leads</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              PedMesa · Painel Super-Admin
+            </p>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Leads
+            </h1>
           </div>
         </div>
 
@@ -95,7 +107,9 @@ export function PainelLeads() {
             aria-label="Atualizar lista de leads"
             className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
           >
-            <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+            />
           </button>
         </div>
       </header>
@@ -126,7 +140,9 @@ export function PainelLeads() {
 
           {!isLoading && errorMessage && (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-              <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                {errorMessage}
+              </p>
               <Button variant="danger" onClick={fetchLeads}>
                 Tentar novamente
               </Button>
@@ -160,9 +176,15 @@ export function PainelLeads() {
                       data-testid={`lead-row-${lead.nome}`}
                       className="border-b border-slate-50 last:border-0 dark:border-slate-800/60"
                     >
-                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{lead.nome}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{lead.nome_estabelecimento}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{lead.email}</td>
+                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                        {lead.nome}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        {lead.nome_estabelecimento}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        {lead.email}
+                      </td>
                       <td className="px-4 py-3">
                         <a
                           href={`https://wa.me/55${lead.whatsapp}`}
@@ -173,8 +195,12 @@ export function PainelLeads() {
                           {formatWhatsapp(lead.whatsapp)}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{lead.cpf_cnpj}</td>
-                      <td className="px-4 py-3 text-slate-400 dark:text-slate-500">{formatDataHora(lead.criado_em)}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        {lead.cpf_cnpj}
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 dark:text-slate-500">
+                        {formatDataHora(lead.criado_em)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

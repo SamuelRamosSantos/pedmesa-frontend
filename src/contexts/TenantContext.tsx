@@ -1,5 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { getTenantMe } from "../services/tenant.service";
 import type { Tenant } from "../types/tenant";
 import { useAuth } from "./AuthContext";
@@ -37,9 +44,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     refetch();
   }, [isAuthenticated, refetch]);
 
-  const value = useMemo<TenantContextValue>(() => ({ tenant, isLoading, refetch }), [tenant, isLoading, refetch]);
+  const value = useMemo<TenantContextValue>(
+    () => ({ tenant, isLoading, refetch }),
+    [tenant, isLoading, refetch],
+  );
 
-  return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
+  return (
+    <TenantContext.Provider value={value}>{children}</TenantContext.Provider>
+  );
 }
 
 export function useTenant(): TenantContextValue {

@@ -21,9 +21,15 @@ let isHandlingSessionExpired = false;
 adminApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isLoginRequest = typeof error.config?.url === "string" && error.config.url.includes("/auth/login");
+    const isLoginRequest =
+      typeof error.config?.url === "string" &&
+      error.config.url.includes("/auth/login");
 
-    if (error.response?.status === 401 && !isLoginRequest && !isHandlingSessionExpired) {
+    if (
+      error.response?.status === 401 &&
+      !isLoginRequest &&
+      !isHandlingSessionExpired
+    ) {
       isHandlingSessionExpired = true;
       clearStoredSuperAdminUser();
       adminApi.post("/auth/admin-logout").catch(() => {});
@@ -31,5 +37,5 @@ adminApi.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

@@ -1,18 +1,23 @@
 import { Network, Save } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
-import { createImpressora, updateImpressora } from "../../../services/impressora.service";
+import {
+  createImpressora,
+  updateImpressora,
+} from "../../../services/impressora.service";
 import type { Impressora } from "../../../types/impressora";
 
 const IP_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 
 function isValidIp(ip: string): boolean {
-  return IP_REGEX.test(ip) && ip.split(".").every((octeto) => Number(octeto) <= 255);
+  return (
+    IP_REGEX.test(ip) && ip.split(".").every((octeto) => Number(octeto) <= 255)
+  );
 }
 
 interface ImpressoraModalProps {
@@ -22,7 +27,12 @@ interface ImpressoraModalProps {
   onSaved: () => void;
 }
 
-export function ImpressoraModal({ isOpen, impressoraEditando, onClose, onSaved }: ImpressoraModalProps) {
+export function ImpressoraModal({
+  isOpen,
+  impressoraEditando,
+  onClose,
+  onSaved,
+}: ImpressoraModalProps) {
   const [nome, setNome] = useState("");
   const [ip, setIp] = useState("");
   const [porta, setPorta] = useState("9100");
@@ -75,7 +85,12 @@ export function ImpressoraModal({ isOpen, impressoraEditando, onClose, onSaved }
       hasError = true;
     }
 
-    if (!porta || !Number.isInteger(portaNumero) || portaNumero < 1 || portaNumero > 65535) {
+    if (
+      !porta ||
+      !Number.isInteger(portaNumero) ||
+      portaNumero < 1 ||
+      portaNumero > 65535
+    ) {
       setPortaError("Informe uma porta válida entre 1 e 65535.");
       hasError = true;
     }
@@ -91,21 +106,37 @@ export function ImpressoraModal({ isOpen, impressoraEditando, onClose, onSaved }
     try {
       if (impressoraEditando) {
         await updateImpressora(impressoraEditando.id, payload);
-        showToast(`Impressora "${payload.nome}" atualizada com sucesso.`, "success");
+        showToast(
+          `Impressora "${payload.nome}" atualizada com sucesso.`,
+          "success",
+        );
       } else {
         await createImpressora(payload);
-        showToast(`Impressora "${payload.nome}" cadastrada com sucesso.`, "success");
+        showToast(
+          `Impressora "${payload.nome}" cadastrada com sucesso.`,
+          "success",
+        );
       }
 
       onSaved();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível salvar a impressora. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível salvar a impressora. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEdicao ? "Editar impressora" : "Nova impressora"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEdicao ? "Editar impressora" : "Nova impressora"}
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <Input
           label="Nome"
@@ -138,7 +169,12 @@ export function ImpressoraModal({ isOpen, impressoraEditando, onClose, onSaved }
         />
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

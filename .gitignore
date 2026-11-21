@@ -26,3 +26,11 @@ dist-ssr
 
 # Claude Code
 .claude/
+
+coverage
+.env.test
+
+# Agentes de IA (arquivos locais)
+.agents/PLAN.md
+.mcp.json
+mcp_config.json

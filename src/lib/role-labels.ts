@@ -11,4 +11,10 @@ export const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 // Ordem de exibição dos papéis nas telas de usuários.
-export const ROLES_EM_ORDEM: UserRole[] = ["admin", "garcom", "cozinha", "caixa", "expedicao"];
+export const ROLES_EM_ORDEM: UserRole[] = [
+  "admin",
+  "garcom",
+  "cozinha",
+  "caixa",
+  "expedicao",
+];

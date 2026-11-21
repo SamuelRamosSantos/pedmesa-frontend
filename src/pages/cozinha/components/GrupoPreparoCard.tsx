@@ -14,11 +14,16 @@ interface GrupoPreparoCardProps {
 }
 
 const STATUS_CARD_CLASS: Record<StatusItem, string> = {
-  pendente: "border-red-300 bg-red-50 dark:border-red-500/70 dark:bg-red-950/30",
-  em_preparo: "border-amber-300 bg-amber-50 dark:border-amber-500/70 dark:bg-amber-950/20",
-  pronto: "border-emerald-300 bg-emerald-50 dark:border-emerald-500/70 dark:bg-emerald-950/20",
-  entregue: "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
-  cancelado: "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
+  pendente:
+    "border-red-300 bg-red-50 dark:border-red-500/70 dark:bg-red-950/30",
+  em_preparo:
+    "border-amber-300 bg-amber-50 dark:border-amber-500/70 dark:bg-amber-950/20",
+  pronto:
+    "border-emerald-300 bg-emerald-50 dark:border-emerald-500/70 dark:bg-emerald-950/20",
+  entregue:
+    "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
+  cancelado:
+    "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
 };
 
 const STATUS_BADGE_CLASS: Record<StatusItem, string> = {
@@ -29,7 +34,12 @@ const STATUS_BADGE_CLASS: Record<StatusItem, string> = {
   cancelado: "bg-slate-600 text-white",
 };
 
-export function GrupoPreparoCard({ grupo, isUpdating, onAvancar, onRegredir }: GrupoPreparoCardProps) {
+export function GrupoPreparoCard({
+  grupo,
+  isUpdating,
+  onAvancar,
+  onRegredir,
+}: GrupoPreparoCardProps) {
   const acao = PROXIMA_ACAO_ITEM[grupo.statusGrupo];
   const regressao = REGRESSAO_ACAO_ITEM[grupo.statusGrupo];
 
@@ -40,7 +50,9 @@ export function GrupoPreparoCard({ grupo, isUpdating, onAvancar, onRegredir }: G
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Mesa</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Mesa
+          </p>
           <p className="text-5xl font-extrabold leading-none text-slate-900 dark:text-white">
             {grupo.numeroComanda}
           </p>
@@ -105,7 +117,11 @@ export function GrupoPreparoCard({ grupo, isUpdating, onAvancar, onRegredir }: G
             </Button>
           )}
           {acao && (
-            <Button onClick={() => onAvancar(grupo)} isLoading={isUpdating} className="flex-1">
+            <Button
+              onClick={() => onAvancar(grupo)}
+              isLoading={isUpdating}
+              className="flex-1"
+            >
               {acao.label}
             </Button>
           )}

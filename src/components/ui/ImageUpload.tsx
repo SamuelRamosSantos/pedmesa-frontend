@@ -1,6 +1,6 @@
 import { ImagePlus, Loader2, Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, MouseEvent } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { uploadImagem } from "../../services/upload.service";
@@ -27,7 +27,12 @@ function validarArquivo(file: File): string | null {
   return null;
 }
 
-export function ImageUpload({ value, onChange, label, shape = "square" }: ImageUploadProps) {
+export function ImageUpload({
+  value,
+  onChange,
+  label,
+  shape = "square",
+}: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -52,7 +57,13 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
       const { url } = await uploadImagem(file);
       onChange(url);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível enviar a imagem. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível enviar a imagem. Tente novamente.",
+        ),
+        "error",
+      );
     } finally {
       setIsUploading(false);
       setPreviewUrl(null);
@@ -90,8 +101,13 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
 
   return (
     <div className="flex flex-col gap-1.5">
-      {label && <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>}
+      {label && (
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          {label}
+        </p>
+      )}
 
+      {/* biome-ignore lint/a11y/useSemanticElements: a área de soltar contém o <input type="file">, que não pode ficar dentro de um <button>; o teclado é tratado no onKeyDown */}
       <div
         onClick={() => inputRef.current?.click()}
         onDrop={handleDrop}
@@ -105,7 +121,9 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
           }
         }}
         className={`relative flex cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed transition-colors ${
-          shape === "circle" ? "h-24 w-24 rounded-full" : "h-32 w-full rounded-xl"
+          shape === "circle"
+            ? "h-24 w-24 rounded-full"
+            : "h-32 w-full rounded-xl"
         } ${
           isDragging
             ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
@@ -122,7 +140,11 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
 
         {imagemExibida ? (
           <>
-            <img src={imagemExibida} alt="" className="h-full w-full object-cover" />
+            <img
+              src={imagemExibida}
+              alt=""
+              className="h-full w-full object-cover"
+            />
             {!isUploading && (
               <button
                 type="button"
@@ -137,7 +159,9 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
         ) : (
           <div className="flex flex-col items-center gap-1 px-3 text-center text-slate-400 dark:text-slate-500">
             <ImagePlus className="h-6 w-6" />
-            <span className="text-xs">Arraste uma imagem ou clique para selecionar</span>
+            <span className="text-xs">
+              Arraste uma imagem ou clique para selecionar
+            </span>
           </div>
         )}
 
@@ -148,7 +172,9 @@ export function ImageUpload({ value, onChange, label, shape = "square" }: ImageU
         )}
       </div>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500">JPG, PNG ou WEBP · máx. 5MB</p>
+      <p className="text-xs text-slate-400 dark:text-slate-500">
+        JPG, PNG ou WEBP · máx. 5MB
+      </p>
     </div>
   );
 }

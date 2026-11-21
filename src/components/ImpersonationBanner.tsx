@@ -8,7 +8,8 @@ import { useSuperAdminAuth } from "../contexts/SuperAdminAuthContext";
 // voltar sem precisar logar de novo. Login normal de tenant ou de
 // super-admin nunca deixa as duas populadas simultaneamente.
 export function ImpersonationBanner() {
-  const { isAuthenticated: isTenantAuthenticated, logout: logoutTenant } = useAuth();
+  const { isAuthenticated: isTenantAuthenticated, logout: logoutTenant } =
+    useAuth();
   const { isAuthenticated: isSuperAdminAuthenticated } = useSuperAdminAuth();
 
   const estaImpersonando = isTenantAuthenticated && isSuperAdminAuthenticated;
@@ -31,7 +32,11 @@ export function ImpersonationBanner() {
     <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950">
       <ShieldAlert className="h-4 w-4 shrink-0" />
       <span>Modo Impersonation —</span>
-      <button type="button" onClick={handleVoltar} className="underline underline-offset-2 hover:no-underline">
+      <button
+        type="button"
+        onClick={handleVoltar}
+        className="underline underline-offset-2 hover:no-underline"
+      >
         Voltar ao Painel Admin
       </button>
     </div>

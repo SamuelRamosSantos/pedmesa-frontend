@@ -1,0 +1,66 @@
+name: CI
+
+# Qualidade e padrão de commits. Roda em todo Pull Request e também pode ser chamado
+# por outro workflow (workflow_call), como o deploy planejado na PED-119.
+on:
+  pull_request:
+    branches: [main, prod]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  qualidade:
+    name: Qualidade
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Configurar o Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar tipos e lint (npm run check)
+        run: npm run check
+
+      - name: Compilar (npm run build)
+        run: npm run build
+
+  commits:
+    name: Commits
+    # O Dependabot gera mensagens fora do padrão do projeto
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código com o histórico
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Configurar o Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Validar as mensagens de commit do PR (commitlint)
+        run: >-
+          npx commitlint
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+          --verbose

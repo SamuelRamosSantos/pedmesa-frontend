@@ -11,8 +11,8 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
 import type { ComponentType } from "react";
+import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { CurrencyInput } from "../../../components/ui/CurrencyInput";
@@ -33,7 +33,11 @@ interface PagamentoSidebarProps {
   onConfirmar: () => void;
 }
 
-const FORMAS: { value: FormaPagamento; label: string; icon: ComponentType<{ className?: string }> }[] = [
+const FORMAS: {
+  value: FormaPagamento;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+}[] = [
   { value: "pix", label: "Pix", icon: QrCode },
   { value: "dinheiro", label: "Dinheiro", icon: Banknote },
   { value: "cartao_credito", label: "Cartão Crédito", icon: CreditCard },
@@ -51,12 +55,16 @@ export function PagamentoSidebar({
   onRemovePagamento,
   onConfirmar,
 }: PagamentoSidebarProps) {
-  const [formaSelecionada, setFormaSelecionada] = useState<FormaPagamento>("pix");
+  const [formaSelecionada, setFormaSelecionada] =
+    useState<FormaPagamento>("pix");
   const [valorDraftCents, setValorDraftCents] = useState(0);
   const [valorError, setValorError] = useState<string | undefined>();
 
   const totalComandaCents = toCents(totalComanda);
-  const totalPagoCents = pagamentos.reduce((soma, pagamento) => soma + toCents(pagamento.valor), 0);
+  const totalPagoCents = pagamentos.reduce(
+    (soma, pagamento) => soma + toCents(pagamento.valor),
+    0,
+  );
   const totalRestanteCents = Math.max(0, totalComandaCents - totalPagoCents);
   const trocoCents = Math.max(0, totalPagoCents - totalComandaCents);
   const isQuitado = totalPagoCents + 1 >= totalComandaCents;
@@ -74,11 +82,15 @@ export function PagamentoSidebar({
 
   return (
     <Card>
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Pagamento</h2>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        Pagamento
+      </h2>
 
       <div className="mt-4 flex flex-col gap-3">
         <div>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Forma de pagamento</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Forma de pagamento
+          </span>
           <div className="mt-1.5 grid grid-cols-2 gap-2">
             {FORMAS.map((forma) => {
               const Icon = forma.icon;
@@ -118,7 +130,11 @@ export function PagamentoSidebar({
             aria-label="Adicionar lançamento de pagamento"
             className="flex h-[42px] shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-700 dark:hover:bg-slate-600"
           >
-            {isAddingPagamento ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            {isAddingPagamento ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
           </button>
         </div>
 
@@ -129,7 +145,9 @@ export function PagamentoSidebar({
                 key={pagamento.id}
                 className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800"
               >
-                <span className="text-slate-700 dark:text-slate-300">{FORMA_PAGAMENTO_LABEL[pagamento.forma]}</span>
+                <span className="text-slate-700 dark:text-slate-300">
+                  {FORMA_PAGAMENTO_LABEL[pagamento.forma]}
+                </span>
                 <span className="flex items-center gap-2">
                   <span className="font-medium text-slate-900 dark:text-white">
                     {formatCurrency(pagamento.valor)}
@@ -157,7 +175,9 @@ export function PagamentoSidebar({
       <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-200 pt-4 text-sm dark:border-slate-800">
         <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total da Comanda</span>
-          <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(totalComanda)}</span>
+          <span className="font-medium text-slate-900 dark:text-white">
+            {formatCurrency(totalComanda)}
+          </span>
         </div>
         <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total Pago</span>
@@ -202,7 +222,9 @@ export function PagamentoSidebar({
       <Button
         onClick={onConfirmar}
         isLoading={isSubmitting}
-        disabled={!podeRegistrarPagamento || !isQuitado || pagamentos.length === 0}
+        disabled={
+          !podeRegistrarPagamento || !isQuitado || pagamentos.length === 0
+        }
         className="mt-4 w-full"
       >
         <Send className="h-4 w-4" />

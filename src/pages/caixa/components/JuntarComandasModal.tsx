@@ -1,6 +1,6 @@
 import { Merge } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
 import { useToast } from "../../../contexts/ToastContext";
@@ -15,11 +15,18 @@ interface JuntarComandasModalProps {
   onJoined: () => void;
 }
 
-export function JuntarComandasModal({ isOpen, comandas, onClose, onJoined }: JuntarComandasModalProps) {
+export function JuntarComandasModal({
+  isOpen,
+  comandas,
+  onClose,
+  onJoined,
+}: JuntarComandasModalProps) {
   const [principalId, setPrincipalId] = useState("");
   const [secundariasIds, setSecundariasIds] = useState<string[]>([]);
   const [errorPrincipal, setErrorPrincipal] = useState<string | undefined>();
-  const [errorSecundarias, setErrorSecundarias] = useState<string | undefined>();
+  const [errorSecundarias, setErrorSecundarias] = useState<
+    string | undefined
+  >();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
 
@@ -39,7 +46,11 @@ export function JuntarComandasModal({ isOpen, comandas, onClose, onJoined }: Jun
   }
 
   function handleToggleSecundaria(id: string) {
-    setSecundariasIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+    setSecundariasIds((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -68,19 +79,27 @@ export function JuntarComandasModal({ isOpen, comandas, onClose, onJoined }: Jun
       showToast(resultado.mensagem, "success");
       onJoined();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível juntar as comandas."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível juntar as comandas."),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const secundariasDisponiveis = comandas.filter((comanda) => comanda.id !== principalId);
+  const secundariasDisponiveis = comandas.filter(
+    (comanda) => comanda.id !== principalId,
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Juntar comandas">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="comanda-principal" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="comanda-principal"
+            className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Comanda principal
           </label>
           <select
@@ -93,18 +112,27 @@ export function JuntarComandasModal({ isOpen, comandas, onClose, onJoined }: Jun
                 : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
             }`}
           >
-            <option value="">Selecione a mesa que vai receber os itens...</option>
+            <option value="">
+              Selecione a mesa que vai receber os itens...
+            </option>
             {comandas.map((comanda) => (
               <option key={comanda.id} value={comanda.id}>
-                Mesa {comanda.numero_comanda} ({comanda.total_integrantes} pessoas)
+                Mesa {comanda.numero_comanda} ({comanda.total_integrantes}{" "}
+                pessoas)
               </option>
             ))}
           </select>
-          {errorPrincipal && <p className="text-sm text-red-600 dark:text-red-400">{errorPrincipal}</p>}
+          {errorPrincipal && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {errorPrincipal}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Comandas secundárias</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Comandas secundárias
+          </span>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Serão fechadas e seus integrantes movidos para a comanda principal.
           </p>
@@ -121,15 +149,25 @@ export function JuntarComandasModal({ isOpen, comandas, onClose, onJoined }: Jun
                   onChange={() => handleToggleSecundaria(comanda.id)}
                   className="h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500/40 dark:border-slate-600 dark:bg-slate-800"
                 />
-                Mesa {comanda.numero_comanda} ({comanda.total_integrantes} pessoas)
+                Mesa {comanda.numero_comanda} ({comanda.total_integrantes}{" "}
+                pessoas)
               </label>
             ))}
           </div>
-          {errorSecundarias && <p className="text-sm text-red-600 dark:text-red-400">{errorSecundarias}</p>}
+          {errorSecundarias && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {errorSecundarias}
+            </p>
+          )}
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

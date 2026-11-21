@@ -1,6 +1,6 @@
 import { Plus, Trash2, UserPlus } from "lucide-react";
-import { useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -23,11 +23,19 @@ function criarCampoVazio(id: number): IntegranteField {
   return { id, nome: "" };
 }
 
-export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModalProps) {
+export function NovaComandaModal({
+  isOpen,
+  onClose,
+  onCreated,
+}: NovaComandaModalProps) {
   const [numeroComanda, setNumeroComanda] = useState("");
-  const [integrantes, setIntegrantes] = useState<IntegranteField[]>([criarCampoVazio(0)]);
+  const [integrantes, setIntegrantes] = useState<IntegranteField[]>([
+    criarCampoVazio(0),
+  ]);
   const [numeroError, setNumeroError] = useState<string | undefined>();
-  const [integrantesError, setIntegrantesError] = useState<string | undefined>();
+  const [integrantesError, setIntegrantesError] = useState<
+    string | undefined
+  >();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const nextFieldIdRef = useRef(1);
   const { showToast } = useToast();
@@ -47,11 +55,16 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
   }
 
   function handleIntegranteChange(id: number, nome: string) {
-    setIntegrantes((current) => current.map((field) => (field.id === id ? { ...field, nome } : field)));
+    setIntegrantes((current) =>
+      current.map((field) => (field.id === id ? { ...field, nome } : field)),
+    );
   }
 
   function handleAddIntegrante() {
-    setIntegrantes((current) => [...current, criarCampoVazio(nextFieldIdRef.current++)]);
+    setIntegrantes((current) => [
+      ...current,
+      criarCampoVazio(nextFieldIdRef.current++),
+    ]);
   }
 
   function handleRemoveIntegrante(id: number) {
@@ -70,7 +83,9 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
       return;
     }
 
-    const nomesValidos = integrantes.map((field) => field.nome.trim()).filter((nome) => nome.length > 0);
+    const nomesValidos = integrantes
+      .map((field) => field.nome.trim())
+      .filter((nome) => nome.length > 0);
 
     if (nomesValidos.length === 0) {
       setIntegrantesError("Informe ao menos um integrante.");
@@ -85,11 +100,20 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
         integrantes: nomesValidos.map((nome) => ({ nome })),
       });
 
-      showToast(`Comanda ${comanda.numero_comanda} aberta com sucesso!`, "success");
+      showToast(
+        `Comanda ${comanda.numero_comanda} aberta com sucesso!`,
+        "success",
+      );
       resetForm();
       onCreated();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível abrir a comanda. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível abrir a comanda. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
@@ -111,7 +135,9 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
         />
 
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Integrantes</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Integrantes
+          </span>
 
           <div className="flex flex-col gap-2">
             {integrantes.map((field, index) => (
@@ -121,7 +147,9 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
                   aria-label={`Nome do integrante ${index + 1}`}
                   placeholder={`Integrante ${index + 1} (ex.: Lucas)`}
                   value={field.nome}
-                  onChange={(event) => handleIntegranteChange(field.id, event.target.value)}
+                  onChange={(event) =>
+                    handleIntegranteChange(field.id, event.target.value)
+                  }
                   className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
                 />
                 {integrantes.length > 1 && (
@@ -138,7 +166,11 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
             ))}
           </div>
 
-          {integrantesError && <p className="text-sm text-red-600 dark:text-red-400">{integrantesError}</p>}
+          {integrantesError && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {integrantesError}
+            </p>
+          )}
 
           <button
             type="button"
@@ -151,7 +183,12 @@ export function NovaComandaModal({ isOpen, onClose, onCreated }: NovaComandaModa
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">
