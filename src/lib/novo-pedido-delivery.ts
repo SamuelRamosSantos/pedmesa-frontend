@@ -5,7 +5,12 @@ import type {
 } from "../services/delivery.service";
 import type { FormaPagamento } from "../types/comanda";
 import type { CotacaoDelivery } from "../types/delivery";
-import type { SituacaoCotacao } from "./cotacao-delivery";
+import {
+  type AjustesPedido,
+  payloadDosAjustes,
+  SEM_AJUSTES,
+  type SituacaoCotacao,
+} from "./cotacao-delivery";
 import { formatarNumeroEntrega } from "./expedicao";
 import { formatCurrency } from "./format";
 import type { DadosClienteDelivery } from "./identificacao-cliente";
@@ -22,6 +27,8 @@ export interface EntradaPedidoDelivery {
   formaPagamento: FormaPagamento;
   // Em reais; null = sem troco.
   trocoPara: number | null;
+  // Desconto e isenção da taxa (PED-126); ausente = sem ajuste.
+  ajustes?: AjustesPedido;
 }
 
 // Atalhos de "Troco para" (null = sem troco).
@@ -40,6 +47,7 @@ export function montarPedidoDelivery(
     forma_pagamento: entrada.formaPagamento,
     troco_para:
       entrada.formaPagamento === "dinheiro" ? entrada.trocoPara : null,
+    ...payloadDosAjustes(entrada.ajustes ?? SEM_AJUSTES),
   };
 
   if (entrada.cliente.endereco.tipo === "salvo") {
@@ -126,6 +134,10 @@ export function pendenciaDaEtapa(
     case "pagamento":
       if (estado.situacaoCotacao === "calculando") {
         return "Calculando o total...";
+      }
+
+      if (cotacao?.desconto_excede_itens) {
+        return `O desconto é maior que o valor dos itens (${formatCurrency(cotacao.subtotal)}).`;
       }
 
       if (

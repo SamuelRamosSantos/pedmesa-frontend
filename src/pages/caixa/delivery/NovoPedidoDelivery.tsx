@@ -9,6 +9,7 @@ import {
 import { AppShell } from "../../../components/layout/AppShell";
 import { Button } from "../../../components/ui";
 import { BarraEtapas } from "../../../components/ui/BarraEtapas";
+import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { useCarrinho } from "../../../hooks/useCarrinho";
 import { getApiErrorMessage } from "../../../lib/api-error";
@@ -16,6 +17,7 @@ import {
   itensParaCotacao,
   itensParaPedidoDelivery,
 } from "../../../lib/carrinho";
+import { type AjustesPedido, SEM_AJUSTES } from "../../../lib/cotacao-delivery";
 import { localidadeDaEntrega } from "../../../lib/endereco-entrega";
 import { resumoEndereco } from "../../../lib/identificacao-cliente";
 import {
@@ -82,7 +84,12 @@ export function NovoPedidoDelivery() {
   const [erroCardapio, setErroCardapio] = useState<string | null>(null);
   const [forma, setForma] = useState<FormaPagamento>(FORMA_PADRAO);
   const [trocoParaCents, setTrocoParaCents] = useState(0);
+  const [ajustesEscolhidos, setAjustes] = useState<AjustesPedido>(SEM_AJUSTES);
   const [enviando, setEnviando] = useState(false);
+  // Desconto e isenção da taxa (PED-126): mesma permissão do desconto no caixa.
+  const { user } = useAuth();
+  const podeAjustar = Boolean(user?.pode_conceder_desconto);
+  const ajustes = podeAjustar ? ajustesEscolhidos : SEM_AJUSTES;
 
   // Cliente escolhido: o endereço já vem pré-selecionado, então o próximo passo é
   // continuar.
@@ -102,6 +109,7 @@ export function NovoPedidoDelivery() {
     itens: itensParaCotacao(carrinho.itens),
     formaPagamento: forma,
     trocoPara,
+    ajustes,
   });
 
   const entrada = {
@@ -111,6 +119,7 @@ export function NovoPedidoDelivery() {
     itens: itensParaPedidoDelivery(carrinho.itens),
     formaPagamento: forma,
     trocoPara,
+    ajustes,
   };
   const estado: EstadoEnvio = {
     ...entrada,
@@ -198,6 +207,7 @@ export function NovoPedidoDelivery() {
     carrinho.limpar();
     setForma(FORMA_PADRAO);
     setTrocoParaCents(0);
+    setAjustes(SEM_AJUSTES);
     setTentouAvancar(false);
     setEtapa("cliente");
     // Por último: leva o foco à busca, pronto para a próxima ligação.
@@ -360,6 +370,9 @@ export function NovoPedidoDelivery() {
                 enviando={enviando}
                 onEnviar={() => void enviar()}
                 enviarRef={enviarRef}
+                podeAjustar={podeAjustar}
+                ajustes={ajustes}
+                onAjustes={setAjustes}
               />
             )}
           </div>

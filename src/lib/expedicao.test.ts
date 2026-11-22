@@ -12,6 +12,7 @@ import {
   motivoValido,
   podeCancelar,
   restaurarEntrega,
+  textosDoMotivo,
   tomDoTempo,
   VOLTAR,
 } from "./expedicao";
@@ -29,6 +30,7 @@ function entrega(
     bairro: "Bela Vista",
     endereco_resumido: "Avenida Paulista, 1000",
     total: 45,
+    taxa_isenta: false,
     forma_pagamento_prevista: "dinheiro",
     troco: 5,
     troco_suficiente: true,
@@ -39,6 +41,33 @@ function entrega(
     ...alteracao,
   };
 }
+
+describe("desfazer entrega (PED-127)", () => {
+  it("entregue volta para em rota, com motivo", () => {
+    expect(VOLTAR.entregue).toEqual({
+      label: "Desfazer entrega",
+      para: "em_rota",
+    });
+    expect(exigeMotivo("entregue", "em_rota")).toBe(true);
+    expect(podeCancelar("entregue")).toBe(false);
+  });
+
+  it("textos do modal de motivo para cada caso", () => {
+    expect(textosDoMotivo("entregue", "em_rota", 7)).toMatchObject({
+      titulo: "Desfazer entrega #0007",
+      rotuloConfirmar: "Desfazer entrega",
+      perigo: true,
+    });
+    expect(textosDoMotivo("em_producao", "cancelado", 7)).toMatchObject({
+      titulo: "Cancelar entrega #0007",
+      perigo: true,
+    });
+    expect(textosDoMotivo("em_rota", "pronto_para_envio", 7)).toMatchObject({
+      titulo: "Registrar retorno da entrega #0007",
+      perigo: false,
+    });
+  });
+});
 
 describe("fluxo de status (espelho do backend)", () => {
   it("avançar e voltar", () => {

@@ -115,8 +115,15 @@ export function EntregaCard({
         <span className="text-slate-600 dark:text-slate-300">
           {FORMA_PAGAMENTO_LABEL[entrega.forma_pagamento_prevista]}
         </span>
-        <span className="text-lg font-bold text-slate-900 dark:text-white">
-          {formatCurrency(entrega.total)}
+        <span className="flex items-center gap-2">
+          {entrega.taxa_isenta && (
+            <span className="whitespace-nowrap rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
+              Taxa isenta
+            </span>
+          )}
+          <span className="text-lg font-bold text-slate-900 dark:text-white">
+            {formatCurrency(entrega.total)}
+          </span>
         </span>
       </div>
 
@@ -166,6 +173,19 @@ export function EntregaCard({
             </Button>
           )}
         </div>
+      )}
+
+      {entrega.status_entrega === "entregue" && voltar && (
+        <Button
+          variant="secondary"
+          onClick={() => onVoltar(entrega)}
+          disabled={ocupada}
+          data-testid={`desfazer-entrega-${entrega.numero_entrega}`}
+          className="w-full"
+        >
+          <Undo2 className="h-4 w-4" />
+          {voltar.label}
+        </Button>
       )}
 
       <div className="flex items-center gap-2">

@@ -3,6 +3,8 @@ import type { CotacaoDelivery } from "../types/delivery";
 import {
   bloqueioDoEnvio,
   payloadDaCotacao,
+  payloadDosAjustes,
+  SEM_AJUSTES,
   situacaoDaCotacao,
 } from "./cotacao-delivery";
 
@@ -21,7 +23,40 @@ const ATENDIDO: CotacaoDelivery = {
   pedido_minimo_atingido: true,
   troco: 0,
   troco_suficiente: true,
+  taxa_entrega_bairro: 5,
+  taxa_isenta: false,
+  desconto_aplicado: 0,
+  desconto_excede_itens: false,
 };
+
+describe("payloadDosAjustes (PED-126)", () => {
+  it("só manda o que foi ajustado", () => {
+    expect(payloadDosAjustes(SEM_AJUSTES)).toEqual({});
+    expect(
+      payloadDosAjustes({
+        descontoTipo: "percentual",
+        descontoValor: 10,
+        isentarTaxa: true,
+      }),
+    ).toEqual({
+      desconto_tipo: "percentual",
+      desconto_valor: 10,
+      isentar_taxa_entrega: true,
+    });
+  });
+
+  it("a cotação leva os ajustes junto", () => {
+    expect(
+      payloadDaCotacao({
+        localidade: LOCALIDADE,
+        itens: ITENS,
+        formaPagamento: "pix",
+        trocoPara: null,
+        ajustes: { ...SEM_AJUSTES, isentarTaxa: true },
+      }),
+    ).toMatchObject({ isentar_taxa_entrega: true });
+  });
+});
 
 const NAO_ATENDIDO: CotacaoDelivery = {
   ...ATENDIDO,

@@ -10,6 +10,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
+import type { DescontoTipoEntrada } from "../../components/pagamento/DescontoCard";
+import { DescontoCard } from "../../components/pagamento/DescontoCard";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
@@ -32,8 +34,6 @@ import type {
   DescontoTipo,
   FormaPagamento,
 } from "../../types/comanda";
-import type { DescontoTipoEntrada } from "./components/DescontoCard";
-import { DescontoCard } from "./components/DescontoCard";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
 import { PagamentoSidebar } from "./components/PagamentoSidebar";
 import { ResumoFinanceiroCard } from "./components/ResumoFinanceiroCard";

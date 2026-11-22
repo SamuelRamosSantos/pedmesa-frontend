@@ -1,4 +1,5 @@
 import type {
+  AjustesPedidoPayload,
   CotacaoDeliveryPayload,
   ItemPedidoDeliveryPayload,
 } from "../services/delivery.service";
@@ -10,11 +11,41 @@ import type { Localidade } from "./endereco-entrega";
 // Cotação do pedido delivery na tela (PED-108/PED-109). Quem calcula é sempre o backend:
 // aqui só se monta o pedido de cotação e se interpreta a resposta.
 
+// Desconto nos itens e isenção da taxa escolhidos na etapa de pagamento (PED-126).
+export interface AjustesPedido {
+  descontoTipo: "percentual" | "valor_fixo";
+  // 0 = sem desconto.
+  descontoValor: number;
+  isentarTaxa: boolean;
+}
+
+export const SEM_AJUSTES: AjustesPedido = {
+  descontoTipo: "percentual",
+  descontoValor: 0,
+  isentarTaxa: false,
+};
+
+// Só manda o que foi ajustado: sem desconto e sem isenção, o corpo fica como antes.
+export function payloadDosAjustes(
+  ajustes: AjustesPedido,
+): AjustesPedidoPayload {
+  return {
+    ...(ajustes.descontoValor > 0
+      ? {
+          desconto_tipo: ajustes.descontoTipo,
+          desconto_valor: ajustes.descontoValor,
+        }
+      : {}),
+    ...(ajustes.isentarTaxa ? { isentar_taxa_entrega: true } : {}),
+  };
+}
+
 export interface EntradaCotacao {
   localidade: Localidade | null;
   itens: ItemPedidoDeliveryPayload[];
   formaPagamento: FormaPagamento;
   trocoPara: number | null;
+  ajustes?: AjustesPedido;
 }
 
 // null sem cidade e bairro. "Troco para" só vai em dinheiro (o backend recusa nas outras).
@@ -31,6 +62,7 @@ export function payloadDaCotacao(
     forma_pagamento: entrada.formaPagamento,
     troco_para:
       entrada.formaPagamento === "dinheiro" ? entrada.trocoPara : null,
+    ...payloadDosAjustes(entrada.ajustes ?? SEM_AJUSTES),
   };
 }
 

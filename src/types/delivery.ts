@@ -17,9 +17,16 @@ export interface CotacaoDelivery {
   atendido: boolean;
   motivo_nao_atendido: string | null;
   subtotal: number;
+  // Taxa cobrada: 0 quando isenta (PED-126); null sem bairro atendido.
   taxa_entrega: number | null;
+  // Taxa do bairro antes da isenção, para mostrar o que deixou de ser cobrado.
+  taxa_entrega_bairro: number | null;
+  taxa_isenta: boolean;
   origem_taxa: OrigemTaxa | null;
   tempo_estimado_min: number | null;
+  desconto_aplicado: number;
+  // Desconto maior que os itens: o total vem sem ele e a criação é recusada.
+  desconto_excede_itens: boolean;
   total: number;
   pedido_minimo: number;
   pedido_minimo_atingido: boolean;
@@ -50,6 +57,8 @@ export interface EntregaPainel {
   bairro: string;
   endereco_resumido: string;
   total: number;
+  // Taxa de entrega isenta pelo atendente (PED-126).
+  taxa_isenta: boolean;
   forma_pagamento_prevista: FormaPagamento;
   troco: number;
   troco_suficiente: boolean;

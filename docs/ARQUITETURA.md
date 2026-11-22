@@ -41,7 +41,7 @@ src/
     <papel>/components/  # componentes usados só pelas telas daquele papel
   components/ui/       # BarraEtapas, Button, Card, ConfirmDialog, CurrencyInput, ImageUpload, Input, Modal, OpcaoSelecionavel, Switch, ThemeToggle, Toast
   components/layout/   # AppShell, Sidebar
-  components/<área>/   # compartilhados entre telas: carrinho, cardapio, endereco, kanban, pagamento
+  components/<área>/   # compartilhados entre telas: carrinho, cardapio, delivery, endereco, kanban, pagamento
   components/          # ProtectedRoute, SuperAdminProtectedRoute, ImpersonationBanner
   hooks/               # useCarrinho, useEnderecoForm, useCepLookup, useConsultaPorChave, useComAtraso, usePolling
   services/            # api.ts, admin-api.ts, um service por recurso e cep.service (ViaCEP, sem credenciais)
@@ -72,6 +72,8 @@ Depois do login, `src/lib/role-routes.ts` decide a tela inicial pelo papel de ma
 O menu lateral (`Sidebar`) tem três seções: **Trocar visão** (as visões dos papéis do usuário), **Delivery** (Novo pedido, Expedição e Clientes, só para admin e expedição e só com `delivery_ativo`; regra em `src/lib/menu-delivery.ts`) e **Administração** (admin).
 
 ### Novo pedido delivery
+
+Desde a 2ª rodada de ajustes: bairro não atendido mostra "Cadastrar o bairro X" para o admin (abre o `TaxaEntregaModal` compartilhado e refaz a cotação; PED-125); a etapa de pagamento tem desconto e isenção da taxa para quem tem `pode_conceder_desconto` (PED-126); no painel, "Entregues hoje" tem "Desfazer entrega", com motivo (PED-127).
 
 Assistente em três etapas com a `BarraEtapas` no topo: **Cliente** (busca única por nome ou telefone, cadastro de cliente novo, endereço e frete), **Produtos** e **Pagamento** (forma, troco e revisão). As pendências de cada etapa e a liberação da seguinte ficam em `src/lib/novo-pedido-delivery.ts`; a classificação do termo da busca, em `src/lib/busca-cliente.ts`. Telefone completo cadastrado seleciona o cliente; não cadastrado abre o cadastro com o número. Tudo é operável pelo teclado (`Enter` avança o campo, `Ctrl+Enter` avança a etapa e envia na última).
 

@@ -24,7 +24,8 @@ function Linha({
 const exibir = (valor: number | null | undefined) =>
   valor === null || valor === undefined ? "—" : formatCurrency(valor);
 
-// Subtotal, taxa e total do pedido, sempre os da cotação do backend (PED-109).
+// Subtotal, desconto, taxa e total do pedido, sempre os da cotação do backend (PED-109;
+// desconto e taxa isenta desde o PED-126).
 export function ValoresPedido({
   cotacao,
 }: {
@@ -45,10 +46,33 @@ export function ValoresPedido({
       ) : (
         <>
           <Linha rotulo="Subtotal" valor={exibir(valores?.subtotal)} />
-          <Linha
-            rotulo="Taxa de entrega"
-            valor={exibir(valores?.taxa_entrega)}
-          />
+          {valores && valores.desconto_aplicado > 0 && (
+            <Linha
+              rotulo="Desconto"
+              valor={`− ${formatCurrency(valores.desconto_aplicado)}`}
+            />
+          )}
+          {valores?.taxa_isenta ? (
+            <div
+              className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"
+              data-testid="linha-taxa-isenta"
+            >
+              <span>Taxa de entrega</span>
+              <span className="flex items-center gap-2">
+                <s className="tabular-nums text-slate-400 dark:text-slate-500">
+                  {exibir(valores.taxa_entrega_bairro)}
+                </s>
+                <span className="font-semibold text-sky-700 dark:text-sky-300">
+                  Isenta
+                </span>
+              </span>
+            </div>
+          ) : (
+            <Linha
+              rotulo="Taxa de entrega"
+              valor={exibir(valores?.taxa_entrega)}
+            />
+          )}
           <Linha rotulo="Total" valor={exibir(valores?.total)} destaque />
         </>
       )}

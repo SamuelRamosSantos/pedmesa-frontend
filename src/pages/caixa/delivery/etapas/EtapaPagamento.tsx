@@ -2,10 +2,12 @@ import { ClipboardCheck, Send } from "lucide-react";
 import type { RefObject } from "react";
 import { Button, Card } from "../../../../components/ui";
 import type { ControleCarrinho } from "../../../../hooks/useCarrinho";
+import type { AjustesPedido as Ajustes } from "../../../../lib/cotacao-delivery";
 import { FORMA_PAGAMENTO_LABEL } from "../../../../lib/forma-pagamento";
 import { formatCurrency } from "../../../../lib/format";
 import { mascararTelefone } from "../../../../lib/mascaras";
 import type { FormaPagamento } from "../../../../types/comanda";
+import { AjustesPedido } from "../components/AjustesPedido";
 import { PagamentoDelivery } from "../components/PagamentoDelivery";
 import { ValoresPedido } from "../components/ValoresPedido";
 import type { ControleCotacaoDelivery } from "../useCotacaoDelivery";
@@ -29,6 +31,10 @@ interface EtapaPagamentoProps {
   enviando: boolean;
   onEnviar: () => void;
   enviarRef: RefObject<HTMLButtonElement | null>;
+  // Desconto e isenção da taxa (PED-126): só com a permissão de desconto.
+  podeAjustar: boolean;
+  ajustes: Ajustes;
+  onAjustes: (ajustes: Ajustes) => void;
 }
 
 function Bloco({ titulo, children }: { titulo: string; children: string }) {
@@ -56,16 +62,28 @@ export function EtapaPagamento({
   enviando,
   onEnviar,
   enviarRef,
+  podeAjustar,
+  ajustes,
+  onAjustes,
 }: EtapaPagamentoProps) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-      <PagamentoDelivery
-        forma={forma}
-        onForma={onForma}
-        trocoParaCents={trocoParaCents}
-        onTrocoParaCents={onTrocoParaCents}
-        cotacao={cotacao.cotacao}
-      />
+      <div className="flex min-w-0 flex-col gap-4">
+        <PagamentoDelivery
+          forma={forma}
+          onForma={onForma}
+          trocoParaCents={trocoParaCents}
+          onTrocoParaCents={onTrocoParaCents}
+          cotacao={cotacao.cotacao}
+        />
+        {podeAjustar && (
+          <AjustesPedido
+            ajustes={ajustes}
+            onAjustes={onAjustes}
+            cotacao={cotacao.cotacao}
+          />
+        )}
+      </div>
 
       <Card className="flex flex-col gap-4 lg:sticky lg:top-40">
         <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-white">

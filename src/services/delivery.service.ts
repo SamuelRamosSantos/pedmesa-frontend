@@ -20,7 +20,15 @@ export interface ItemPedidoDeliveryPayload {
   observacao?: string | null;
 }
 
-export interface CotacaoDeliveryPayload {
+// Desconto nos itens e isenção da taxa (PED-126). Criar o pedido com eles exige a
+// permissão de desconto; o backend confere pelo token.
+export interface AjustesPedidoPayload {
+  desconto_tipo?: "percentual" | "valor_fixo";
+  desconto_valor?: number;
+  isentar_taxa_entrega?: boolean;
+}
+
+export interface CotacaoDeliveryPayload extends AjustesPedidoPayload {
   endereco: { cidade: string; bairro: string };
   // Pode ir vazio: cota só o frete, antes de montar o carrinho (PED-108).
   itens: ItemPedidoDeliveryPayload[];
@@ -43,12 +51,13 @@ export type EnderecoDoPedidoPayload =
       endereco_id?: never;
     };
 
-export type CriarPedidoDeliveryPayload = EnderecoDoPedidoPayload & {
-  cliente: CreateClientePayload;
-  itens: ItemPedidoDeliveryPayload[];
-  forma_pagamento: FormaPagamento;
-  troco_para?: number | null;
-};
+export type CriarPedidoDeliveryPayload = EnderecoDoPedidoPayload &
+  AjustesPedidoPayload & {
+    cliente: CreateClientePayload;
+    itens: ItemPedidoDeliveryPayload[];
+    forma_pagamento: FormaPagamento;
+    troco_para?: number | null;
+  };
 
 export interface TransicaoEntregaPayload {
   status: StatusEntrega;

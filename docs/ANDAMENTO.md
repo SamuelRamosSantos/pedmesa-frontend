@@ -27,10 +27,11 @@
 
 ## 3. Em andamento (fora da `main`)
 
-- **Delivery (PED-82):** Vitest e máscaras (PED-104), tipos e services (PED-105), ViaCEP (PED-106), identificação do cliente (PED-107), endereço e frete (PED-108), novo pedido delivery (PED-109), Kanban de expedição (PED-110), taxas e configuração (PED-111), menu do delivery e badge no KDS (PED-112), novo pedido em etapas com busca única de cliente por nome ou telefone (PED-123) e tela de clientes cadastrados (PED-124). A busca usa a listagem de clientes do backend (PED-122, branch de mesmo nome no `pedmesa-backend`).
+- **Delivery (PED-82):** Vitest e máscaras (PED-104), tipos e services (PED-105), ViaCEP (PED-106), identificação do cliente (PED-107), endereço e frete (PED-108), novo pedido delivery (PED-109), Kanban de expedição (PED-110), taxas e configuração (PED-111), menu do delivery e badge no KDS (PED-112), novo pedido em etapas com busca única de cliente por nome ou telefone (PED-123), tela de clientes cadastrados (PED-124), cadastro de bairro direto pelo novo pedido (PED-125), desconto e isenção da taxa na etapa de pagamento (PED-126) e desfazer entrega marcada por engano (PED-127). A busca usa a listagem de clientes do backend (PED-122, branch de mesmo nome no `pedmesa-backend`).
 
 ## 4. Planejado
 
+- PED-128: sugerir o bairro atendido mais parecido quando o digitado não é atendido ("Você quis dizer...?").
 - PED-59, PED-64 e PED-69: cabeçalhos de segurança, `Cache-Control` e compressão no nginx da imagem.
 
 ## 5. Pendências conhecidas
@@ -40,7 +41,7 @@
 
 ## 6. Impacto previsto na arquitetura
 
-- O delivery traz hooks compartilhados (`useCarrinho`, `usePolling`, `useEnderecoForm`), componentes genéricos (`KanbanColumn`, `BarraEtapas`, `OpcaoSelecionavel`, `SeletorFormaPagamento`, `EnderecoForm`) e a integração externa com o ViaCEP por service próprio.
+- O delivery traz hooks compartilhados (`useCarrinho`, `usePolling`, `useEnderecoForm`), componentes genéricos (`KanbanColumn`, `BarraEtapas`, `OpcaoSelecionavel`, `SeletorFormaPagamento`, `DescontoCard`, `EnderecoForm`, `TaxaEntregaModal`) e a integração externa com o ViaCEP por service próprio.
 - O fechamento do caixa passa a usar o `SeletorFormaPagamento` compartilhado (mesmo visual, rótulos de cartão iguais aos do restante do caixa).
 
 ## 7. Documentos relacionados

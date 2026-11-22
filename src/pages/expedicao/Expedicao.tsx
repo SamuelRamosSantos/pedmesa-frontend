@@ -30,6 +30,7 @@ import {
   mesclarComPendentes,
   restaurarEntrega,
   type StatusColuna,
+  textosDoMotivo,
   VOLTAR,
 } from "../../lib/expedicao";
 import {
@@ -213,7 +214,13 @@ export function Expedicao() {
 
   const colunas = useMemo(() => agruparPorColuna(entregas), [entregas]);
   const agora = new Date();
-  const cancelando = pedidoMotivo?.para === "cancelado";
+  const textosMotivo = pedidoMotivo
+    ? textosDoMotivo(
+        pedidoMotivo.entrega.status_entrega,
+        pedidoMotivo.para,
+        pedidoMotivo.entrega.numero_entrega,
+      )
+    : null;
 
   return (
     <AppShell>
@@ -323,18 +330,12 @@ export function Expedicao() {
             )}
           </main>
 
-          {pedidoMotivo && (
+          {pedidoMotivo && textosMotivo && (
             <MotivoModal
-              titulo={`${cancelando ? "Cancelar" : "Registrar retorno da"} entrega ${formatarNumeroEntrega(pedidoMotivo.entrega.numero_entrega)}`}
-              descricao={
-                cancelando
-                  ? "Os itens serão cancelados e a comanda fechada sem cobrança. Informe o motivo."
-                  : 'A entrega volta para "Pronto para envio". Informe por que não foi entregue.'
-              }
-              rotuloConfirmar={
-                cancelando ? "Cancelar entrega" : "Registrar retorno"
-              }
-              perigo={cancelando}
+              titulo={textosMotivo.titulo}
+              descricao={textosMotivo.descricao}
+              rotuloConfirmar={textosMotivo.rotuloConfirmar}
+              perigo={textosMotivo.perigo}
               enviando={ocupadas.has(pedidoMotivo.entrega.id)}
               onConfirmar={(motivo) => void confirmarComMotivo(motivo)}
               onFechar={() => setPedidoMotivo(null)}

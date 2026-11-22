@@ -40,6 +40,8 @@ export const AVANCAR: Partial<Record<StatusEntrega, AcaoEntrega>> = {
 export const VOLTAR: Partial<Record<StatusEntrega, AcaoEntrega>> = {
   pronto_para_envio: { label: "Voltar para produção", para: "em_producao" },
   em_rota: { label: "Retornou sem entregar", para: "pronto_para_envio" },
+  // Entregue por engano (PED-127): reabre a comanda; o backend só aceita no mesmo dia.
+  entregue: { label: "Desfazer entrega", para: "em_rota" },
 };
 
 // Em rota não cancela direto (ADR-001): primeiro registra o retorno, depois cancela.
@@ -55,8 +57,53 @@ export function exigeMotivo(
 ): boolean {
   return (
     para === "cancelado" ||
-    (atual === "em_rota" && para === "pronto_para_envio")
+    (atual === "em_rota" && para === "pronto_para_envio") ||
+    (atual === "entregue" && para === "em_rota")
   );
+}
+
+export interface TextosDoMotivo {
+  titulo: string;
+  descricao: string;
+  rotuloConfirmar: string;
+  perigo: boolean;
+}
+
+// Textos do modal de motivo para cada transição que exige justificativa.
+export function textosDoMotivo(
+  atual: StatusEntrega,
+  para: StatusEntrega,
+  numeroEntrega: number,
+): TextosDoMotivo {
+  const numero = formatarNumeroEntrega(numeroEntrega);
+
+  if (para === "cancelado") {
+    return {
+      titulo: `Cancelar entrega ${numero}`,
+      descricao:
+        "Os itens serão cancelados e a comanda fechada sem cobrança. Informe o motivo.",
+      rotuloConfirmar: "Cancelar entrega",
+      perigo: true,
+    };
+  }
+
+  if (atual === "entregue") {
+    return {
+      titulo: `Desfazer entrega ${numero}`,
+      descricao:
+        'A entrega volta para "Em rota", a comanda é reaberta e o pagamento registrado na entrega é removido. Informe por que está desfazendo.',
+      rotuloConfirmar: "Desfazer entrega",
+      perigo: true,
+    };
+  }
+
+  return {
+    titulo: `Registrar retorno da entrega ${numero}`,
+    descricao:
+      'A entrega volta para "Pronto para envio". Informe por que não foi entregue.',
+    rotuloConfirmar: "Registrar retorno",
+    perigo: false,
+  };
 }
 
 export function motivoValido(motivo: string): boolean {

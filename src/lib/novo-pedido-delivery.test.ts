@@ -53,6 +53,10 @@ const COTACAO: CotacaoDelivery = {
   pedido_minimo_atingido: true,
   troco: 5,
   troco_suficiente: true,
+  taxa_entrega_bairro: 5,
+  taxa_isenta: false,
+  desconto_aplicado: 0,
+  desconto_excede_itens: false,
 };
 
 const PRONTO: EstadoEnvio = {
@@ -82,6 +86,34 @@ describe("montarPedidoDelivery", () => {
         salvarEndereco: true,
       }),
     ).toMatchObject({ endereco: ENDERECO_NOVO, salvar_endereco: true });
+  });
+
+  it("manda desconto e isenção só quando ajustados (PED-126)", () => {
+    expect(
+      montarPedidoDelivery({
+        ...ENTRADA,
+        ajustes: {
+          descontoTipo: "valor_fixo",
+          descontoValor: 5,
+          isentarTaxa: true,
+        },
+      }),
+    ).toMatchObject({
+      desconto_tipo: "valor_fixo",
+      desconto_valor: 5,
+      isentar_taxa_entrega: true,
+    });
+
+    const semAjuste = montarPedidoDelivery({
+      ...ENTRADA,
+      ajustes: {
+        descontoTipo: "percentual",
+        descontoValor: 0,
+        isentarTaxa: false,
+      },
+    });
+    expect(semAjuste).not.toHaveProperty("desconto_tipo");
+    expect(semAjuste).not.toHaveProperty("isentar_taxa_entrega");
   });
 
   it("troco só em dinheiro", () => {
@@ -172,6 +204,20 @@ describe("motivoQueImpedeEnvio", () => {
     expect(motivoQueImpedeEnvio({ ...PRONTO, ...alteracao })).toContain(
       mensagem,
     );
+  });
+
+  it("desconto maior que os itens trava a etapa de pagamento", () => {
+    expect(
+      primeiraPendencia({
+        ...PRONTO,
+        cotacao: { ...COTACAO, desconto_excede_itens: true },
+      }),
+    ).toEqual({
+      etapa: "pagamento",
+      motivo: expect.stringContaining(
+        "O desconto é maior que o valor dos itens",
+      ),
+    });
   });
 
   it("cotação que falhou não bloqueia (o backend confere ao criar)", () => {
