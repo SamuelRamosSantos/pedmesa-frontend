@@ -12,6 +12,7 @@ import { NovoPedidoDelivery } from "./pages/caixa/delivery/NovoPedidoDelivery";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { PreContaImpressao } from "./pages/caixa/PreContaImpressao";
 import { Kds } from "./pages/cozinha/Kds";
+import { Clientes } from "./pages/expedicao/Clientes";
 import { Expedicao } from "./pages/expedicao/Expedicao";
 import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
@@ -125,6 +126,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
               <Expedicao />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expedicao/clientes"
+          element={
+            // Mesmos papéis que o backend aceita em /clientes (ADR-001).
+            <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
+              <Clientes />
             </ProtectedRoute>
           }
         />

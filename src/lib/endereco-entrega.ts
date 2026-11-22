@@ -1,8 +1,8 @@
 import type { EnderecoNovoPayload } from "../services/delivery.service";
 import type { EnderecoCep } from "../types/cep";
-import type { Cliente } from "../types/cliente";
+import type { Cliente, EnderecoCliente } from "../types/cliente";
 import type { EscolhaEndereco } from "./identificacao-cliente";
-import { DIGITOS_CEP, somenteDigitos } from "./mascaras";
+import { DIGITOS_CEP, mascararCep, somenteDigitos } from "./mascaras";
 
 // Endereço de entrega do novo pedido delivery (PED-108).
 
@@ -27,6 +27,32 @@ export const CAMPOS_ENDERECO_VAZIOS: CamposEndereco = {
   uf: "",
   referencia: "",
 };
+
+// Campos do formulário a partir de um endereço salvo (edição, PED-124).
+export function camposDoEnderecoSalvo(
+  endereco: Pick<
+    EnderecoCliente,
+    | "cep"
+    | "logradouro"
+    | "numero"
+    | "complemento"
+    | "bairro"
+    | "cidade"
+    | "uf"
+    | "referencia"
+  >,
+): CamposEndereco {
+  return {
+    cep: mascararCep(endereco.cep),
+    logradouro: endereco.logradouro,
+    numero: endereco.numero,
+    complemento: endereco.complemento ?? "",
+    bairro: endereco.bairro,
+    cidade: endereco.cidade,
+    uf: endereco.uf,
+    referencia: endereco.referencia ?? "",
+  };
+}
 
 export type CampoParaFocar = "numero" | "logradouro";
 

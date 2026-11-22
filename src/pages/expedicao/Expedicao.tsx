@@ -7,6 +7,7 @@ import {
   Plus,
   RefreshCw,
   Truck,
+  Users,
   Wifi,
   WifiOff,
 } from "lucide-react";
@@ -254,6 +255,14 @@ export function Expedicao() {
                   className={`h-5 w-5 ${atualizando ? "animate-spin" : ""}`}
                 />
               </button>
+
+              <Button
+                variant="secondary"
+                onClick={() => navigate("/expedicao/clientes")}
+              >
+                <Users className="h-4 w-4" />
+                Clientes
+              </Button>
 
               <Button onClick={() => navigate("/caixa/delivery/novo")}>
                 <Plus className="h-4 w-4" />
