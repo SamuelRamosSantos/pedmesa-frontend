@@ -70,6 +70,7 @@ Toda imagem fica com a tag `sha-<commit>`: no Coolify, troque a tag para a anter
 - **`tsc` passa localmente e o build quebra:** `npx tsc --noEmit` não checa nada neste repositório (o `tsconfig.json` é _solution-style_). Use `npm run check` ou `npm run build`.
 - **Job Commits falha:** mensagem fora de `tipo(escopo): [PED-<ID>] descrição` ou acima de 100 caracteres.
 - **CI acusa IP privado no bundle:** algum IP de rede interna entrou no código ou numa `VITE_*`. Se for um exemplo legítimo de interface, acrescente em `IPS_PERMITIDOS` no `ci.yml`.
+- **Login responde 405 e o log do nginx do app mostra `POST /auth/login`:** o bundle foi gerado sem `VITE_API_BASE_URL` e o app chama a si mesmo. A variável fica no **GitHub Environment** do repositório (não no Coolify, que não faz mais o build). O pipeline agora recusa o build sem ela (passo **Conferir as variáveis de build**), e o Dockerfile também.
 - **App fora do ar depois do deploy com 502:** a porta no Coolify ainda está em 80; a imagem escuta na **8080**.
 - **`a versão no ar é X, esperada Y`:** o Coolify terminou, mas o container antigo continua rodando; confira se a aplicação está como _Docker Image_ com a tag do ambiente.
 - **`Método não aceito (405)` ou `COOLIFY_URL deve ser só o endereço do painel`:** o `COOLIFY_URL` deve ser só `https://seu-coolify`, sem caminho.

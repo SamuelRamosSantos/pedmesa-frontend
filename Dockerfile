@@ -21,6 +21,9 @@ COPY . .
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
+# Sem as VITE_* o bundle sairia apontando para o próprio app: recusa o build
+RUN test -n "$VITE_API_BASE_URL" || { echo "Faltou --build-arg VITE_API_BASE_URL=..." >&2; exit 1; }
+
 RUN npm run build
 
 # Commit da imagem, informado pelo pipeline. Servido em /versao.txt: a verificação
