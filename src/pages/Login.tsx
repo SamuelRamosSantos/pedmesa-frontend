@@ -1,10 +1,10 @@
 import axios from "axios";
 import { LockKeyhole, Mail } from "lucide-react";
-import { useState } from "react";
 import type { FormEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
 import logoWordmark from "../assets/logo-wordmark.svg";
+import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
@@ -34,18 +34,26 @@ export function Login() {
       const resultado = await login({ email, senha });
 
       if (resultado.tipo === "super_admin") {
-        authenticateSuperAdmin(resultado.token, resultado.super_admin);
+        authenticateSuperAdmin(resultado.super_admin);
         navigate("/admin", { replace: true });
         return;
       }
 
-      authenticate(resultado.token, resultado.usuario);
-      navigate(getHomeRouteForRoles(resultado.usuario.roles), { replace: true });
+      authenticate(resultado.usuario);
+      navigate(getHomeRouteForRoles(resultado.usuario.roles), {
+        replace: true,
+      });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         showToast("E-mail ou senha inválidos.", "error");
       } else {
-        showToast(getApiErrorMessage(error, "Não foi possível entrar. Tente novamente em instantes."), "error");
+        showToast(
+          getApiErrorMessage(
+            error,
+            "Não foi possível entrar. Tente novamente em instantes.",
+          ),
+          "error",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -60,13 +68,27 @@ export function Login() {
 
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <img src={logoWordmark} alt="PedMesa" className="h-10 w-auto dark:hidden" />
-          <img src={logoWordmarkDark} alt="PedMesa" className="hidden h-10 w-auto dark:block" />
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Entre com sua conta para continuar</p>
+          <img
+            src={logoWordmark}
+            alt="PedMesa"
+            className="h-10 w-auto dark:hidden"
+          />
+          <img
+            src={logoWordmarkDark}
+            alt="PedMesa"
+            className="hidden h-10 w-auto dark:block"
+          />
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Entre com sua conta para continuar
+          </p>
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+            noValidate
+          >
             <Input
               label="E-mail"
               type="email"
@@ -89,7 +111,11 @@ export function Login() {
               onChange={(event) => setSenha(event.target.value)}
               required
             />
-            <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
+            <Button
+              type="submit"
+              isLoading={isSubmitting}
+              className="mt-2 w-full"
+            >
               Entrar
             </Button>
           </form>

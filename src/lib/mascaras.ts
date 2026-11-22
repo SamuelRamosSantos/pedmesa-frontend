@@ -12,11 +12,17 @@ export function somenteDigitos(valor: string): string {
 // Mesmos prefixos que o backend aceita: "+55 …" e o zero de operadora ("(011) …").
 // DDD 55 (ex.: Santa Maria) não é cortado: só remove com 12 ou 13 dígitos.
 function semPrefixos(digitos: string): string {
-  if ((digitos.length === 12 || digitos.length === 13) && digitos.startsWith(CODIGO_PAIS_BRASIL)) {
+  if (
+    (digitos.length === 12 || digitos.length === 13) &&
+    digitos.startsWith(CODIGO_PAIS_BRASIL)
+  ) {
     return digitos.slice(CODIGO_PAIS_BRASIL.length);
   }
 
-  if ((digitos.length === 11 || digitos.length === 12) && digitos.startsWith("0")) {
+  if (
+    (digitos.length === 11 || digitos.length === 12) &&
+    digitos.startsWith("0")
+  ) {
     return digitos.slice(1);
   }
 
@@ -52,5 +58,7 @@ export function mascararTelefone(valor: string): string {
 export function mascararCep(valor: string): string {
   const digitos = somenteDigitos(valor).slice(0, DIGITOS_CEP);
 
-  return digitos.length <= 5 ? digitos : `${digitos.slice(0, 5)}-${digitos.slice(5)}`;
+  return digitos.length <= 5
+    ? digitos
+    : `${digitos.slice(0, 5)}-${digitos.slice(5)}`;
 }

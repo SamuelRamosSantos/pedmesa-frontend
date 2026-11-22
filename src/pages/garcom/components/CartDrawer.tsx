@@ -2,8 +2,8 @@ import { Send, X } from "lucide-react";
 import { useEffect } from "react";
 import { LinhaCarrinho } from "../../../components/carrinho/LinhaCarrinho";
 import { Button } from "../../../components/ui/Button";
-import { formatCurrency } from "../../../lib/format";
 import type { ControleCarrinho } from "../../../hooks/useCarrinho";
+import { formatCurrency } from "../../../lib/format";
 import type { ExtratoIntegranteResumo } from "../../../types/comanda";
 
 interface CartDrawerProps {
@@ -15,7 +15,14 @@ interface CartDrawerProps {
   onConfirm: () => void;
 }
 
-export function CartDrawer({ isOpen, carrinho, integrantes, isSubmitting, onClose, onConfirm }: CartDrawerProps) {
+export function CartDrawer({
+  isOpen,
+  carrinho,
+  integrantes,
+  isSubmitting,
+  onClose,
+  onConfirm,
+}: CartDrawerProps) {
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -35,23 +42,32 @@ export function CartDrawer({ isOpen, carrinho, integrantes, isSubmitting, onClos
     return null;
   }
 
-  const opcoesIntegrante = integrantes.map((integrante) => ({ id: integrante.integrante_id, nome: integrante.nome }));
+  const opcoesIntegrante = integrantes.map((integrante) => ({
+    id: integrante.integrante_id,
+    nome: integrante.nome,
+  }));
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: o clique no fundo só complementa o Escape e o botão de fechar
     <div
       className="fixed inset-0 z-40 flex items-end justify-center bg-black/50"
       role="presentation"
-      onClick={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Seu pedido"
         className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900"
-        onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Seu pedido</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Seu pedido
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -87,7 +103,12 @@ export function CartDrawer({ isOpen, carrinho, integrantes, isSubmitting, onClos
             <span>Total</span>
             <span>{formatCurrency(carrinho.totalEstimado)}</span>
           </div>
-          <Button onClick={onConfirm} isLoading={isSubmitting} disabled={carrinho.itens.length === 0} className="w-full">
+          <Button
+            onClick={onConfirm}
+            isLoading={isSubmitting}
+            disabled={carrinho.itens.length === 0}
+            className="w-full"
+          >
             <Send className="h-4 w-4" />
             Confirmar e Enviar Pedido
           </Button>

@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "preview": "vite preview",
     "test": "vitest run",
-    "preview": "vite preview"
+    "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json && biome check --error-on-warnings",
+    "format": "biome check --write",
+    "lint": "biome lint",
+    "prepare": "husky"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -21,16 +24,22 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
-    "oxlint": "^1.75.0",
+    "husky": "^9.1.7",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^4.1.11"
   },
   "optionalDependencies": {
     "@rolldown/binding-linux-x64-gnu": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=26"
   }
 }

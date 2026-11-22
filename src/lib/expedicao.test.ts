@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { EntregaPainel } from "../types/delivery";
 import {
+  AVANCAR,
   agruparPorColuna,
   aguardandoCozinha,
   aplicarEstado,
   aplicarStatusOtimista,
-  AVANCAR,
   exigeMotivo,
   formatarNumeroEntrega,
   mesclarComPendentes,
@@ -16,7 +16,10 @@ import {
   VOLTAR,
 } from "./expedicao";
 
-function entrega(id: string, alteracao: Partial<EntregaPainel> = {}): EntregaPainel {
+function entrega(
+  id: string,
+  alteracao: Partial<EntregaPainel> = {},
+): EntregaPainel {
   return {
     id,
     numero_entrega: 7,
@@ -68,9 +71,20 @@ describe("fluxo de status (espelho do backend)", () => {
   });
 
   it("pronto para envio só com a cozinha concluída", () => {
-    expect(aguardandoCozinha(entrega("a", { status_preparo: "em_preparo" }))).toBe(true);
-    expect(aguardandoCozinha(entrega("a", { status_preparo: "pronto" }))).toBe(false);
-    expect(aguardandoCozinha(entrega("a", { status_entrega: "pronto_para_envio", status_preparo: "pendente" }))).toBe(false);
+    expect(
+      aguardandoCozinha(entrega("a", { status_preparo: "em_preparo" })),
+    ).toBe(true);
+    expect(aguardandoCozinha(entrega("a", { status_preparo: "pronto" }))).toBe(
+      false,
+    );
+    expect(
+      aguardandoCozinha(
+        entrega("a", {
+          status_entrega: "pronto_para_envio",
+          status_preparo: "pendente",
+        }),
+      ),
+    ).toBe(false);
   });
 });
 
@@ -81,8 +95,14 @@ describe("agruparPorColuna", () => {
       entrega("a", { criado_em: "2026-10-11T18:00:00.000Z" }),
       entrega("c", { status_entrega: "em_rota" }),
       entrega("x", { status_entrega: "cancelado" }),
-      entrega("e1", { status_entrega: "entregue", criado_em: "2026-10-11T17:00:00.000Z" }),
-      entrega("e2", { status_entrega: "entregue", criado_em: "2026-10-11T17:30:00.000Z" }),
+      entrega("e1", {
+        status_entrega: "entregue",
+        criado_em: "2026-10-11T17:00:00.000Z",
+      }),
+      entrega("e2", {
+        status_entrega: "entregue",
+        criado_em: "2026-10-11T17:30:00.000Z",
+      }),
     ]);
 
     expect(colunas.em_producao.map((e) => e.id)).toEqual(["a", "b"]);
@@ -96,15 +116,34 @@ describe("tomDoTempo", () => {
   const previsao = "2026-10-11T18:40:00.000Z";
 
   it("neutro com folga, alerta nos 10 min finais, crítico depois da previsão", () => {
-    expect(tomDoTempo(entrega("a", { previsao_entrega_em: previsao }), new Date("2026-10-11T18:20:00.000Z"))).toBe("neutro");
-    expect(tomDoTempo(entrega("a", { previsao_entrega_em: previsao }), new Date("2026-10-11T18:30:00.000Z"))).toBe("alerta");
-    expect(tomDoTempo(entrega("a", { previsao_entrega_em: previsao }), new Date("2026-10-11T18:40:01.000Z"))).toBe("critico");
+    expect(
+      tomDoTempo(
+        entrega("a", { previsao_entrega_em: previsao }),
+        new Date("2026-10-11T18:20:00.000Z"),
+      ),
+    ).toBe("neutro");
+    expect(
+      tomDoTempo(
+        entrega("a", { previsao_entrega_em: previsao }),
+        new Date("2026-10-11T18:30:00.000Z"),
+      ),
+    ).toBe("alerta");
+    expect(
+      tomDoTempo(
+        entrega("a", { previsao_entrega_em: previsao }),
+        new Date("2026-10-11T18:40:01.000Z"),
+      ),
+    ).toBe("critico");
   });
 
   it("sem previsão ou já entregue: neutro", () => {
     const depois = new Date("2026-10-11T20:00:00.000Z");
-    expect(tomDoTempo(entrega("a", { previsao_entrega_em: null }), depois)).toBe("neutro");
-    expect(tomDoTempo(entrega("a", { status_entrega: "entregue" }), depois)).toBe("neutro");
+    expect(
+      tomDoTempo(entrega("a", { previsao_entrega_em: null }), depois),
+    ).toBe("neutro");
+    expect(
+      tomDoTempo(entrega("a", { status_entrega: "entregue" }), depois),
+    ).toBe("neutro");
   });
 });
 
@@ -126,7 +165,11 @@ describe("atualização otimista", () => {
       entregue_em: null,
       motivo_cancelamento: null,
     });
-    expect(confirmada[0]).toMatchObject({ status_entrega: "entregue", versao: 4, atrasado: false });
+    expect(confirmada[0]).toMatchObject({
+      status_entrega: "entregue",
+      versao: 4,
+      atrasado: false,
+    });
   });
 
   it("rollback devolve o card como estava", () => {
@@ -136,7 +179,11 @@ describe("atualização otimista", () => {
 
   it("polling não desfaz transição em andamento", () => {
     const local = aplicarStatusOtimista(lista, "a", "pronto_para_envio");
-    const doServidor = [entrega("a"), entrega("b", { total: 99 }), entrega("c")];
+    const doServidor = [
+      entrega("a"),
+      entrega("b", { total: 99 }),
+      entrega("c"),
+    ];
     const mesclado = mesclarComPendentes(doServidor, local, new Set(["a"]));
 
     expect(mesclado.map((e) => [e.id, e.status_entrega, e.total])).toEqual([

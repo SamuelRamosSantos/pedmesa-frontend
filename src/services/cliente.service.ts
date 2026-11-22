@@ -1,5 +1,5 @@
-import { api } from "./api";
 import type { Cliente, EnderecoCliente } from "../types/cliente";
+import { api } from "./api";
 
 // Telefone e CEP podem ir mascarados: o backend normaliza para só dígitos.
 export interface CreateClientePayload {
@@ -24,43 +24,65 @@ export interface CreateEnderecoClientePayload {
 }
 
 // Atualização parcial. principal só aceita true: para trocar, marque outro endereço.
-export type UpdateEnderecoClientePayload = Partial<Omit<CreateEnderecoClientePayload, "principal">> & {
+export type UpdateEnderecoClientePayload = Partial<
+  Omit<CreateEnderecoClientePayload, "principal">
+> & {
   principal?: true;
 };
 
 // null quando não há cliente com esse telefone. `signal` cancela a busca se o telefone mudar.
-export async function buscarClientePorTelefone(telefone: string, signal?: AbortSignal): Promise<Cliente | null> {
-  const { data } = await api.get<Cliente | null>("/clientes", { params: { telefone }, signal });
+export async function buscarClientePorTelefone(
+  telefone: string,
+  signal?: AbortSignal,
+): Promise<Cliente | null> {
+  const { data } = await api.get<Cliente | null>("/clientes", {
+    params: { telefone },
+    signal,
+  });
   return data;
 }
 
-export async function createCliente(payload: CreateClientePayload): Promise<Cliente> {
+export async function createCliente(
+  payload: CreateClientePayload,
+): Promise<Cliente> {
   const { data } = await api.post<Cliente>("/clientes", payload);
   return data;
 }
 
-export async function updateCliente(clienteId: string, payload: UpdateClientePayload): Promise<Cliente> {
+export async function updateCliente(
+  clienteId: string,
+  payload: UpdateClientePayload,
+): Promise<Cliente> {
   const { data } = await api.patch<Cliente>(`/clientes/${clienteId}`, payload);
   return data;
 }
 
 export async function createEnderecoCliente(
   clienteId: string,
-  payload: CreateEnderecoClientePayload
+  payload: CreateEnderecoClientePayload,
 ): Promise<EnderecoCliente> {
-  const { data } = await api.post<EnderecoCliente>(`/clientes/${clienteId}/enderecos`, payload);
+  const { data } = await api.post<EnderecoCliente>(
+    `/clientes/${clienteId}/enderecos`,
+    payload,
+  );
   return data;
 }
 
 export async function updateEnderecoCliente(
   clienteId: string,
   enderecoId: string,
-  payload: UpdateEnderecoClientePayload
+  payload: UpdateEnderecoClientePayload,
 ): Promise<EnderecoCliente> {
-  const { data } = await api.patch<EnderecoCliente>(`/clientes/${clienteId}/enderecos/${enderecoId}`, payload);
+  const { data } = await api.patch<EnderecoCliente>(
+    `/clientes/${clienteId}/enderecos/${enderecoId}`,
+    payload,
+  );
   return data;
 }
 
-export async function deleteEnderecoCliente(clienteId: string, enderecoId: string): Promise<void> {
+export async function deleteEnderecoCliente(
+  clienteId: string,
+  enderecoId: string,
+): Promise<void> {
   await api.delete(`/clientes/${clienteId}/enderecos/${enderecoId}`);
 }

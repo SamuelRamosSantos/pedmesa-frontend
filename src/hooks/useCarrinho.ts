@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { adicionarProduto, alterarItem, quantidadeTotal, removerItem, totalEstimado } from "../lib/carrinho";
+import {
+  adicionarProduto,
+  alterarItem,
+  quantidadeTotal,
+  removerItem,
+  totalEstimado,
+} from "../lib/carrinho";
 import type { AlteracaoItemCarrinho, ItemCarrinho } from "../types/carrinho";
 import type { Produto } from "../types/produto";
 
@@ -20,8 +26,12 @@ export function useCarrinho(): ControleCarrinho {
 
   return {
     itens,
-    adicionar: (produto) => setItens((atuais) => adicionarProduto(atuais, produto, crypto.randomUUID())),
-    alterar: (id, alteracao) => setItens((atuais) => alterarItem(atuais, id, alteracao)),
+    adicionar: (produto) =>
+      setItens((atuais) =>
+        adicionarProduto(atuais, produto, crypto.randomUUID()),
+      ),
+    alterar: (id, alteracao) =>
+      setItens((atuais) => alterarItem(atuais, id, alteracao)),
     remover: (id) => setItens((atuais) => removerItem(atuais, id)),
     limpar: () => setItens([]),
     quantidadeTotal: quantidadeTotal(itens),

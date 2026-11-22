@@ -1,5 +1,5 @@
-import { api } from "./api";
 import type { Impressora } from "../types/impressora";
+import { api } from "./api";
 
 export interface CreateImpressoraPayload {
   nome: string;
@@ -19,13 +19,24 @@ export async function listImpressoras(): Promise<Impressora[]> {
   return data;
 }
 
-export async function createImpressora(payload: CreateImpressoraPayload): Promise<Impressora> {
-  const { data } = await api.post<Impressora>("/impressao/impressoras", payload);
+export async function createImpressora(
+  payload: CreateImpressoraPayload,
+): Promise<Impressora> {
+  const { data } = await api.post<Impressora>(
+    "/impressao/impressoras",
+    payload,
+  );
   return data;
 }
 
-export async function updateImpressora(id: string, payload: UpdateImpressoraPayload): Promise<Impressora> {
-  const { data } = await api.patch<Impressora>(`/impressao/impressoras/${id}`, payload);
+export async function updateImpressora(
+  id: string,
+  payload: UpdateImpressoraPayload,
+): Promise<Impressora> {
+  const { data } = await api.patch<Impressora>(
+    `/impressao/impressoras/${id}`,
+    payload,
+  );
   return data;
 }
 

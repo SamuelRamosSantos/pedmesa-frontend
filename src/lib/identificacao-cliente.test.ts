@@ -59,50 +59,94 @@ describe("telefoneProntoParaBusca", () => {
 
 describe("situacaoDaIdentificacao", () => {
   it("traduz o estado da consulta", () => {
-    expect(situacaoDaIdentificacao({ status: "idle", valor: null })).toBe("digitando");
-    expect(situacaoDaIdentificacao({ status: "carregando", valor: null })).toBe("buscando");
-    expect(situacaoDaIdentificacao({ status: "falhou", valor: null })).toBe("falhou");
-    expect(situacaoDaIdentificacao({ status: "concluida", valor: null })).toBe("novo");
-    expect(situacaoDaIdentificacao({ status: "concluida", valor: CLIENTE })).toBe("encontrado");
+    expect(situacaoDaIdentificacao({ status: "idle", valor: null })).toBe(
+      "digitando",
+    );
+    expect(situacaoDaIdentificacao({ status: "carregando", valor: null })).toBe(
+      "buscando",
+    );
+    expect(situacaoDaIdentificacao({ status: "falhou", valor: null })).toBe(
+      "falhou",
+    );
+    expect(situacaoDaIdentificacao({ status: "concluida", valor: null })).toBe(
+      "novo",
+    );
+    expect(
+      situacaoDaIdentificacao({ status: "concluida", valor: CLIENTE }),
+    ).toBe("encontrado");
   });
 });
 
 describe("enderecoPadrao", () => {
   it("pré-seleciona o principal", () => {
-    expect(enderecoPadrao([endereco("a", false), endereco("b", true)])).toBe("b");
+    expect(enderecoPadrao([endereco("a", false), endereco("b", true)])).toBe(
+      "b",
+    );
   });
 
   it("sem principal, o primeiro; sem endereço, cadastro de novo", () => {
-    expect(enderecoPadrao([endereco("a", false), endereco("b", false)])).toBe("a");
+    expect(enderecoPadrao([endereco("a", false), endereco("b", false)])).toBe(
+      "a",
+    );
     expect(enderecoPadrao([])).toBe("novo");
   });
 });
 
 describe("resumoEndereco", () => {
   it("com e sem complemento", () => {
-    expect(resumoEndereco({ logradouro: "Avenida Paulista", numero: "1000", complemento: "Apto 52" })).toBe(
-      "Avenida Paulista, 1000 - Apto 52"
-    );
-    expect(resumoEndereco({ logradouro: "Rua A", numero: "10", complemento: null })).toBe("Rua A, 10");
+    expect(
+      resumoEndereco({
+        logradouro: "Avenida Paulista",
+        numero: "1000",
+        complemento: "Apto 52",
+      }),
+    ).toBe("Avenida Paulista, 1000 - Apto 52");
+    expect(
+      resumoEndereco({ logradouro: "Rua A", numero: "10", complemento: null }),
+    ).toBe("Rua A, 10");
   });
 });
 
 describe("dadosDaIdentificacao", () => {
   it("monta cliente e endereço salvo", () => {
-    expect(dadosDaIdentificacao({ telefoneDigitos: "11987654321", nome: "  Maria ", escolhaEndereco: "e1" })).toEqual({
+    expect(
+      dadosDaIdentificacao({
+        telefoneDigitos: "11987654321",
+        nome: "  Maria ",
+        escolhaEndereco: "e1",
+      }),
+    ).toEqual({
       cliente: { nome: "Maria", telefone: "11987654321" },
       endereco: { tipo: "salvo", enderecoId: "e1" },
     });
   });
 
   it("endereço novo", () => {
-    expect(dadosDaIdentificacao({ telefoneDigitos: "1134567890", nome: "João", escolhaEndereco: "novo" })?.endereco).toEqual({
+    expect(
+      dadosDaIdentificacao({
+        telefoneDigitos: "1134567890",
+        nome: "João",
+        escolhaEndereco: "novo",
+      })?.endereco,
+    ).toEqual({
       tipo: "novo",
     });
   });
 
   it("null sem nome ou com telefone incompleto", () => {
-    expect(dadosDaIdentificacao({ telefoneDigitos: "11987654321", nome: "  ", escolhaEndereco: "novo" })).toBeNull();
-    expect(dadosDaIdentificacao({ telefoneDigitos: "1198765", nome: "Maria", escolhaEndereco: "novo" })).toBeNull();
+    expect(
+      dadosDaIdentificacao({
+        telefoneDigitos: "11987654321",
+        nome: "  ",
+        escolhaEndereco: "novo",
+      }),
+    ).toBeNull();
+    expect(
+      dadosDaIdentificacao({
+        telefoneDigitos: "1198765",
+        nome: "Maria",
+        escolhaEndereco: "novo",
+      }),
+    ).toBeNull();
   });
 });

@@ -1,16 +1,32 @@
-import { ClipboardCheck, History, Menu, PieChart, Receipt, RefreshCw, Wallet } from "lucide-react";
+import {
+  ClipboardCheck,
+  History,
+  Menu,
+  PieChart,
+  Receipt,
+  RefreshCw,
+  Wallet,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
-import { FORMA_PAGAMENTO_LABEL } from "../../lib/forma-pagamento";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { FORMA_PAGAMENTO_LABEL } from "../../lib/forma-pagamento";
 import { formatCurrency, formatDataHora } from "../../lib/format";
-import { getDashboardResumo } from "../../services/dashboard.service";
 import type { DashboardFiltro } from "../../services/dashboard.service";
+import { getDashboardResumo } from "../../services/dashboard.service";
 import type { DashboardResumo, PeriodoDashboard } from "../../types/dashboard";
 import { StatCard } from "../caixa/components/StatCard";
 
@@ -49,7 +65,9 @@ export function DashboardProprietario() {
       const data = await getDashboardResumo(filtro);
       setResumo(data);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar o dashboard."));
+      setErrorMessage(
+        getApiErrorMessage(error, "Não foi possível carregar o dashboard."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -74,11 +92,18 @@ export function DashboardProprietario() {
     }
 
     if (dataInicioCustom > dataFimCustom) {
-      showToast("A data de início não pode ser depois da data de fim.", "error");
+      showToast(
+        "A data de início não pode ser depois da data de fim.",
+        "error",
+      );
       return;
     }
 
-    fetchDados({ periodo: "customizado", data_inicio: dataInicioCustom, data_fim: dataFimCustom });
+    fetchDados({
+      periodo: "customizado",
+      data_inicio: dataInicioCustom,
+      data_fim: dataFimCustom,
+    });
   }
 
   function handleRefresh() {
@@ -105,7 +130,9 @@ export function DashboardProprietario() {
             </button>
 
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Dashboard</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                PedMesa · Dashboard
+              </p>
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">
                 {tenant?.nome_fantasia ?? "Dashboard do Proprietário"}
               </h1>
@@ -118,7 +145,9 @@ export function DashboardProprietario() {
               aria-label="Atualizar dashboard"
               className="ml-auto rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
           </header>
 
@@ -145,30 +174,43 @@ export function DashboardProprietario() {
                 {periodo === "customizado" && (
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1.5">
-                      <label htmlFor="dashboard-data-inicio" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <label
+                        htmlFor="dashboard-data-inicio"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                      >
                         Data início
                       </label>
                       <input
                         id="dashboard-data-inicio"
                         type="date"
                         value={dataInicioCustom}
-                        onChange={(event) => setDataInicioCustom(event.target.value)}
+                        onChange={(event) =>
+                          setDataInicioCustom(event.target.value)
+                        }
                         className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label htmlFor="dashboard-data-fim" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <label
+                        htmlFor="dashboard-data-fim"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                      >
                         Data fim
                       </label>
                       <input
                         id="dashboard-data-fim"
                         type="date"
                         value={dataFimCustom}
-                        onChange={(event) => setDataFimCustom(event.target.value)}
+                        onChange={(event) =>
+                          setDataFimCustom(event.target.value)
+                        }
                         className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                     </div>
-                    <Button onClick={handleAplicarCustomizado} isLoading={isLoading}>
+                    <Button
+                      onClick={handleAplicarCustomizado}
+                      isLoading={isLoading}
+                    >
                       Aplicar
                     </Button>
                   </div>
@@ -185,7 +227,9 @@ export function DashboardProprietario() {
 
             {!isLoading && errorMessage && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
                 <Button variant="danger" onClick={handleRefresh}>
                   Tentar novamente
                 </Button>
@@ -196,29 +240,51 @@ export function DashboardProprietario() {
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <StatCard
-                    label={periodo === "hoje" ? "Faturamento do Dia" : "Faturamento do Período"}
+                    label={
+                      periodo === "hoje"
+                        ? "Faturamento do Dia"
+                        : "Faturamento do Período"
+                    }
                     value={formatCurrency(resumo.faturamento)}
                     icon={Wallet}
                   />
-                  <StatCard label="Comandas Fechadas" value={resumo.comandas_fechadas} icon={ClipboardCheck} />
-                  <StatCard label="Ticket Médio" value={formatCurrency(resumo.ticket_medio)} icon={Receipt} />
+                  <StatCard
+                    label="Comandas Fechadas"
+                    value={resumo.comandas_fechadas}
+                    icon={ClipboardCheck}
+                  />
+                  <StatCard
+                    label="Ticket Médio"
+                    value={formatCurrency(resumo.ticket_medio)}
+                    icon={Receipt}
+                  />
                 </div>
 
                 <Card>
                   <div className="flex items-center gap-2">
                     <PieChart className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">Produtos Mais Pedidos</h2>
+                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      Produtos Mais Pedidos
+                    </h2>
                   </div>
 
                   <div className="mt-4 h-72">
                     {resumo.produtos_mais_pedidos.length === 0 ? (
                       <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-sm">Nenhum produto vendido no período selecionado.</p>
+                        <p className="text-sm">
+                          Nenhum produto vendido no período selecionado.
+                        </p>
                       </div>
                     ) : (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={resumo.produtos_mais_pedidos} margin={{ top: 8, right: 8, left: 8, bottom: 24 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" />
+                        <BarChart
+                          data={resumo.produtos_mais_pedidos}
+                          margin={{ top: 8, right: 8, left: 8, bottom: 24 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#cbd5e1"
+                          />
                           <XAxis
                             dataKey="produto_nome"
                             tick={{ fontSize: 12, fill: "#94a3b8" }}
@@ -227,12 +293,23 @@ export function DashboardProprietario() {
                             textAnchor="end"
                             height={50}
                           />
-                          <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                          <YAxis
+                            allowDecimals={false}
+                            tick={{ fontSize: 12, fill: "#94a3b8" }}
+                          />
                           <Tooltip
-                            formatter={(value) => [`${value ?? 0}`, "Quantidade"]}
+                            formatter={(value) => [
+                              `${value ?? 0}`,
+                              "Quantidade",
+                            ]}
                             contentStyle={{ borderRadius: 8, fontSize: 13 }}
                           />
-                          <Bar dataKey="quantidade" name="Quantidade" fill="#ea580c" radius={[4, 4, 0, 0]} />
+                          <Bar
+                            dataKey="quantidade"
+                            name="Quantidade"
+                            fill="#ea580c"
+                            radius={[4, 4, 0, 0]}
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     )}
@@ -242,13 +319,17 @@ export function DashboardProprietario() {
                 <Card>
                   <div className="flex items-center gap-2">
                     <History className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">Histórico de Comandas Fechadas</h2>
+                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      Histórico de Comandas Fechadas
+                    </h2>
                   </div>
 
                   <div className="mt-4 overflow-x-auto">
                     {resumo.historico_comandas.length === 0 ? (
                       <div className="flex flex-col items-center gap-2 py-10 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-sm">Nenhuma comanda fechada no período selecionado.</p>
+                        <p className="text-sm">
+                          Nenhuma comanda fechada no período selecionado.
+                        </p>
                       </div>
                     ) : (
                       <table className="w-full text-sm">
@@ -263,8 +344,12 @@ export function DashboardProprietario() {
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                           {resumo.historico_comandas.map((linha) => (
                             <tr key={linha.comanda_id}>
-                              <td className="py-2.5 pr-4 text-slate-700 dark:text-slate-300">{formatDataHora(linha.fechada_em)}</td>
-                              <td className="py-2.5 pr-4 text-slate-700 dark:text-slate-300">{linha.identificador}</td>
+                              <td className="py-2.5 pr-4 text-slate-700 dark:text-slate-300">
+                                {formatDataHora(linha.fechada_em)}
+                              </td>
+                              <td className="py-2.5 pr-4 text-slate-700 dark:text-slate-300">
+                                {linha.identificador}
+                              </td>
                               <td className="py-2.5 pr-4 text-right font-medium text-slate-900 dark:text-white">
                                 {formatCurrency(linha.valor)}
                               </td>

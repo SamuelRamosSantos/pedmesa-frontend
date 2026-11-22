@@ -8,7 +8,10 @@ import type { EnderecoCep } from "../types/cep";
 const VIA_CEP_URL = "https://viacep.com.br/ws";
 const TIMEOUT_PADRAO_MS = 3000;
 
-export type BuscarEnderecoPorCep = (cep: string, signal?: AbortSignal) => Promise<EnderecoCep | null>;
+export type BuscarEnderecoPorCep = (
+  cep: string,
+  signal?: AbortSignal,
+) => Promise<EnderecoCep | null>;
 
 export interface BuscadorCepOpcoes {
   fetch?: typeof fetch;

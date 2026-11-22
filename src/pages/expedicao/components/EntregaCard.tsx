@@ -1,8 +1,28 @@
-import { AlertTriangle, Ban, Clock, MapPin, Printer, Undo2, User } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  Clock,
+  MapPin,
+  Printer,
+  Undo2,
+  User,
+} from "lucide-react";
 import { Button } from "../../../components/ui/Button";
-import { aguardandoCozinha, AVANCAR, formatarNumeroEntrega, podeCancelar, tomDoTempo, VOLTAR, type TomDoTempo } from "../../../lib/expedicao";
-import { formatCurrency, formatHora, formatTempoDecorrido } from "../../../lib/format";
+import {
+  AVANCAR,
+  aguardandoCozinha,
+  formatarNumeroEntrega,
+  podeCancelar,
+  type TomDoTempo,
+  tomDoTempo,
+  VOLTAR,
+} from "../../../lib/expedicao";
 import { FORMA_PAGAMENTO_LABEL } from "../../../lib/forma-pagamento";
+import {
+  formatCurrency,
+  formatHora,
+  formatTempoDecorrido,
+} from "../../../lib/format";
 import { STATUS_ITEM_LABEL } from "../../../lib/status-item";
 import type { EntregaPainel } from "../../../types/delivery";
 
@@ -18,7 +38,8 @@ interface EntregaCardProps {
 
 const CARD_POR_TOM: Record<TomDoTempo, string> = {
   neutro: "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900",
-  alerta: "border-amber-400 bg-amber-50 dark:border-amber-500/70 dark:bg-amber-950/20",
+  alerta:
+    "border-amber-400 bg-amber-50 dark:border-amber-500/70 dark:bg-amber-950/20",
   critico: "border-red-500 bg-red-50 dark:border-red-500/80 dark:bg-red-950/30",
 };
 
@@ -29,12 +50,23 @@ const TEMPO_POR_TOM: Record<TomDoTempo, string> = {
 };
 
 // Card de uma entrega no painel de expedição (PED-110). Valores e troco vêm do backend.
-export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCancelar, onReimprimir }: EntregaCardProps) {
+export function EntregaCard({
+  entrega,
+  agora,
+  ocupada,
+  onAvancar,
+  onVoltar,
+  onCancelar,
+  onReimprimir,
+}: EntregaCardProps) {
   const tom = tomDoTempo(entrega, agora);
   const avancar = AVANCAR[entrega.status_entrega];
   const voltar = VOLTAR[entrega.status_entrega];
   const esperandoCozinha = aguardandoCozinha(entrega);
-  const levarTroco = entrega.forma_pagamento_prevista === "dinheiro" && entrega.troco > 0 && entrega.troco_suficiente;
+  const levarTroco =
+    entrega.forma_pagamento_prevista === "dinheiro" &&
+    entrega.troco > 0 &&
+    entrega.troco_suficiente;
   const numero = formatarNumeroEntrega(entrega.numero_entrega);
 
   return (
@@ -44,7 +76,9 @@ export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCa
       className={`flex flex-col gap-3 rounded-2xl border-2 p-4 shadow-sm ${CARD_POR_TOM[tom]}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-3xl font-extrabold leading-none text-slate-900 dark:text-white">{numero}</p>
+        <p className="text-3xl font-extrabold leading-none text-slate-900 dark:text-white">
+          {numero}
+        </p>
         {entrega.status_entrega === "em_producao" && (
           <span className="rounded-full bg-slate-900/5 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
             Cozinha: {STATUS_ITEM_LABEL[entrega.status_preparo]}
@@ -60,24 +94,30 @@ export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCa
         <p className="flex items-start gap-1.5 text-slate-600 dark:text-slate-300">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
           <span>
-            <span className="font-medium">{entrega.bairro}</span> · {entrega.endereco_resumido}
+            <span className="font-medium">{entrega.bairro}</span> ·{" "}
+            {entrega.endereco_resumido}
           </span>
         </p>
         <p className={`flex items-center gap-1.5 ${TEMPO_POR_TOM[tom]}`}>
           <Clock className="h-4 w-4" />
           {formatTempoDecorrido(entrega.criado_em)}
-          {entrega.previsao_entrega_em && entrega.status_entrega !== "entregue" && (
-            <span>
-              · previsão {formatHora(entrega.previsao_entrega_em)}
-              {tom === "critico" && " · ATRASADA"}
-            </span>
-          )}
+          {entrega.previsao_entrega_em &&
+            entrega.status_entrega !== "entregue" && (
+              <span>
+                · previsão {formatHora(entrega.previsao_entrega_em)}
+                {tom === "critico" && " · ATRASADA"}
+              </span>
+            )}
         </p>
       </div>
 
       <div className="flex items-center justify-between border-t border-slate-900/10 pt-3 text-sm dark:border-white/10">
-        <span className="text-slate-600 dark:text-slate-300">{FORMA_PAGAMENTO_LABEL[entrega.forma_pagamento_prevista]}</span>
-        <span className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(entrega.total)}</span>
+        <span className="text-slate-600 dark:text-slate-300">
+          {FORMA_PAGAMENTO_LABEL[entrega.forma_pagamento_prevista]}
+        </span>
+        <span className="text-lg font-bold text-slate-900 dark:text-white">
+          {formatCurrency(entrega.total)}
+        </span>
       </div>
 
       {levarTroco && (
@@ -87,7 +127,10 @@ export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCa
       )}
 
       {!entrega.troco_suficiente && (
-        <p role="alert" className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white">
+        <p
+          role="alert"
+          className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white"
+        >
           <AlertTriangle className="h-4 w-4 shrink-0" />
           Troco para menor que o total. Confirme com o cliente.
         </p>
@@ -112,7 +155,11 @@ export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCa
               onClick={() => onAvancar(entrega)}
               isLoading={ocupada}
               disabled={esperandoCozinha}
-              title={esperandoCozinha ? "Aguardando a cozinha terminar o preparo" : undefined}
+              title={
+                esperandoCozinha
+                  ? "Aguardando a cozinha terminar o preparo"
+                  : undefined
+              }
               className="flex-1"
             >
               {esperandoCozinha ? "Aguardando a cozinha" : avancar.label}
@@ -122,7 +169,11 @@ export function EntregaCard({ entrega, agora, ocupada, onAvancar, onVoltar, onCa
       )}
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" onClick={() => onReimprimir(entrega)} className="whitespace-nowrap px-2.5 py-1.5 text-xs">
+        <Button
+          variant="ghost"
+          onClick={() => onReimprimir(entrega)}
+          className="whitespace-nowrap px-2.5 py-1.5 text-xs"
+        >
           <Printer className="h-3.5 w-3.5" />
           Reimprimir ticket
         </Button>

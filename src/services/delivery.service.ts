@@ -1,5 +1,3 @@
-import { api } from "./api";
-import type { CreateClientePayload, CreateEnderecoClientePayload } from "./cliente.service";
 import type { FormaPagamento } from "../types/comanda";
 import type {
   CotacaoDelivery,
@@ -9,6 +7,11 @@ import type {
   StatusEntrega,
   TaxaEntrega,
 } from "../types/delivery";
+import { api } from "./api";
+import type {
+  CreateClientePayload,
+  CreateEnderecoClientePayload,
+} from "./cliente.service";
 
 // Só a intenção do atendente: preço, taxa, total e troco são calculados no backend.
 export interface ItemPedidoDeliveryPayload {
@@ -26,12 +29,19 @@ export interface CotacaoDeliveryPayload {
   troco_para?: number | null;
 }
 
-export type EnderecoNovoPayload = Omit<CreateEnderecoClientePayload, "principal">;
+export type EnderecoNovoPayload = Omit<
+  CreateEnderecoClientePayload,
+  "principal"
+>;
 
 // Exatamente uma das formas: endereço salvo do cliente ou endereço novo.
 export type EnderecoDoPedidoPayload =
   | { endereco_id: string; endereco?: never; salvar_endereco?: never }
-  | { endereco: EnderecoNovoPayload; salvar_endereco?: boolean; endereco_id?: never };
+  | {
+      endereco: EnderecoNovoPayload;
+      salvar_endereco?: boolean;
+      endereco_id?: never;
+    };
 
 export type CriarPedidoDeliveryPayload = EnderecoDoPedidoPayload & {
   cliente: CreateClientePayload;
@@ -63,30 +73,54 @@ export interface CreateTaxaEntregaPayload {
 // Atualização parcial. tempo_estimado_min: null remove a estimativa; ausente mantém.
 export type UpdateTaxaEntregaPayload = Partial<CreateTaxaEntregaPayload>;
 
-export async function cotarPedidoDelivery(payload: CotacaoDeliveryPayload, signal?: AbortSignal): Promise<CotacaoDelivery> {
-  const { data } = await api.post<CotacaoDelivery>("/delivery/cotacao", payload, { signal });
+export async function cotarPedidoDelivery(
+  payload: CotacaoDeliveryPayload,
+  signal?: AbortSignal,
+): Promise<CotacaoDelivery> {
+  const { data } = await api.post<CotacaoDelivery>(
+    "/delivery/cotacao",
+    payload,
+    { signal },
+  );
   return data;
 }
 
-export async function criarPedidoDelivery(payload: CriarPedidoDeliveryPayload): Promise<PedidoDeliveryCriado> {
-  const { data } = await api.post<PedidoDeliveryCriado>("/delivery/pedidos", payload);
+export async function criarPedidoDelivery(
+  payload: CriarPedidoDeliveryPayload,
+): Promise<PedidoDeliveryCriado> {
+  const { data } = await api.post<PedidoDeliveryCriado>(
+    "/delivery/pedidos",
+    payload,
+  );
   return data;
 }
 
-export async function listarEntregas(filtro: ListarEntregasFiltro = {}): Promise<EntregaPainel[]> {
+export async function listarEntregas(
+  filtro: ListarEntregasFiltro = {},
+): Promise<EntregaPainel[]> {
   const { data } = await api.get<EntregaPainel[]>("/delivery/entregas", {
     params: filtro.status ? { status: filtro.status } : undefined,
   });
   return data;
 }
 
-export async function transicionarEntrega(entregaId: string, payload: TransicaoEntregaPayload): Promise<EntregaEstado> {
-  const { data } = await api.patch<EntregaEstado>(`/delivery/entregas/${entregaId}/status`, payload);
+export async function transicionarEntrega(
+  entregaId: string,
+  payload: TransicaoEntregaPayload,
+): Promise<EntregaEstado> {
+  const { data } = await api.patch<EntregaEstado>(
+    `/delivery/entregas/${entregaId}/status`,
+    payload,
+  );
   return data;
 }
 
-export async function reimprimirTicketEntrega(entregaId: string): Promise<{ mensagem: string }> {
-  const { data } = await api.post<{ mensagem: string }>(`/delivery/entregas/${entregaId}/reimprimir-ticket`);
+export async function reimprimirTicketEntrega(
+  entregaId: string,
+): Promise<{ mensagem: string }> {
+  const { data } = await api.post<{ mensagem: string }>(
+    `/delivery/entregas/${entregaId}/reimprimir-ticket`,
+  );
   return data;
 }
 
@@ -95,13 +129,21 @@ export async function listTaxasEntrega(): Promise<TaxaEntrega[]> {
   return data;
 }
 
-export async function createTaxaEntrega(payload: CreateTaxaEntregaPayload): Promise<TaxaEntrega> {
+export async function createTaxaEntrega(
+  payload: CreateTaxaEntregaPayload,
+): Promise<TaxaEntrega> {
   const { data } = await api.post<TaxaEntrega>("/delivery/taxas", payload);
   return data;
 }
 
-export async function updateTaxaEntrega(taxaId: string, payload: UpdateTaxaEntregaPayload): Promise<TaxaEntrega> {
-  const { data } = await api.patch<TaxaEntrega>(`/delivery/taxas/${taxaId}`, payload);
+export async function updateTaxaEntrega(
+  taxaId: string,
+  payload: UpdateTaxaEntregaPayload,
+): Promise<TaxaEntrega> {
+  const { data } = await api.patch<TaxaEntrega>(
+    `/delivery/taxas/${taxaId}`,
+    payload,
+  );
   return data;
 }
 

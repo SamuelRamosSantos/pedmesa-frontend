@@ -25,7 +25,13 @@ describe("mapearRespostaViaCep", () => {
   });
 
   it("resposta parcial (CEP geral de cidade): logradouro e bairro vazios", () => {
-    const resposta = { cep: "13990-000", logradouro: "", bairro: "", localidade: "Espírito Santo do Pinhal", uf: "SP" };
+    const resposta = {
+      cep: "13990-000",
+      logradouro: "",
+      bairro: "",
+      localidade: "Espírito Santo do Pinhal",
+      uf: "SP",
+    };
 
     expect(mapearRespostaViaCep(resposta)).toEqual({
       logradouro: "",
@@ -36,7 +42,9 @@ describe("mapearRespostaViaCep", () => {
   });
 
   it("campos ausentes ou de outro tipo viram vazio; textos são aparados", () => {
-    expect(mapearRespostaViaCep({ localidade: " Recife ", uf: "pe", bairro: 42 })).toEqual({
+    expect(
+      mapearRespostaViaCep({ localidade: " Recife ", uf: "pe", bairro: 42 }),
+    ).toEqual({
       logradouro: "",
       bairro: "",
       cidade: "Recife",

@@ -1,7 +1,12 @@
 import type { EnderecoCep } from "../types/cep";
 import type { EstadoConsulta } from "./consulta-por-chave";
 
-export type StatusCepLookup = "idle" | "carregando" | "encontrado" | "nao_encontrado" | "falhou";
+export type StatusCepLookup =
+  | "idle"
+  | "carregando"
+  | "encontrado"
+  | "nao_encontrado"
+  | "falhou";
 
 export interface EstadoCepLookup {
   status: StatusCepLookup;
@@ -10,7 +15,9 @@ export interface EstadoCepLookup {
 
 // Traduz o estado genérico da consulta para o vocabulário do CEP: consulta concluída sem
 // endereço é CEP inexistente.
-export function estadoDoCepLookup(consulta: EstadoConsulta<EnderecoCep | null>): EstadoCepLookup {
+export function estadoDoCepLookup(
+  consulta: EstadoConsulta<EnderecoCep | null>,
+): EstadoCepLookup {
   if (consulta.status === "concluida") {
     return consulta.valor === null
       ? { status: "nao_encontrado", endereco: null }

@@ -34,7 +34,7 @@ export type CampoParaFocar = "numero" | "logradouro";
 // CEP geral de cidade vem sem rua, então o foco vai para Logradouro.
 export function preencherComCep(
   campos: CamposEndereco,
-  encontrado: EnderecoCep
+  encontrado: EnderecoCep,
 ): { campos: CamposEndereco; focarEm: CampoParaFocar } {
   return {
     campos: {
@@ -55,12 +55,23 @@ function textoOuNull(valor: string): string | null {
 
 // Endereço pronto para o pedido, ou null enquanto falta algo obrigatório. A validação
 // completa (UF existente, tamanhos) é do backend.
-export function enderecoNovoDoFormulario(campos: CamposEndereco): EnderecoNovoPayload | null {
+export function enderecoNovoDoFormulario(
+  campos: CamposEndereco,
+): EnderecoNovoPayload | null {
   const cep = somenteDigitos(campos.cep);
-  const obrigatorios = [campos.logradouro, campos.numero, campos.bairro, campos.cidade].map((valor) => valor.trim());
+  const obrigatorios = [
+    campos.logradouro,
+    campos.numero,
+    campos.bairro,
+    campos.cidade,
+  ].map((valor) => valor.trim());
   const uf = campos.uf.trim().toUpperCase();
 
-  if (cep.length !== DIGITOS_CEP || obrigatorios.includes("") || !/^[A-Z]{2}$/.test(uf)) {
+  if (
+    cep.length !== DIGITOS_CEP ||
+    obrigatorios.includes("") ||
+    !/^[A-Z]{2}$/.test(uf)
+  ) {
     return null;
   }
 
@@ -87,10 +98,13 @@ export interface Localidade {
 export function localidadeDaEntrega(
   cliente: Cliente | null,
   escolha: EscolhaEndereco,
-  camposNovo: CamposEndereco
+  camposNovo: CamposEndereco,
 ): Localidade | null {
   const origem =
-    escolha === "novo" ? camposNovo : cliente?.enderecos.find((endereco) => endereco.id === escolha) ?? null;
+    escolha === "novo"
+      ? camposNovo
+      : (cliente?.enderecos.find((endereco) => endereco.id === escolha) ??
+        null);
 
   if (origem === null) {
     return null;

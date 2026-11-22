@@ -1,5 +1,11 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { ToastViewport } from "../components/ui/Toast";
 import type { ToastMessage, ToastVariant } from "../types/toast";
 
@@ -25,7 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToasts((current) => [...current, { id, variant, message }]);
       setTimeout(() => dismissToast(id), TOAST_DURATION_MS);
     },
-    [dismissToast]
+    [dismissToast],
   );
 
   return (

@@ -1,13 +1,17 @@
-import { api } from "./api";
 import type { Produto, ProdutoPayload } from "../types/produto";
+import { api } from "./api";
 
 export interface ListProdutosFilters {
   categoriaId?: string;
 }
 
-export async function listProdutos(filters: ListProdutosFilters = {}): Promise<Produto[]> {
+export async function listProdutos(
+  filters: ListProdutosFilters = {},
+): Promise<Produto[]> {
   const { data } = await api.get<Produto[]>("/produtos", {
-    params: filters.categoriaId ? { categoria_id: filters.categoriaId } : undefined,
+    params: filters.categoriaId
+      ? { categoria_id: filters.categoriaId }
+      : undefined,
   });
   return data;
 }
@@ -17,13 +21,21 @@ export async function createProduto(payload: ProdutoPayload): Promise<Produto> {
   return data;
 }
 
-export async function updateProduto(id: string, payload: ProdutoPayload): Promise<Produto> {
+export async function updateProduto(
+  id: string,
+  payload: ProdutoPayload,
+): Promise<Produto> {
   const { data } = await api.put<Produto>(`/produtos/${id}`, payload);
   return data;
 }
 
-export async function updateProdutoDisponibilidade(id: string, disponivel: boolean): Promise<Produto> {
-  const { data } = await api.patch<Produto>(`/produtos/${id}/disponibilidade`, { disponivel });
+export async function updateProdutoDisponibilidade(
+  id: string,
+  disponivel: boolean,
+): Promise<Produto> {
+  const { data } = await api.patch<Produto>(`/produtos/${id}/disponibilidade`, {
+    disponivel,
+  });
   return data;
 }
 

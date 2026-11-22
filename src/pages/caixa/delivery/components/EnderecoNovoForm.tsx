@@ -13,7 +13,8 @@ const AVISO_CEP: Record<StatusCepLookup, string | null> = {
   carregando: "Buscando endereço...",
   encontrado: null,
   nao_encontrado: "CEP não encontrado. Preencha o endereço manualmente.",
-  falhou: "Não foi possível consultar o CEP agora. Preencha o endereço manualmente.",
+  falhou:
+    "Não foi possível consultar o CEP agora. Preencha o endereço manualmente.",
 };
 
 export function EnderecoNovoForm({ endereco }: EnderecoNovoFormProps) {
@@ -45,8 +46,14 @@ export function EnderecoNovoForm({ endereco }: EnderecoNovoFormProps) {
       </div>
 
       {aviso && (
-        <p role="status" aria-live="polite" className="-mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          {statusCep === "carregando" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+        <p
+          role="status"
+          aria-live="polite"
+          className="-mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"
+        >
+          {statusCep === "carregando" && (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          )}
           {aviso}
         </p>
       )}
@@ -68,14 +75,26 @@ export function EnderecoNovoForm({ endereco }: EnderecoNovoFormProps) {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-[1fr_1fr_minmax(0,5rem)]">
-        <Input label="Bairro" autoComplete="off" value={campos.bairro} onChange={(evento) => alterar("bairro", evento.target.value)} />
-        <Input label="Cidade" autoComplete="off" value={campos.cidade} onChange={(evento) => alterar("cidade", evento.target.value)} />
+        <Input
+          label="Bairro"
+          autoComplete="off"
+          value={campos.bairro}
+          onChange={(evento) => alterar("bairro", evento.target.value)}
+        />
+        <Input
+          label="Cidade"
+          autoComplete="off"
+          value={campos.cidade}
+          onChange={(evento) => alterar("cidade", evento.target.value)}
+        />
         <Input
           label="UF"
           autoComplete="off"
           maxLength={2}
           value={campos.uf}
-          onChange={(evento) => alterar("uf", evento.target.value.toUpperCase())}
+          onChange={(evento) =>
+            alterar("uf", evento.target.value.toUpperCase())
+          }
         />
       </div>
 
@@ -90,7 +109,9 @@ export function EnderecoNovoForm({ endereco }: EnderecoNovoFormProps) {
         <input
           type="checkbox"
           checked={endereco.salvarNoCadastro}
-          onChange={(evento) => endereco.alterarSalvarNoCadastro(evento.target.checked)}
+          onChange={(evento) =>
+            endereco.alterarSalvarNoCadastro(evento.target.checked)
+          }
           className="h-4 w-4 accent-orange-600"
         />
         Salvar endereço no cadastro

@@ -1,5 +1,5 @@
-import { useId } from "react";
 import type { ReactNode } from "react";
+import { useId } from "react";
 
 interface SwitchProps {
   checked: boolean;
@@ -9,17 +9,30 @@ interface SwitchProps {
   id?: string;
 }
 
-export function Switch({ checked, onChange, label, description, id }: SwitchProps) {
+export function Switch({
+  checked,
+  onChange,
+  label,
+  description,
+  id,
+}: SwitchProps) {
   const generatedId = useId();
   const switchId = id ?? generatedId;
 
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={switchId} className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor={switchId}
+          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           {label}
         </label>
-        {description && <div className="text-xs text-slate-500 dark:text-slate-400">{description}</div>}
+        {description && (
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            {description}
+          </div>
+        )}
       </div>
 
       <button

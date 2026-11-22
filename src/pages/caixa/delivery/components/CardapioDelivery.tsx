@@ -1,5 +1,5 @@
 import { RefreshCw, Search, UtensilsCrossed } from "lucide-react";
-import { useMemo, useState, type KeyboardEvent, type RefObject } from "react";
+import { type KeyboardEvent, type RefObject, useMemo, useState } from "react";
 import { ProdutoCard } from "../../../../components/cardapio/ProdutoCard";
 import { Button, Card, Input } from "../../../../components/ui";
 import { filtrarProdutos, primeiroDisponivel } from "../../../../lib/cardapio";
@@ -18,13 +18,29 @@ interface CardapioDeliveryProps {
 
 // Cardápio do novo pedido delivery (PED-109). Pelo teclado: digita parte do nome e Enter
 // adiciona o primeiro produto disponível; com a busca vazia, Enter segue para o próximo campo.
-export function CardapioDelivery({ produtos, categorias, carregando, erro, onRecarregar, onAdicionar, buscaRef }: CardapioDeliveryProps) {
+export function CardapioDelivery({
+  produtos,
+  categorias,
+  carregando,
+  erro,
+  onRecarregar,
+  onAdicionar,
+  buscaRef,
+}: CardapioDeliveryProps) {
   const [categoriaId, setCategoriaId] = useState<string | null>(null);
   const [termo, setTermo] = useState("");
-  const filtrados = useMemo(() => filtrarProdutos(produtos, categoriaId, termo), [produtos, categoriaId, termo]);
+  const filtrados = useMemo(
+    () => filtrarProdutos(produtos, categoriaId, termo),
+    [produtos, categoriaId, termo],
+  );
 
   function aoTeclarNaBusca(evento: KeyboardEvent<HTMLInputElement>) {
-    if (evento.key !== "Enter" || evento.ctrlKey || evento.metaKey || termo.trim() === "") {
+    if (
+      evento.key !== "Enter" ||
+      evento.ctrlKey ||
+      evento.metaKey ||
+      termo.trim() === ""
+    ) {
       return;
     }
 
@@ -39,7 +55,9 @@ export function CardapioDelivery({ produtos, categorias, carregando, erro, onRec
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Cardápio</h2>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        Cardápio
+      </h2>
 
       <Input
         ref={buscaRef}
@@ -53,7 +71,10 @@ export function CardapioDelivery({ produtos, categorias, carregando, erro, onRec
         onKeyDown={aoTeclarNaBusca}
       />
 
-      <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Categorias">
+      <fieldset
+        className="flex min-w-0 gap-2 overflow-x-auto [scrollbar-width:none]"
+        aria-label="Categorias"
+      >
         {[{ id: null, nome: "Todos" }, ...categorias].map((categoria) => (
           <button
             key={categoria.id ?? "todos"}
@@ -69,7 +90,7 @@ export function CardapioDelivery({ produtos, categorias, carregando, erro, onRec
             {categoria.nome}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       {carregando && (
         <p className="flex items-center gap-2 py-6 text-sm text-slate-500 dark:text-slate-400">
@@ -97,7 +118,11 @@ export function CardapioDelivery({ produtos, categorias, carregando, erro, onRec
       {!carregando && !erro && filtrados.length > 0 && (
         <div className="grid max-h-[28rem] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto pr-1">
           {filtrados.map((produto) => (
-            <ProdutoCard key={produto.id} produto={produto} onAdd={onAdicionar} />
+            <ProdutoCard
+              key={produto.id}
+              produto={produto}
+              onAdd={onAdicionar}
+            />
           ))}
         </div>
       )}

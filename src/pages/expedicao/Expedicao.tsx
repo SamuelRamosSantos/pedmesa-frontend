@@ -1,5 +1,15 @@
-import { CheckCircle2, CookingPot, Menu, Package, Plus, RefreshCw, Truck, Wifi, WifiOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  CookingPot,
+  Menu,
+  Package,
+  Plus,
+  RefreshCw,
+  Truck,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { KanbanColumn } from "../../components/kanban/KanbanColumn";
@@ -9,29 +19,37 @@ import { useToast } from "../../contexts/ToastContext";
 import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage, getApiErrorStatus } from "../../lib/api-error";
 import {
+  AVANCAR,
   agruparPorColuna,
   aplicarEstado,
   aplicarStatusOtimista,
-  AVANCAR,
   COLUNAS_EXPEDICAO,
   exigeMotivo,
   formatarNumeroEntrega,
   mesclarComPendentes,
   restaurarEntrega,
-  VOLTAR,
   type StatusColuna,
+  VOLTAR,
 } from "../../lib/expedicao";
-import { listarEntregas, reimprimirTicketEntrega, transicionarEntrega } from "../../services/delivery.service";
+import {
+  listarEntregas,
+  reimprimirTicketEntrega,
+  transicionarEntrega,
+} from "../../services/delivery.service";
 import type { EntregaPainel, StatusEntrega } from "../../types/delivery";
 import { EntregaCard } from "./components/EntregaCard";
 import { MotivoModal } from "./components/MotivoModal";
 
 const POLL_INTERVAL_MS = 8000;
 
-const COLUNA_VISUAL: Record<StatusColuna, { icon: LucideIcon; headerClass: string }> = {
+const COLUNA_VISUAL: Record<
+  StatusColuna,
+  { icon: LucideIcon; headerClass: string }
+> = {
   em_producao: {
     icon: CookingPot,
-    headerClass: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300",
+    headerClass:
+      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300",
   },
   pronto_para_envio: {
     icon: Package,
@@ -40,11 +58,13 @@ const COLUNA_VISUAL: Record<StatusColuna, { icon: LucideIcon; headerClass: strin
   },
   em_rota: {
     icon: Truck,
-    headerClass: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/30 dark:bg-sky-950/20 dark:text-sky-300",
+    headerClass:
+      "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/30 dark:bg-sky-950/20 dark:text-sky-300",
   },
   entregue: {
     icon: CheckCircle2,
-    headerClass: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+    headerClass:
+      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
   },
 };
 
@@ -66,7 +86,9 @@ export function Expedicao() {
   const [conectado, setConectado] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupadas, setOcupadas] = useState<ReadonlySet<string>>(new Set());
-  const [pedidoMotivo, setPedidoMotivo] = useState<TransicaoComMotivo | null>(null);
+  const [pedidoMotivo, setPedidoMotivo] = useState<TransicaoComMotivo | null>(
+    null,
+  );
   const primeiraCargaRef = useRef(true);
   // Transições em andamento: o polling não desfaz o movimento otimista delas.
   const pendentesRef = useRef(new Set<string>());
@@ -76,14 +98,18 @@ export function Expedicao() {
 
     try {
       const dados = await listarEntregas();
-      setEntregas((locais) => mesclarComPendentes(dados, locais, pendentesRef.current));
+      setEntregas((locais) =>
+        mesclarComPendentes(dados, locais, pendentesRef.current),
+      );
       setConectado(true);
       setErro(null);
     } catch (error) {
       setConectado(false);
 
       if (primeiraCargaRef.current) {
-        setErro(getApiErrorMessage(error, "Não foi possível carregar as entregas."));
+        setErro(
+          getApiErrorMessage(error, "Não foi possível carregar as entregas."),
+        );
       }
     } finally {
       setAtualizando(false);
@@ -106,13 +132,21 @@ export function Expedicao() {
     });
   }
 
-  async function transicionar(entrega: EntregaPainel, para: StatusEntrega, motivo: string | null): Promise<boolean> {
+  async function transicionar(
+    entrega: EntregaPainel,
+    para: StatusEntrega,
+    motivo: string | null,
+  ): Promise<boolean> {
     pendentesRef.current.add(entrega.id);
     marcarOcupada(entrega.id, true);
     setEntregas((atuais) => aplicarStatusOtimista(atuais, entrega.id, para));
 
     try {
-      const estado = await transicionarEntrega(entrega.id, { status: para, versao: entrega.versao, motivo });
+      const estado = await transicionarEntrega(entrega.id, {
+        status: para,
+        versao: entrega.versao,
+        motivo,
+      });
       setEntregas((atuais) => aplicarEstado(atuais, estado));
       return true;
     } catch (error) {
@@ -123,7 +157,10 @@ export function Expedicao() {
         showToast("Esta entrega foi atualizada por outra pessoa", "error");
         void carregar();
       } else {
-        showToast(getApiErrorMessage(error, "Não foi possível atualizar a entrega."), "error");
+        showToast(
+          getApiErrorMessage(error, "Não foi possível atualizar a entrega."),
+          "error",
+        );
       }
 
       return false;
@@ -153,7 +190,10 @@ export function Expedicao() {
     if (ok) {
       setPedidoMotivo(null);
       if (para === "cancelado") {
-        showToast(`Entrega ${formatarNumeroEntrega(entrega.numero_entrega)} cancelada.`, "success");
+        showToast(
+          `Entrega ${formatarNumeroEntrega(entrega.numero_entrega)} cancelada.`,
+          "success",
+        );
       }
     }
   }
@@ -163,7 +203,10 @@ export function Expedicao() {
       const { mensagem } = await reimprimirTicketEntrega(entrega.id);
       showToast(mensagem, "success");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível reimprimir o ticket."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível reimprimir o ticket."),
+        "error",
+      );
     }
   }
 
@@ -185,13 +228,19 @@ export function Expedicao() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Painel de expedição</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Painel de expedição
+            </h1>
 
             <div className="ml-auto flex items-center gap-4">
               <span
                 className={`flex items-center gap-1.5 text-xs font-semibold ${conectado ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
               >
-                {conectado ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
+                {conectado ? (
+                  <Wifi className="h-4 w-4" />
+                ) : (
+                  <WifiOff className="h-4 w-4 animate-pulse" />
+                )}
                 {conectado ? "Conectado" : "Sem conexão"}
               </span>
 
@@ -201,7 +250,9 @@ export function Expedicao() {
                 aria-label="Atualizar entregas"
                 className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
-                <RefreshCw className={`h-5 w-5 ${atualizando ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-5 w-5 ${atualizando ? "animate-spin" : ""}`}
+                />
               </button>
 
               <Button onClick={() => navigate("/caixa/delivery/novo")}>
@@ -269,9 +320,11 @@ export function Expedicao() {
               descricao={
                 cancelando
                   ? "Os itens serão cancelados e a comanda fechada sem cobrança. Informe o motivo."
-                  : "A entrega volta para \"Pronto para envio\". Informe por que não foi entregue."
+                  : 'A entrega volta para "Pronto para envio". Informe por que não foi entregue.'
               }
-              rotuloConfirmar={cancelando ? "Cancelar entrega" : "Registrar retorno"}
+              rotuloConfirmar={
+                cancelando ? "Cancelar entrega" : "Registrar retorno"
+              }
               perigo={cancelando}
               enviando={ocupadas.has(pedidoMotivo.entrega.id)}
               onConfirmar={(motivo) => void confirmarComMotivo(motivo)}

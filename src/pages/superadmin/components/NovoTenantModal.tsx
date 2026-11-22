@@ -1,6 +1,6 @@
 import { LockKeyhole, Mail, Save } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -16,14 +16,20 @@ interface NovoTenantModalProps {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function NovoTenantModal({ isOpen, onClose, onSaved }: NovoTenantModalProps) {
+export function NovoTenantModal({
+  isOpen,
+  onClose,
+  onSaved,
+}: NovoTenantModalProps) {
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [cnpjCpf, setCnpjCpf] = useState("");
   const [adminNome, setAdminNome] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [adminSenha, setAdminSenha] = useState("");
 
-  const [nomeFantasiaError, setNomeFantasiaError] = useState<string | undefined>();
+  const [nomeFantasiaError, setNomeFantasiaError] = useState<
+    string | undefined
+  >();
   const [cnpjCpfError, setCnpjCpfError] = useState<string | undefined>();
   const [adminNomeError, setAdminNomeError] = useState<string | undefined>();
   const [adminEmailError, setAdminEmailError] = useState<string | undefined>();
@@ -99,10 +105,19 @@ export function NovoTenantModal({ isOpen, onClose, onSaved }: NovoTenantModalPro
         admin_email: adminEmail.trim().toLowerCase(),
         admin_senha: adminSenha,
       });
-      showToast(`Estabelecimento "${nomeFantasia.trim()}" criado com sucesso.`, "success");
+      showToast(
+        `Estabelecimento "${nomeFantasia.trim()}" criado com sucesso.`,
+        "success",
+      );
       onSaved();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível criar o estabelecimento. Tente novamente."), "error");
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível criar o estabelecimento. Tente novamente.",
+        ),
+        "error",
+      );
       setIsSubmitting(false);
     }
   }
@@ -128,7 +143,9 @@ export function NovoTenantModal({ isOpen, onClose, onSaved }: NovoTenantModalPro
         />
 
         <div className="border-t border-slate-100 pt-1 dark:border-slate-800">
-          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">Primeiro administrador</p>
+          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+            Primeiro administrador
+          </p>
 
           <div className="flex flex-col gap-4">
             <Input
@@ -162,7 +179,12 @@ export function NovoTenantModal({ isOpen, onClose, onSaved }: NovoTenantModalPro
         </div>
 
         <div className="mt-2 flex gap-3">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="flex-1">

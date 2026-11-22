@@ -12,7 +12,10 @@ export function mapearRespostaViaCep(resposta: unknown): EnderecoCep | null {
     return null;
   }
 
-  if ("erro" in resposta && (resposta.erro === true || resposta.erro === "true")) {
+  if (
+    "erro" in resposta &&
+    (resposta.erro === true || resposta.erro === "true")
+  ) {
     return null;
   }
 

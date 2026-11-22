@@ -1,11 +1,11 @@
-import { useRef, useState, type RefObject } from "react";
+import { type RefObject, useRef, useState } from "react";
 import { useCepLookup } from "../../../hooks/useCepLookup";
 import type { StatusCepLookup } from "../../../lib/cep-lookup";
 import {
   CAMPOS_ENDERECO_VAZIOS,
+  type CamposEndereco,
   enderecoNovoDoFormulario,
   preencherComCep,
-  type CamposEndereco,
 } from "../../../lib/endereco-entrega";
 import { mascararCep } from "../../../lib/mascaras";
 import type { EnderecoNovoPayload } from "../../../services/delivery.service";
@@ -35,7 +35,10 @@ export function useEnderecoNovo(clienteNovo: boolean): ControleEnderecoNovo {
   const logradouroRef = useRef<HTMLInputElement>(null);
 
   const { status: statusCep } = useCepLookup(campos.cep, (encontrado) => {
-    const { campos: preenchidos, focarEm } = preencherComCep(campos, encontrado);
+    const { campos: preenchidos, focarEm } = preencherComCep(
+      campos,
+      encontrado,
+    );
     setCampos(preenchidos);
     (focarEm === "numero" ? numeroRef : logradouroRef).current?.focus();
   });
@@ -43,7 +46,10 @@ export function useEnderecoNovo(clienteNovo: boolean): ControleEnderecoNovo {
   return {
     campos,
     alterar: (campo, valor) =>
-      setCampos((atuais) => ({ ...atuais, [campo]: campo === "cep" ? mascararCep(valor) : valor })),
+      setCampos((atuais) => ({
+        ...atuais,
+        [campo]: campo === "cep" ? mascararCep(valor) : valor,
+      })),
     statusCep,
     salvarNoCadastro: salvarEscolhido ?? clienteNovo,
     alterarSalvarNoCadastro: setSalvarEscolhido,

@@ -1,6 +1,6 @@
-import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useId, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { type ReactNode, useId, useState } from "react";
 
 interface KanbanColumnProps<T> {
   titulo: string;
@@ -36,7 +36,9 @@ export function KanbanColumn<T>({
         recolhida ? "md:w-60 md:flex-none" : "md:flex-1"
       }`}
     >
-      <header className={`flex items-center gap-2 rounded-t-2xl border-b px-4 py-3 ${headerClass} ${recolhida ? "rounded-b-2xl md:rounded-b-none" : ""}`}>
+      <header
+        className={`flex items-center gap-2 rounded-t-2xl border-b px-4 py-3 ${headerClass} ${recolhida ? "rounded-b-2xl md:rounded-b-none" : ""}`}
+      >
         <Icon className="h-4 w-4" />
         <h2 className="text-sm font-bold uppercase tracking-wide">{titulo}</h2>
         <span className="ml-auto rounded-full bg-black/10 px-2.5 py-0.5 text-xs font-bold tabular-nums dark:bg-black/25">
@@ -51,14 +53,25 @@ export function KanbanColumn<T>({
             aria-label={recolhida ? `Mostrar ${titulo}` : `Recolher ${titulo}`}
             className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10"
           >
-            {recolhida ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {recolhida ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </button>
         )}
       </header>
 
       {!recolhida && (
-        <div id={listaId} className="flex flex-col gap-3 p-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-          {itens.length === 0 && <p className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">{mensagemVazia}</p>}
+        <div
+          id={listaId}
+          className="flex flex-col gap-3 p-3 md:min-h-0 md:flex-1 md:overflow-y-auto"
+        >
+          {itens.length === 0 && (
+            <p className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+              {mensagemVazia}
+            </p>
+          )}
 
           {itens.map((item) => (
             <div key={chave(item)}>{renderCard(item)}</div>

@@ -14,7 +14,10 @@ export interface EstadoConsulta<T> {
 }
 
 // chave null = ainda não dá para consultar (valor incompleto).
-export function estadoDaConsulta<T>(chave: string | null, ultimoResultado: ResultadoConsulta<T> | null): EstadoConsulta<T> {
+export function estadoDaConsulta<T>(
+  chave: string | null,
+  ultimoResultado: ResultadoConsulta<T> | null,
+): EstadoConsulta<T> {
   if (chave === null) {
     return { status: "idle", valor: null };
   }

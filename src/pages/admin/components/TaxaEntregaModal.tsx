@@ -1,13 +1,21 @@
 import { Save } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { CurrencyInput } from "../../../components/ui/CurrencyInput";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage, getApiErrorStatus } from "../../../lib/api-error";
-import { formDaTaxa, validarFormTaxa, type CampoFormTaxa, type FormTaxa } from "../../../lib/taxas-entrega";
-import { createTaxaEntrega, updateTaxaEntrega } from "../../../services/delivery.service";
+import {
+  type CampoFormTaxa,
+  type FormTaxa,
+  formDaTaxa,
+  validarFormTaxa,
+} from "../../../lib/taxas-entrega";
+import {
+  createTaxaEntrega,
+  updateTaxaEntrega,
+} from "../../../services/delivery.service";
 import type { TaxaEntrega } from "../../../types/delivery";
 
 interface TaxaEntregaModalProps {
@@ -20,13 +28,23 @@ interface TaxaEntregaModalProps {
 
 // Criar/editar a taxa de um bairro (PED-111). Montado só quando aberto: cada abertura
 // começa do valor salvo. Bairro duplicado (409) aparece no próprio campo.
-export function TaxaEntregaModal({ taxa, cidadePadrao, onClose, onSaved }: TaxaEntregaModalProps) {
+export function TaxaEntregaModal({
+  taxa,
+  cidadePadrao,
+  onClose,
+  onSaved,
+}: TaxaEntregaModalProps) {
   const { showToast } = useToast();
-  const [form, setForm] = useState<FormTaxa>(() => formDaTaxa(taxa, cidadePadrao));
-  const [erros, setErros] = useState<Partial<Record<CampoFormTaxa, string>>>({});
+  const [form, setForm] = useState<FormTaxa>(() =>
+    formDaTaxa(taxa, cidadePadrao),
+  );
+  const [erros, setErros] = useState<Partial<Record<CampoFormTaxa, string>>>(
+    {},
+  );
   const [salvando, setSalvando] = useState(false);
 
-  const alterar = (alteracao: Partial<FormTaxa>) => setForm((atual) => ({ ...atual, ...alteracao }));
+  const alterar = (alteracao: Partial<FormTaxa>) =>
+    setForm((atual) => ({ ...atual, ...alteracao }));
 
   async function salvar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -41,21 +59,38 @@ export function TaxaEntregaModal({ taxa, cidadePadrao, onClose, onSaved }: TaxaE
     setSalvando(true);
 
     try {
-      const salva = taxa === null ? await createTaxaEntrega(resultado.payload) : await updateTaxaEntrega(taxa.id, resultado.payload);
+      const salva =
+        taxa === null
+          ? await createTaxaEntrega(resultado.payload)
+          : await updateTaxaEntrega(taxa.id, resultado.payload);
       showToast(`Taxa de ${salva.bairro} salva.`, "success");
       onSaved(salva);
     } catch (error) {
       if (getApiErrorStatus(error) === 409) {
-        setErros({ bairro: getApiErrorMessage(error, "Já existe uma taxa para este bairro.") });
+        setErros({
+          bairro: getApiErrorMessage(
+            error,
+            "Já existe uma taxa para este bairro.",
+          ),
+        });
       } else {
-        showToast(getApiErrorMessage(error, "Não foi possível salvar a taxa."), "error");
+        showToast(
+          getApiErrorMessage(error, "Não foi possível salvar a taxa."),
+          "error",
+        );
       }
       setSalvando(false);
     }
   }
 
   return (
-    <Modal isOpen onClose={onClose} title={taxa === null ? "Nova taxa de entrega" : `Editar taxa de ${taxa.bairro}`}>
+    <Modal
+      isOpen
+      onClose={onClose}
+      title={
+        taxa === null ? "Nova taxa de entrega" : `Editar taxa de ${taxa.bairro}`
+      }
+    >
       <form onSubmit={salvar} className="flex flex-col gap-4" noValidate>
         <Input
           label="Bairro"
@@ -65,8 +100,17 @@ export function TaxaEntregaModal({ taxa, cidadePadrao, onClose, onSaved }: TaxaE
           onChange={(evento) => alterar({ bairro: evento.target.value })}
           error={erros.bairro}
         />
-        <Input label="Cidade" value={form.cidade} onChange={(evento) => alterar({ cidade: evento.target.value })} error={erros.cidade} />
-        <CurrencyInput label="Taxa de entrega" valueCents={form.valorCents} onChangeCents={(valorCents) => alterar({ valorCents })} />
+        <Input
+          label="Cidade"
+          value={form.cidade}
+          onChange={(evento) => alterar({ cidade: evento.target.value })}
+          error={erros.cidade}
+        />
+        <CurrencyInput
+          label="Taxa de entrega"
+          valueCents={form.valorCents}
+          onChangeCents={(valorCents) => alterar({ valorCents })}
+        />
         <Input
           label="Tempo estimado em minutos (opcional)"
           type="number"

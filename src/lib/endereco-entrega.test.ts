@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { Cliente } from "../types/cliente";
 import {
   CAMPOS_ENDERECO_VAZIOS,
+  type CamposEndereco,
   enderecoNovoDoFormulario,
   localidadeDaEntrega,
   preencherComCep,
-  type CamposEndereco,
 } from "./endereco-entrega";
 
 const PREENCHIDO: CamposEndereco = {
@@ -48,7 +48,12 @@ describe("preencherComCep", () => {
   it("preenche rua, bairro, cidade e UF e foca o número", () => {
     const resultado = preencherComCep(
       { ...CAMPOS_ENDERECO_VAZIOS, cep: "01310-100", numero: "10" },
-      { logradouro: "Avenida Paulista", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP" }
+      {
+        logradouro: "Avenida Paulista",
+        bairro: "Bela Vista",
+        cidade: "São Paulo",
+        uf: "SP",
+      },
     );
 
     expect(resultado).toEqual({
@@ -68,7 +73,12 @@ describe("preencherComCep", () => {
   it("CEP geral de cidade (sem rua) limpa a rua anterior e foca o logradouro", () => {
     const resultado = preencherComCep(
       { ...PREENCHIDO },
-      { logradouro: "", bairro: "", cidade: "Espírito Santo do Pinhal", uf: "SP" }
+      {
+        logradouro: "",
+        bairro: "",
+        cidade: "Espírito Santo do Pinhal",
+        uf: "SP",
+      },
     );
 
     expect(resultado.campos.logradouro).toBe("");
@@ -97,22 +107,34 @@ describe("enderecoNovoDoFormulario", () => {
     ["sem bairro", { bairro: "" }],
     ["UF inválida", { uf: "S" }],
   ])("null quando está %s", (_caso, alteracao) => {
-    expect(enderecoNovoDoFormulario({ ...PREENCHIDO, ...alteracao })).toBeNull();
+    expect(
+      enderecoNovoDoFormulario({ ...PREENCHIDO, ...alteracao }),
+    ).toBeNull();
   });
 });
 
 describe("localidadeDaEntrega", () => {
   it("endereço salvo escolhido", () => {
-    expect(localidadeDaEntrega(CLIENTE, "e1", CAMPOS_ENDERECO_VAZIOS)).toEqual({ cidade: "São Paulo", bairro: "Vila Mariana" });
+    expect(localidadeDaEntrega(CLIENTE, "e1", CAMPOS_ENDERECO_VAZIOS)).toEqual({
+      cidade: "São Paulo",
+      bairro: "Vila Mariana",
+    });
   });
 
   it("endereço novo usa o formulário", () => {
-    expect(localidadeDaEntrega(CLIENTE, "novo", PREENCHIDO)).toEqual({ cidade: "São Paulo", bairro: "Bela Vista" });
+    expect(localidadeDaEntrega(CLIENTE, "novo", PREENCHIDO)).toEqual({
+      cidade: "São Paulo",
+      bairro: "Bela Vista",
+    });
   });
 
   it("null sem bairro/cidade ou com escolha que não existe", () => {
-    expect(localidadeDaEntrega(null, "novo", CAMPOS_ENDERECO_VAZIOS)).toBeNull();
-    expect(localidadeDaEntrega(null, "novo", { ...PREENCHIDO, bairro: " " })).toBeNull();
+    expect(
+      localidadeDaEntrega(null, "novo", CAMPOS_ENDERECO_VAZIOS),
+    ).toBeNull();
+    expect(
+      localidadeDaEntrega(null, "novo", { ...PREENCHIDO, bairro: " " }),
+    ).toBeNull();
     expect(localidadeDaEntrega(CLIENTE, "outro", PREENCHIDO)).toBeNull();
   });
 });

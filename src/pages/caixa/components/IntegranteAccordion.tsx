@@ -9,7 +9,12 @@ interface IntegranteAccordionProps {
   descontoAplicado: number;
 }
 
-export function IntegranteAccordion({ integrante, isExpanded, onToggle, descontoAplicado }: IntegranteAccordionProps) {
+export function IntegranteAccordion({
+  integrante,
+  isExpanded,
+  onToggle,
+  descontoAplicado,
+}: IntegranteAccordionProps) {
   const totalComDesconto = integrante.total_a_pagar - descontoAplicado;
   const temDesconto = descontoAplicado > 0;
 
@@ -24,7 +29,9 @@ export function IntegranteAccordion({ integrante, isExpanded, onToggle, desconto
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
           <User className="h-4 w-4" />
         </div>
-        <span className="flex-1 font-medium text-slate-900 dark:text-white">{integrante.nome}</span>
+        <span className="flex-1 font-medium text-slate-900 dark:text-white">
+          {integrante.nome}
+        </span>
         <span className="flex flex-col items-end">
           {temDesconto && (
             <span className="text-xs text-slate-400 line-through dark:text-slate-500">
@@ -56,13 +63,18 @@ export function IntegranteAccordion({ integrante, isExpanded, onToggle, desconto
               </div>
               {integrante.itens_individuais.map((item, index) => (
                 <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: lista só de exibição, sem id e sem reordenação
                   key={`${item.produto}-${index}`}
                   className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-sm text-slate-700 dark:text-slate-300"
                 >
                   <span>{item.produto}</span>
                   <span className="text-right">{item.qtd}</span>
-                  <span className="text-right">{formatCurrency(item.preco_unitario)}</span>
-                  <span className="text-right font-medium">{formatCurrency(item.subtotal)}</span>
+                  <span className="text-right">
+                    {formatCurrency(item.preco_unitario)}
+                  </span>
+                  <span className="text-right font-medium">
+                    {formatCurrency(item.subtotal)}
+                  </span>
                 </div>
               ))}
             </div>

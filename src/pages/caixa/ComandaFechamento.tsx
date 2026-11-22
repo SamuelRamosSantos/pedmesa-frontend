@@ -1,4 +1,12 @@
-import { AlertTriangle, ArrowLeft, Ban, Menu, PartyPopper, Printer, RefreshCw } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Ban,
+  Menu,
+  PartyPopper,
+  Printer,
+  RefreshCw,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
@@ -7,8 +15,8 @@ import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
-import { calcularDesconto, ratearDesconto } from "../../lib/desconto";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { calcularDesconto, ratearDesconto } from "../../lib/desconto";
 import { STATUS_ITEM_LABEL } from "../../lib/status-item";
 import {
   addPagamentoComanda,
@@ -19,7 +27,11 @@ import {
   updateDescontoComanda,
 } from "../../services/comanda.service";
 import { deleteItemPedido } from "../../services/pedido.service";
-import type { ComandaExtratoResumo, DescontoTipo, FormaPagamento } from "../../types/comanda";
+import type {
+  ComandaExtratoResumo,
+  DescontoTipo,
+  FormaPagamento,
+} from "../../types/comanda";
 import type { DescontoTipoEntrada } from "./components/DescontoCard";
 import { DescontoCard } from "./components/DescontoCard";
 import { IntegranteAccordion } from "./components/IntegranteAccordion";
@@ -39,15 +51,24 @@ export function ComandaFechamento() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddingPagamento, setIsAddingPagamento] = useState(false);
-  const [removendoPagamentoId, setRemovendoPagamentoId] = useState<string | null>(null);
+  const [removendoPagamentoId, setRemovendoPagamentoId] = useState<
+    string | null
+  >(null);
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isConfirmPendenteOpen, setIsConfirmPendenteOpen] = useState(false);
-  const [itemParaExcluir, setItemParaExcluir] = useState<{ id: string; produtoNome: string } | null>(null);
+  const [itemParaExcluir, setItemParaExcluir] = useState<{
+    id: string;
+    produtoNome: string;
+  } | null>(null);
   const [excluindoItemId, setExcluindoItemId] = useState<string | null>(null);
-  const [descontoTipoEntrada, setDescontoTipoEntrada] = useState<DescontoTipoEntrada>("percentual");
+  const [descontoTipoEntrada, setDescontoTipoEntrada] =
+    useState<DescontoTipoEntrada>("percentual");
   const [descontoValorEntrada, setDescontoValorEntrada] = useState(0);
-  const ultimoDescontoPersistidoRef = useRef<{ tipo: DescontoTipo; valor: number } | null>(null);
+  const ultimoDescontoPersistidoRef = useRef<{
+    tipo: DescontoTipo;
+    valor: number;
+  } | null>(null);
 
   const fetchDados = useCallback(async () => {
     if (!id) {
@@ -60,11 +81,21 @@ export function ComandaFechamento() {
     try {
       const data = await getComandaExtrato(id);
       setComanda(data);
-      setDescontoTipoEntrada(data.desconto_tipo === "valor_fixo" ? "valor_fixo" : "percentual");
+      setDescontoTipoEntrada(
+        data.desconto_tipo === "valor_fixo" ? "valor_fixo" : "percentual",
+      );
       setDescontoValorEntrada(data.desconto_valor ?? 0);
-      ultimoDescontoPersistidoRef.current = { tipo: data.desconto_tipo, valor: data.desconto_valor ?? 0 };
+      ultimoDescontoPersistidoRef.current = {
+        tipo: data.desconto_tipo,
+        valor: data.desconto_valor ?? 0,
+      };
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Não foi possível carregar o extrato da comanda."));
+      setErrorMessage(
+        getApiErrorMessage(
+          error,
+          "Não foi possível carregar o extrato da comanda.",
+        ),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -95,9 +126,16 @@ export function ComandaFechamento() {
 
     try {
       const novoPagamento = await addPagamentoComanda(id, { forma, valor });
-      setComanda((current) => (current ? { ...current, pagamentos: [...current.pagamentos, novoPagamento] } : current));
+      setComanda((current) =>
+        current
+          ? { ...current, pagamentos: [...current.pagamentos, novoPagamento] }
+          : current,
+      );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível registrar o pagamento."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível registrar o pagamento."),
+        "error",
+      );
     } finally {
       setIsAddingPagamento(false);
     }
@@ -113,10 +151,20 @@ export function ComandaFechamento() {
     try {
       await removePagamentoComanda(id, pagamentoId);
       setComanda((current) =>
-        current ? { ...current, pagamentos: current.pagamentos.filter((p) => p.id !== pagamentoId) } : current
+        current
+          ? {
+              ...current,
+              pagamentos: current.pagamentos.filter(
+                (p) => p.id !== pagamentoId,
+              ),
+            }
+          : current,
       );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível remover o pagamento."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível remover o pagamento."),
+        "error",
+      );
     } finally {
       setRemovendoPagamentoId(null);
     }
@@ -131,14 +179,18 @@ export function ComandaFechamento() {
 
     try {
       const resultado = await fecharComanda(id, {
-        desconto_tipo: descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum",
+        desconto_tipo:
+          descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum",
         desconto_valor: descontoValorEntrada,
       });
 
       showToast(resultado.mensagem, "success");
       navigate("/caixa/mapa-mesas");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível fechar a comanda."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível fechar a comanda."),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
       setIsConfirmPendenteOpen(false);
@@ -151,7 +203,10 @@ export function ComandaFechamento() {
     }
 
     if (descontoInvalido) {
-      showToast("O desconto informado é maior que o valor da comanda.", "error");
+      showToast(
+        "O desconto informado é maior que o valor da comanda.",
+        "error",
+      );
       return;
     }
 
@@ -175,7 +230,10 @@ export function ComandaFechamento() {
       showToast(resultado.mensagem, "success");
       navigate("/caixa/mapa-mesas");
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível cancelar a comanda."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível cancelar a comanda."),
+        "error",
+      );
       setIsCancelling(false);
       setIsConfirmCancelOpen(false);
     }
@@ -202,55 +260,86 @@ export function ComandaFechamento() {
 
     try {
       await deleteItemPedido(itemParaExcluir.id);
-      showToast(`"${itemParaExcluir.produtoNome}" excluído do fechamento.`, "success");
+      showToast(
+        `"${itemParaExcluir.produtoNome}" excluído do fechamento.`,
+        "success",
+      );
       setItemParaExcluir(null);
       fetchDados();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível excluir o item."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir o item."),
+        "error",
+      );
     } finally {
       setExcluindoItemId(null);
     }
   }
 
   const isComandaZerada = Boolean(
-    comanda && comanda.status === "aberta" && comanda.resumo_financeiro.valor_total_comanda === 0
+    comanda &&
+      comanda.status === "aberta" &&
+      comanda.resumo_financeiro.valor_total_comanda === 0,
   );
 
   const pagamentos = comanda?.pagamentos ?? [];
   const usuarioTemPermissaoDesconto = Boolean(user?.pode_conceder_desconto);
-  const podeEditarDesconto = usuarioTemPermissaoDesconto && comanda?.status === "aberta";
+  const podeEditarDesconto =
+    usuarioTemPermissaoDesconto && comanda?.status === "aberta";
   const subtotal = comanda?.resumo_financeiro.valor_total_comanda ?? 0;
   const descontoCalculado = calcularDesconto(subtotal, {
     tipo: descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum",
     valor: descontoValorEntrada,
   });
   const descontoInvalido = descontoCalculado.total_final < 0;
-  const mostrarColunaDesconto = usuarioTemPermissaoDesconto && descontoCalculado.desconto_aplicado > 0;
+  const mostrarColunaDesconto =
+    usuarioTemPermissaoDesconto && descontoCalculado.desconto_aplicado > 0;
 
   useEffect(() => {
     if (!id || !podeEditarDesconto || descontoInvalido) {
       return;
     }
 
-    const tipoResolvido: DescontoTipo = descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum";
+    const tipoResolvido: DescontoTipo =
+      descontoValorEntrada > 0 ? descontoTipoEntrada : "nenhum";
     const ultimo = ultimoDescontoPersistidoRef.current;
 
-    if (ultimo && ultimo.tipo === tipoResolvido && ultimo.valor === descontoValorEntrada) {
+    if (
+      ultimo &&
+      ultimo.tipo === tipoResolvido &&
+      ultimo.valor === descontoValorEntrada
+    ) {
       return;
     }
 
     const timeoutId = setTimeout(() => {
-      updateDescontoComanda(id, { desconto_tipo: tipoResolvido, desconto_valor: descontoValorEntrada })
+      updateDescontoComanda(id, {
+        desconto_tipo: tipoResolvido,
+        desconto_valor: descontoValorEntrada,
+      })
         .then(() => {
-          ultimoDescontoPersistidoRef.current = { tipo: tipoResolvido, valor: descontoValorEntrada };
+          ultimoDescontoPersistidoRef.current = {
+            tipo: tipoResolvido,
+            valor: descontoValorEntrada,
+          };
         })
         .catch((error) => {
-          showToast(getApiErrorMessage(error, "Não foi possível salvar o desconto."), "error");
+          showToast(
+            getApiErrorMessage(error, "Não foi possível salvar o desconto."),
+            "error",
+          );
         });
     }, 600);
 
     return () => clearTimeout(timeoutId);
-  }, [id, podeEditarDesconto, descontoTipoEntrada, descontoValorEntrada, descontoInvalido, showToast]);
+  }, [
+    id,
+    podeEditarDesconto,
+    descontoTipoEntrada,
+    descontoValorEntrada,
+    descontoInvalido,
+    showToast,
+  ]);
 
   const rateioPorIntegranteId = new Map(
     ratearDesconto(
@@ -258,19 +347,21 @@ export function ComandaFechamento() {
         id: integrante.integrante_id,
         valorBase: integrante.total_a_pagar,
       })),
-      descontoCalculado.desconto_aplicado
-    ).map((rateio) => [rateio.id, rateio.descontoAplicado])
+      descontoCalculado.desconto_aplicado,
+    ).map((rateio) => [rateio.id, rateio.descontoAplicado]),
   );
 
   const todosOsItens = [
-    ...(comanda?.divisao_por_integrante ?? []).flatMap((integrante) => integrante.itens_individuais),
+    ...(comanda?.divisao_por_integrante ?? []).flatMap(
+      (integrante) => integrante.itens_individuais,
+    ),
     ...(comanda?.itens_compartilhados ?? []),
   ];
   const rateioPorItemId = new Map(
     ratearDesconto(
       todosOsItens.map((item) => ({ id: item.id, valorBase: item.subtotal })),
-      descontoCalculado.desconto_aplicado
-    ).map((rateio) => [rateio.id, rateio.descontoAplicado])
+      descontoCalculado.desconto_aplicado,
+    ).map((rateio) => [rateio.id, rateio.descontoAplicado]),
   );
 
   if (!id) {
@@ -300,7 +391,9 @@ export function ComandaFechamento() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Fechamento de Conta</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Fechamento de Conta
+                </p>
                 <h1 className="text-xl font-bold text-slate-900 dark:text-white">
                   {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
                 </h1>
@@ -335,185 +428,225 @@ export function ComandaFechamento() {
                   aria-label="Atualizar extrato"
                   className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
                 >
-                  <RefreshCw className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
+                  <RefreshCw
+                    className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`}
+                  />
                 </button>
               </div>
             </div>
           </header>
 
           <main className="mx-auto max-w-7xl px-6 py-6">
-        {isLoading && !comanda && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
-            <RefreshCw className="h-6 w-6 animate-spin" />
-            <p className="text-sm">Carregando extrato...</p>
-          </div>
-        )}
-
-        {!isLoading && errorMessage && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-            <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
-            <div className="flex gap-3">
-              <Button variant="secondary" onClick={() => navigate("/caixa/mapa-mesas")}>
-                Voltar ao mapa de mesas
-              </Button>
-              <Button variant="danger" onClick={fetchDados}>
-                Tentar novamente
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {!errorMessage && comanda && (
-          <div className="flex flex-col gap-4">
-            {comanda.status === "aberta" && comanda.possui_itens_pendentes && (
-              <div
-                data-testid="alerta-itens-pendentes"
-                className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-950/30"
-              >
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
-                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-                    Atenção: esta comanda possui {comanda.itens_pendentes_entrega}{" "}
-                    {comanda.itens_pendentes_entrega === 1 ? "item" : "itens"} ainda{" "}
-                    {comanda.itens_pendentes_entrega === 1 ? "não entregue" : "não entregues"} pela cozinha/bar!
-                  </p>
-                </div>
-                <ul className="ml-8 flex flex-col gap-0.5 text-sm text-amber-700 dark:text-amber-300">
-                  {comanda.itens_pendentes.map((item, index) => (
-                    <li key={`${item.produto_nome}-${index}`}>
-                      {item.quantidade}x {item.produto_nome} ({STATUS_ITEM_LABEL[item.status_item]})
-                    </li>
-                  ))}
-                </ul>
+            {isLoading && !comanda && (
+              <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+                <p className="text-sm">Carregando extrato...</p>
               </div>
             )}
 
-            {comanda.status !== "aberta" && (
-              <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                Esta comanda já foi fechada e não pode receber novos pagamentos.
+            {!isLoading && errorMessage && (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {errorMessage}
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate("/caixa/mapa-mesas")}
+                  >
+                    Voltar ao mapa de mesas
+                  </Button>
+                  <Button variant="danger" onClick={fetchDados}>
+                    Tentar novamente
+                  </Button>
+                </div>
               </div>
             )}
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="flex flex-col gap-4 lg:col-span-2">
-                <ResumoFinanceiroCard resumo={comanda.resumo_financeiro} />
-
-                <TodosItensCard
-                  divisaoPorIntegrante={comanda.divisao_por_integrante}
-                  itensCompartilhados={comanda.itens_compartilhados}
-                  podeExcluirItem={Boolean(user?.pode_excluir_item_fechamento) && comanda.status === "aberta"}
-                  excluindoItemId={excluindoItemId}
-                  onExcluirItem={handleSolicitarExclusaoItem}
-                  descontoPorItemId={rateioPorItemId}
-                  mostrarColunaDesconto={mostrarColunaDesconto}
-                />
-
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">Divisão por Integrante</h2>
-
-                  {comanda.divisao_por_integrante.length === 0 ? (
-                    <p className="text-sm text-slate-400 dark:text-slate-500">
-                      Nenhum integrante cadastrado nesta comanda.
-                    </p>
-                  ) : (
-                    comanda.divisao_por_integrante.map((integrante) => (
-                      <IntegranteAccordion
-                        key={integrante.integrante_id}
-                        integrante={integrante}
-                        isExpanded={expandedIds.has(integrante.integrante_id)}
-                        onToggle={() => toggleExpanded(integrante.integrante_id)}
-                        descontoAplicado={rateioPorIntegranteId.get(integrante.integrante_id) ?? 0}
-                      />
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="lg:col-span-1">
-                {isComandaZerada ? (
-                  <Card className="flex flex-col items-center gap-3 text-center lg:sticky lg:top-20">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-                      <PartyPopper className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Comanda Zerada</h2>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Esta mesa não teve nenhum pedido lançado. Você pode liberá-la agora sem gerar nenhum valor
-                        financeiro.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsConfirmCancelOpen(true)}
-                      data-testid="botao-cancelar-comanda-zerada"
-                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+            {!errorMessage && comanda && (
+              <div className="flex flex-col gap-4">
+                {comanda.status === "aberta" &&
+                  comanda.possui_itens_pendentes && (
+                    <div
+                      data-testid="alerta-itens-pendentes"
+                      className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-950/30"
                     >
-                      <Ban className="h-4 w-4" />
-                      Cancelar / Liberar Mesa
-                    </button>
-                  </Card>
-                ) : (
-                  <div className="flex flex-col gap-4 lg:sticky lg:top-20">
-                    {podeEditarDesconto && (
-                      <DescontoCard
-                        subtotal={descontoCalculado.subtotal}
-                        tipo={descontoTipoEntrada}
-                        valor={descontoValorEntrada}
-                        descontoAplicado={descontoCalculado.desconto_aplicado}
-                        totalFinal={descontoCalculado.total_final}
-                        onChangeTipo={setDescontoTipoEntrada}
-                        onChangeValor={setDescontoValorEntrada}
-                      />
-                    )}
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                          Atenção: esta comanda possui{" "}
+                          {comanda.itens_pendentes_entrega}{" "}
+                          {comanda.itens_pendentes_entrega === 1
+                            ? "item"
+                            : "itens"}{" "}
+                          ainda{" "}
+                          {comanda.itens_pendentes_entrega === 1
+                            ? "não entregue"
+                            : "não entregues"}{" "}
+                          pela cozinha/bar!
+                        </p>
+                      </div>
+                      <ul className="ml-8 flex flex-col gap-0.5 text-sm text-amber-700 dark:text-amber-300">
+                        {comanda.itens_pendentes.map((item, index) => (
+                          // biome-ignore lint/suspicious/noArrayIndexKey: lista só de exibição, sem id e sem reordenação
+                          <li key={`${item.produto_nome}-${index}`}>
+                            {item.quantidade}x {item.produto_nome} (
+                            {STATUS_ITEM_LABEL[item.status_item]})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                    <PagamentoSidebar
-                      pagamentos={pagamentos}
-                      totalComanda={Math.max(0, descontoCalculado.total_final)}
-                      isSubmitting={isSubmitting}
-                      isAddingPagamento={isAddingPagamento}
-                      removendoPagamentoId={removendoPagamentoId}
-                      podeRegistrarPagamento={comanda.status === "aberta" && !descontoInvalido}
-                      onAddPagamento={handleAddPagamento}
-                      onRemovePagamento={handleRemovePagamento}
-                      onConfirmar={handleConfirmar}
-                    />
+                {comanda.status !== "aberta" && (
+                  <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    Esta comanda já foi fechada e não pode receber novos
+                    pagamentos.
                   </div>
                 )}
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                  <div className="flex flex-col gap-4 lg:col-span-2">
+                    <ResumoFinanceiroCard resumo={comanda.resumo_financeiro} />
+
+                    <TodosItensCard
+                      divisaoPorIntegrante={comanda.divisao_por_integrante}
+                      itensCompartilhados={comanda.itens_compartilhados}
+                      podeExcluirItem={
+                        Boolean(user?.pode_excluir_item_fechamento) &&
+                        comanda.status === "aberta"
+                      }
+                      excluindoItemId={excluindoItemId}
+                      onExcluirItem={handleSolicitarExclusaoItem}
+                      descontoPorItemId={rateioPorItemId}
+                      mostrarColunaDesconto={mostrarColunaDesconto}
+                    />
+
+                    <div className="flex flex-col gap-3">
+                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                        Divisão por Integrante
+                      </h2>
+
+                      {comanda.divisao_por_integrante.length === 0 ? (
+                        <p className="text-sm text-slate-400 dark:text-slate-500">
+                          Nenhum integrante cadastrado nesta comanda.
+                        </p>
+                      ) : (
+                        comanda.divisao_por_integrante.map((integrante) => (
+                          <IntegranteAccordion
+                            key={integrante.integrante_id}
+                            integrante={integrante}
+                            isExpanded={expandedIds.has(
+                              integrante.integrante_id,
+                            )}
+                            onToggle={() =>
+                              toggleExpanded(integrante.integrante_id)
+                            }
+                            descontoAplicado={
+                              rateioPorIntegranteId.get(
+                                integrante.integrante_id,
+                              ) ?? 0
+                            }
+                          />
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-1">
+                    {isComandaZerada ? (
+                      <Card className="flex flex-col items-center gap-3 text-center lg:sticky lg:top-20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                          <PartyPopper className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                            Comanda Zerada
+                          </h2>
+                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Esta mesa não teve nenhum pedido lançado. Você pode
+                            liberá-la agora sem gerar nenhum valor financeiro.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsConfirmCancelOpen(true)}
+                          data-testid="botao-cancelar-comanda-zerada"
+                          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+                        >
+                          <Ban className="h-4 w-4" />
+                          Cancelar / Liberar Mesa
+                        </button>
+                      </Card>
+                    ) : (
+                      <div className="flex flex-col gap-4 lg:sticky lg:top-20">
+                        {podeEditarDesconto && (
+                          <DescontoCard
+                            subtotal={descontoCalculado.subtotal}
+                            tipo={descontoTipoEntrada}
+                            valor={descontoValorEntrada}
+                            descontoAplicado={
+                              descontoCalculado.desconto_aplicado
+                            }
+                            totalFinal={descontoCalculado.total_final}
+                            onChangeTipo={setDescontoTipoEntrada}
+                            onChangeValor={setDescontoValorEntrada}
+                          />
+                        )}
+
+                        <PagamentoSidebar
+                          pagamentos={pagamentos}
+                          totalComanda={Math.max(
+                            0,
+                            descontoCalculado.total_final,
+                          )}
+                          isSubmitting={isSubmitting}
+                          isAddingPagamento={isAddingPagamento}
+                          removendoPagamentoId={removendoPagamentoId}
+                          podeRegistrarPagamento={
+                            comanda.status === "aberta" && !descontoInvalido
+                          }
+                          onAddPagamento={handleAddPagamento}
+                          onRemovePagamento={handleRemovePagamento}
+                          onConfirmar={handleConfirmar}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
-      </main>
+            )}
+          </main>
 
-      <ConfirmDialog
-        isOpen={isConfirmCancelOpen}
-        title="Cancelar comanda zerada?"
-        description={`A Mesa ${comanda?.numero_comanda ?? ""} não possui nenhum pedido lançado. Ela será liberada imediatamente e nenhum valor será cobrado.`}
-        confirmLabel="Sim, cancelar e liberar mesa"
-        isConfirming={isCancelling}
-        onCancel={() => setIsConfirmCancelOpen(false)}
-        onConfirm={handleCancelarComandaZerada}
-      />
+          <ConfirmDialog
+            isOpen={isConfirmCancelOpen}
+            title="Cancelar comanda zerada?"
+            description={`A Mesa ${comanda?.numero_comanda ?? ""} não possui nenhum pedido lançado. Ela será liberada imediatamente e nenhum valor será cobrado.`}
+            confirmLabel="Sim, cancelar e liberar mesa"
+            isConfirming={isCancelling}
+            onCancel={() => setIsConfirmCancelOpen(false)}
+            onConfirm={handleCancelarComandaZerada}
+          />
 
-      <ConfirmDialog
-        isOpen={isConfirmPendenteOpen}
-        title="Itens pendentes de entrega"
-        description="Existem itens pendentes de entrega nesta comanda. Deseja prosseguir com o fechamento assim mesmo?"
-        confirmLabel="Sim, fechar mesmo assim"
-        isConfirming={isSubmitting}
-        onCancel={() => setIsConfirmPendenteOpen(false)}
-        onConfirm={executarFechamento}
-      />
+          <ConfirmDialog
+            isOpen={isConfirmPendenteOpen}
+            title="Itens pendentes de entrega"
+            description="Existem itens pendentes de entrega nesta comanda. Deseja prosseguir com o fechamento assim mesmo?"
+            confirmLabel="Sim, fechar mesmo assim"
+            isConfirming={isSubmitting}
+            onCancel={() => setIsConfirmPendenteOpen(false)}
+            onConfirm={executarFechamento}
+          />
 
-      <ConfirmDialog
-        isOpen={itemParaExcluir !== null}
-        title="Excluir item?"
-        description={`"${itemParaExcluir?.produtoNome ?? ""}" será removido do fechamento e não fará mais parte da conta. Esta ação não pode ser desfeita.`}
-        confirmLabel="Sim, excluir item"
-        isConfirming={excluindoItemId !== null}
-        onCancel={() => setItemParaExcluir(null)}
-        onConfirm={handleConfirmarExclusaoItem}
-      />
+          <ConfirmDialog
+            isOpen={itemParaExcluir !== null}
+            title="Excluir item?"
+            description={`"${itemParaExcluir?.produtoNome ?? ""}" será removido do fechamento e não fará mais parte da conta. Esta ação não pode ser desfeita.`}
+            confirmLabel="Sim, excluir item"
+            isConfirming={excluindoItemId !== null}
+            onCancel={() => setItemParaExcluir(null)}
+            onConfirm={handleConfirmarExclusaoItem}
+          />
         </>
       )}
     </AppShell>

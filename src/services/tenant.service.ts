@@ -1,5 +1,5 @@
-import { api } from "./api";
 import type { Tenant } from "../types/tenant";
+import { api } from "./api";
 
 export async function getTenantMe(): Promise<Tenant> {
   const { data } = await api.get<Tenant>("/tenants/me");
@@ -25,7 +25,9 @@ export interface UpdateTenantConfigPayload {
   pedido_minimo_delivery?: number;
 }
 
-export async function updateTenantConfiguracoes(payload: UpdateTenantConfigPayload): Promise<Tenant> {
+export async function updateTenantConfiguracoes(
+  payload: UpdateTenantConfigPayload,
+): Promise<Tenant> {
   const { data } = await api.patch<Tenant>("/tenants/configuracoes", payload);
   return data;
 }

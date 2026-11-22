@@ -3,7 +3,12 @@
 import type { FormaPagamento } from "./comanda";
 import type { StatusPreparo } from "./pedido";
 
-export type StatusEntrega = "em_producao" | "pronto_para_envio" | "em_rota" | "entregue" | "cancelado";
+export type StatusEntrega =
+  | "em_producao"
+  | "pronto_para_envio"
+  | "em_rota"
+  | "entregue"
+  | "cancelado";
 
 // De onde veio a taxa da cotação: tabela por bairro ou taxa padrão do estabelecimento.
 export type OrigemTaxa = "bairro" | "padrao";

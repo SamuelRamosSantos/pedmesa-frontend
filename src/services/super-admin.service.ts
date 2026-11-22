@@ -1,14 +1,22 @@
-import { adminApi } from "./admin-api";
 import type { LoginResponseTenant } from "../types/auth";
-import type { LeadAdminItem, TenantAdminItem, TenantStatus } from "../types/super-admin";
+import type {
+  LeadAdminItem,
+  TenantAdminItem,
+  TenantStatus,
+} from "../types/super-admin";
+import { adminApi } from "./admin-api";
 
 export interface ListTenantsFilters {
   status?: TenantStatus;
   nome?: string;
 }
 
-export async function listTenants(filters: ListTenantsFilters): Promise<TenantAdminItem[]> {
-  const { data } = await adminApi.get<TenantAdminItem[]>("/admin/tenants", { params: filters });
+export async function listTenants(
+  filters: ListTenantsFilters,
+): Promise<TenantAdminItem[]> {
+  const { data } = await adminApi.get<TenantAdminItem[]>("/admin/tenants", {
+    params: filters,
+  });
   return data;
 }
 
@@ -20,13 +28,24 @@ export interface CreateTenantPayload {
   admin_senha: string;
 }
 
-export async function createTenant(payload: CreateTenantPayload): Promise<TenantAdminItem> {
-  const { data } = await adminApi.post<TenantAdminItem>("/admin/tenants", payload);
+export async function createTenant(
+  payload: CreateTenantPayload,
+): Promise<TenantAdminItem> {
+  const { data } = await adminApi.post<TenantAdminItem>(
+    "/admin/tenants",
+    payload,
+  );
   return data;
 }
 
-export async function updateTenantStatus(tenantId: string, status: TenantStatus): Promise<TenantAdminItem> {
-  const { data } = await adminApi.patch<TenantAdminItem>(`/admin/tenants/${tenantId}/status`, { status });
+export async function updateTenantStatus(
+  tenantId: string,
+  status: TenantStatus,
+): Promise<TenantAdminItem> {
+  const { data } = await adminApi.patch<TenantAdminItem>(
+    `/admin/tenants/${tenantId}/status`,
+    { status },
+  );
   return data;
 }
 
@@ -50,13 +69,23 @@ export interface UpdateTenantPayload {
   cep?: string | null;
 }
 
-export async function updateTenant(tenantId: string, payload: UpdateTenantPayload): Promise<TenantAdminItem> {
-  const { data } = await adminApi.patch<TenantAdminItem>(`/admin/tenants/${tenantId}`, payload);
+export async function updateTenant(
+  tenantId: string,
+  payload: UpdateTenantPayload,
+): Promise<TenantAdminItem> {
+  const { data } = await adminApi.patch<TenantAdminItem>(
+    `/admin/tenants/${tenantId}`,
+    payload,
+  );
   return data;
 }
 
-export async function impersonarTenant(tenantId: string): Promise<LoginResponseTenant> {
-  const { data } = await adminApi.post<LoginResponseTenant>(`/admin/tenants/${tenantId}/impersonar`);
+export async function impersonarTenant(
+  tenantId: string,
+): Promise<LoginResponseTenant> {
+  const { data } = await adminApi.post<LoginResponseTenant>(
+    `/admin/tenants/${tenantId}/impersonar`,
+  );
   return data;
 }
 

@@ -6,7 +6,11 @@ export type TipoAtendimento = "mesa" | "delivery";
 
 export type DescontoTipo = "percentual" | "valor_fixo" | "nenhum";
 
-export type FormaPagamento = "pix" | "dinheiro" | "cartao_credito" | "cartao_debito";
+export type FormaPagamento =
+  | "pix"
+  | "dinheiro"
+  | "cartao_credito"
+  | "cartao_debito";
 
 export interface PagamentoComanda {
   id: string;

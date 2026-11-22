@@ -1,5 +1,5 @@
-import { useId } from "react";
 import type { ChangeEvent } from "react";
+import { useId } from "react";
 
 interface CurrencyInputProps {
   label: string;
@@ -15,14 +15,24 @@ const LIMITE_CENTS = 99_999_999_99;
 // Máscara "xx,xx" no estilo de digitação bancária: cada dígito novo entra pela
 // direita e empurra os anteriores, então o valor exibido nunca fica num estado
 // inválido (sem múltiplas vírgulas, sem letras, sempre com 2 casas decimais).
-export function CurrencyInput({ label, valueCents, onChangeCents, error, id, autoFocus }: CurrencyInputProps) {
+export function CurrencyInput({
+  label,
+  valueCents,
+  onChangeCents,
+  error,
+  id,
+  autoFocus,
+}: CurrencyInputProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const somenteDigitos = event.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-    const cents = somenteDigitos === "" ? 0 : Number.parseInt(somenteDigitos, 10);
+    const somenteDigitos = event.target.value
+      .replace(/\D/g, "")
+      .replace(/^0+(?=\d)/, "");
+    const cents =
+      somenteDigitos === "" ? 0 : Number.parseInt(somenteDigitos, 10);
     onChangeCents(Math.min(cents, LIMITE_CENTS));
   }
 
@@ -32,7 +42,10 @@ export function CurrencyInput({ label, valueCents, onChangeCents, error, id, aut
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <label
+        htmlFor={inputId}
+        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+      >
         {label}
       </label>
       <div className="relative">
@@ -43,6 +56,7 @@ export function CurrencyInput({ label, valueCents, onChangeCents, error, id, aut
           id={inputId}
           type="text"
           inputMode="numeric"
+          // biome-ignore lint/a11y/noAutofocus: foco inicial opcional, decidido por quem usa o componente (fluxo de caixa por teclado)
           autoFocus={autoFocus}
           value={displayValue}
           onChange={handleChange}

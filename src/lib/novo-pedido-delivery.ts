@@ -1,4 +1,8 @@
-import type { CriarPedidoDeliveryPayload, EnderecoNovoPayload, ItemPedidoDeliveryPayload } from "../services/delivery.service";
+import type {
+  CriarPedidoDeliveryPayload,
+  EnderecoNovoPayload,
+  ItemPedidoDeliveryPayload,
+} from "../services/delivery.service";
 import type { FormaPagamento } from "../types/comanda";
 import type { CotacaoDelivery } from "../types/delivery";
 import type { SituacaoCotacao } from "./cotacao-delivery";
@@ -22,7 +26,9 @@ export interface EntradaPedidoDelivery {
 // Atalhos de "Troco para" (null = sem troco).
 export const ATALHOS_TROCO: readonly (number | null)[] = [null, 50, 100, 200];
 
-export function montarPedidoDelivery(entrada: EntradaPedidoDelivery): CriarPedidoDeliveryPayload | null {
+export function montarPedidoDelivery(
+  entrada: EntradaPedidoDelivery,
+): CriarPedidoDeliveryPayload | null {
   if (entrada.cliente === null || entrada.itens.length === 0) {
     return null;
   }
@@ -31,7 +37,8 @@ export function montarPedidoDelivery(entrada: EntradaPedidoDelivery): CriarPedid
     cliente: entrada.cliente.cliente,
     itens: entrada.itens,
     forma_pagamento: entrada.formaPagamento,
-    troco_para: entrada.formaPagamento === "dinheiro" ? entrada.trocoPara : null,
+    troco_para:
+      entrada.formaPagamento === "dinheiro" ? entrada.trocoPara : null,
   };
 
   if (entrada.cliente.endereco.tipo === "salvo") {
@@ -40,7 +47,11 @@ export function montarPedidoDelivery(entrada: EntradaPedidoDelivery): CriarPedid
 
   return entrada.enderecoNovo === null
     ? null
-    : { ...base, endereco: entrada.enderecoNovo, salvar_endereco: entrada.salvarEndereco };
+    : {
+        ...base,
+        endereco: entrada.enderecoNovo,
+        salvar_endereco: entrada.salvarEndereco,
+      };
 }
 
 export interface EstadoEnvio extends EntradaPedidoDelivery {
@@ -74,7 +85,10 @@ export function motivoQueImpedeEnvio(estado: EstadoEnvio): string | null {
   }
 
   if (!cotacao.atendido) {
-    return cotacao.motivo_nao_atendido ?? "Este endereço não é atendido pelo delivery.";
+    return (
+      cotacao.motivo_nao_atendido ??
+      "Este endereço não é atendido pelo delivery."
+    );
   }
 
   if (!cotacao.pedido_minimo_atingido) {

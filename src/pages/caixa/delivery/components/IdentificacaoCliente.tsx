@@ -1,14 +1,26 @@
-import { AlertTriangle, Loader2, Phone, UserCheck, UserPlus } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  Phone,
+  UserCheck,
+  UserPlus,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { Card, Input } from "../../../../components/ui";
-import { resumoEndereco, type SituacaoIdentificacao } from "../../../../lib/identificacao-cliente";
+import {
+  resumoEndereco,
+  type SituacaoIdentificacao,
+} from "../../../../lib/identificacao-cliente";
 import type { ControleIdentificacaoCliente } from "../useIdentificacaoCliente";
 
 interface IdentificacaoClienteProps {
   identificacao: ControleIdentificacaoCliente;
 }
 
-const AVISO_POR_SITUACAO: Record<SituacaoIdentificacao, { icone: ReactNode; texto: string; classe: string }> = {
+const AVISO_POR_SITUACAO: Record<
+  SituacaoIdentificacao,
+  { icone: ReactNode; texto: string; classe: string }
+> = {
   digitando: {
     icone: null,
     texto: "Digite o telefone com DDD. A busca começa sozinha.",
@@ -31,13 +43,16 @@ const AVISO_POR_SITUACAO: Record<SituacaoIdentificacao, { icone: ReactNode; text
   },
   falhou: {
     icone: <AlertTriangle className="h-4 w-4" />,
-    texto: "Não foi possível buscar o cliente. Preencha os dados para cadastrar.",
+    texto:
+      "Não foi possível buscar o cliente. Preencha os dados para cadastrar.",
     classe: "text-amber-700 dark:text-amber-400",
   },
 };
 
 // Bloco "Cliente" do novo pedido delivery (PED-107). O estado vem de useIdentificacaoCliente.
-export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProps) {
+export function IdentificacaoCliente({
+  identificacao,
+}: IdentificacaoClienteProps) {
   const { situacao, cliente } = identificacao;
   const aviso = AVISO_POR_SITUACAO[situacao];
   const enderecos = cliente?.enderecos ?? [];
@@ -45,7 +60,9 @@ export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProp
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">Cliente</h2>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        Cliente
+      </h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
@@ -58,7 +75,9 @@ export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProp
           placeholder="(11) 98765-4321"
           icon={<Phone className="h-4 w-4" />}
           value={identificacao.telefone}
-          onChange={(evento) => identificacao.alterarTelefone(evento.target.value)}
+          onChange={(evento) =>
+            identificacao.alterarTelefone(evento.target.value)
+          }
         />
         <Input
           ref={identificacao.nomeRef}
@@ -69,20 +88,27 @@ export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProp
         />
       </div>
 
-      <p role="status" aria-live="polite" className={`flex items-center gap-2 text-sm font-medium ${aviso.classe}`}>
+      <p
+        role="status"
+        aria-live="polite"
+        className={`flex items-center gap-2 text-sm font-medium ${aviso.classe}`}
+      >
         {aviso.icone}
         {aviso.texto}
       </p>
 
       {cliente?.observacoes && (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-          <span className="font-semibold">Observação do cliente:</span> {cliente.observacoes}
+          <span className="font-semibold">Observação do cliente:</span>{" "}
+          {cliente.observacoes}
         </p>
       )}
 
       {enderecos.length > 0 && (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">Endereço de entrega</legend>
+          <legend className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+            Endereço de entrega
+          </legend>
           {enderecos.map((endereco) => (
             <OpcaoEndereco
               key={endereco.id}
@@ -90,7 +116,9 @@ export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProp
               selecionada={identificacao.escolhaEndereco === endereco.id}
               onEscolher={identificacao.escolherEndereco}
             >
-              <span className="font-medium text-slate-900 dark:text-white">{resumoEndereco(endereco)}</span>
+              <span className="font-medium text-slate-900 dark:text-white">
+                {resumoEndereco(endereco)}
+              </span>
               <span className="text-slate-500 dark:text-slate-400">
                 {endereco.bairro} · {endereco.cidade}/{endereco.uf}
               </span>
@@ -106,13 +134,17 @@ export function IdentificacaoCliente({ identificacao }: IdentificacaoClienteProp
             selecionada={identificacao.escolhaEndereco === "novo"}
             onEscolher={identificacao.escolherEndereco}
           >
-            <span className="font-medium text-slate-900 dark:text-white">Novo endereço</span>
+            <span className="font-medium text-slate-900 dark:text-white">
+              Novo endereço
+            </span>
           </OpcaoEndereco>
         </fieldset>
       )}
 
       {cadastroManual && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">Cadastre o endereço de entrega abaixo.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Cadastre o endereço de entrega abaixo.
+        </p>
       )}
     </Card>
   );
@@ -125,7 +157,12 @@ interface OpcaoEnderecoProps {
   children: ReactNode;
 }
 
-function OpcaoEndereco({ valor, selecionada, onEscolher, children }: OpcaoEnderecoProps) {
+function OpcaoEndereco({
+  valor,
+  selecionada,
+  onEscolher,
+  children,
+}: OpcaoEnderecoProps) {
   return (
     <label
       className={`flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3.5 py-2.5 text-sm transition-colors ${

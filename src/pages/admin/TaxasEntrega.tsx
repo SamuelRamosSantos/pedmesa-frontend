@@ -1,4 +1,13 @@
-import { AlertTriangle, MapPinned, Menu, Pencil, PlusCircle, RefreshCw, Search, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  MapPinned,
+  Menu,
+  Pencil,
+  PlusCircle,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
@@ -11,7 +20,11 @@ import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatCurrency } from "../../lib/format";
 import { listarTaxas } from "../../lib/taxas-entrega";
-import { deleteTaxaEntrega, listTaxasEntrega, updateTaxaEntrega } from "../../services/delivery.service";
+import {
+  deleteTaxaEntrega,
+  listTaxasEntrega,
+  updateTaxaEntrega,
+} from "../../services/delivery.service";
 import type { TaxaEntrega } from "../../types/delivery";
 import { TaxaEntregaModal } from "./components/TaxaEntregaModal";
 
@@ -38,7 +51,12 @@ export function TaxasEntrega() {
     try {
       setTaxas(await listTaxasEntrega());
     } catch (error) {
-      setErro(getApiErrorMessage(error, "Não foi possível carregar as taxas de entrega."));
+      setErro(
+        getApiErrorMessage(
+          error,
+          "Não foi possível carregar as taxas de entrega.",
+        ),
+      );
     } finally {
       setCarregando(false);
     }
@@ -51,7 +69,11 @@ export function TaxasEntrega() {
   const visiveis = useMemo(() => listarTaxas(taxas, busca), [taxas, busca]);
 
   function aoSalvar(salva: TaxaEntrega) {
-    setTaxas((atuais) => (atuais.some((taxa) => taxa.id === salva.id) ? atuais.map((taxa) => (taxa.id === salva.id ? salva : taxa)) : [...atuais, salva]));
+    setTaxas((atuais) =>
+      atuais.some((taxa) => taxa.id === salva.id)
+        ? atuais.map((taxa) => (taxa.id === salva.id ? salva : taxa))
+        : [...atuais, salva],
+    );
     setEditando(undefined);
   }
 
@@ -59,11 +81,21 @@ export function TaxasEntrega() {
     setAlternandoId(taxa.id);
 
     try {
-      const atualizada = await updateTaxaEntrega(taxa.id, { ativo: !taxa.ativo });
+      const atualizada = await updateTaxaEntrega(taxa.id, {
+        ativo: !taxa.ativo,
+      });
       aoSalvar(atualizada);
-      showToast(atualizada.ativo ? `${taxa.bairro} voltou a ser atendido.` : `${taxa.bairro} deixou de ser atendido.`, "success");
+      showToast(
+        atualizada.ativo
+          ? `${taxa.bairro} voltou a ser atendido.`
+          : `${taxa.bairro} deixou de ser atendido.`,
+        "success",
+      );
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível atualizar a taxa."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível atualizar a taxa."),
+        "error",
+      );
     } finally {
       setAlternandoId(null);
     }
@@ -82,7 +114,10 @@ export function TaxasEntrega() {
       showToast(`Taxa de ${excluindo.bairro} excluída.`, "success");
       setExcluindo(null);
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível excluir a taxa."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir a taxa."),
+        "error",
+      );
     } finally {
       setConfirmandoExclusao(false);
     }
@@ -101,7 +136,9 @@ export function TaxasEntrega() {
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">Bairros e taxas de entrega</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Bairros e taxas de entrega
+            </h1>
             <Button onClick={() => setEditando(null)} className="ml-auto">
               <PlusCircle className="h-4 w-4" />
               Nova taxa
@@ -114,7 +151,10 @@ export function TaxasEntrega() {
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 <span>
                   O delivery está desativado. Ative em{" "}
-                  <Link to="/admin/configuracoes" className="font-semibold underline">
+                  <Link
+                    to="/admin/configuracoes"
+                    className="font-semibold underline"
+                  >
                     Configurações
                   </Link>
                   .
@@ -156,7 +196,11 @@ export function TaxasEntrega() {
               {!carregando && !erro && visiveis.length === 0 && (
                 <div className="flex flex-col items-center gap-2 py-8 text-center text-slate-400 dark:text-slate-500">
                   <MapPinned className="h-8 w-8" />
-                  <p className="text-sm">{taxas.length === 0 ? "Nenhum bairro cadastrado ainda." : "Nenhum bairro encontrado."}</p>
+                  <p className="text-sm">
+                    {taxas.length === 0
+                      ? "Nenhum bairro cadastrado ainda."
+                      : "Nenhum bairro encontrado."}
+                  </p>
                 </div>
               )}
 
@@ -169,16 +213,21 @@ export function TaxasEntrega() {
                       className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700 ${taxa.ativo ? "" : "opacity-60"}`}
                     >
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">{taxa.bairro}</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {taxa.bairro}
+                        </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                           {taxa.cidade}
-                          {taxa.tempo_estimado_min !== null && ` · ${taxa.tempo_estimado_min} min`}
+                          {taxa.tempo_estimado_min !== null &&
+                            ` · ${taxa.tempo_estimado_min} min`}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                          {taxa.valor === 0 ? "Grátis" : formatCurrency(taxa.valor)}
+                          {taxa.valor === 0
+                            ? "Grátis"
+                            : formatCurrency(taxa.valor)}
                         </span>
                         <span
                           className={`rounded-full px-2 py-0.5 text-xs font-semibold ${

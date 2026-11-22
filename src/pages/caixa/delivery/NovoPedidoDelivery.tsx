@@ -1,12 +1,25 @@
 import { Menu, Truck } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AppShell } from "../../../components/layout/AppShell";
 import { useToast } from "../../../contexts/ToastContext";
 import { useCarrinho } from "../../../hooks/useCarrinho";
 import { getApiErrorMessage } from "../../../lib/api-error";
-import { itensParaCotacao, itensParaPedidoDelivery } from "../../../lib/carrinho";
+import {
+  itensParaCotacao,
+  itensParaPedidoDelivery,
+} from "../../../lib/carrinho";
 import { localidadeDaEntrega } from "../../../lib/endereco-entrega";
-import { mensagemPedidoCriado, montarPedidoDelivery, motivoQueImpedeEnvio } from "../../../lib/novo-pedido-delivery";
+import {
+  mensagemPedidoCriado,
+  montarPedidoDelivery,
+  motivoQueImpedeEnvio,
+} from "../../../lib/novo-pedido-delivery";
 import { focarProximoCampo } from "../../../lib/teclado";
 import { listCategorias } from "../../../services/categoria.service";
 import { criarPedidoDelivery } from "../../../services/delivery.service";
@@ -41,14 +54,21 @@ export function NovoPedidoDelivery() {
   const [enviando, setEnviando] = useState(false);
 
   // Cliente recorrente: endereço já vem escolhido, então o próximo passo é o cardápio.
-  const identificacao = useIdentificacaoCliente({ onClienteEncontrado: () => buscaRef.current?.focus() });
-  const clienteNovo = identificacao.situacao === "novo" || identificacao.situacao === "falhou";
+  const identificacao = useIdentificacaoCliente({
+    onClienteEncontrado: () => buscaRef.current?.focus(),
+  });
+  const clienteNovo =
+    identificacao.situacao === "novo" || identificacao.situacao === "falhou";
   const endereco = useEnderecoNovo(clienteNovo);
   const carrinho = useCarrinho();
   const trocoPara = trocoParaCents > 0 ? trocoParaCents / 100 : null;
 
   const cotacao = useCotacaoDelivery({
-    localidade: localidadeDaEntrega(identificacao.cliente, identificacao.escolhaEndereco, endereco.campos),
+    localidade: localidadeDaEntrega(
+      identificacao.cliente,
+      identificacao.escolhaEndereco,
+      endereco.campos,
+    ),
     itens: itensParaCotacao(carrinho.itens),
     formaPagamento: forma,
     trocoPara,
@@ -62,7 +82,11 @@ export function NovoPedidoDelivery() {
     formaPagamento: forma,
     trocoPara,
   };
-  const motivoBloqueio = motivoQueImpedeEnvio({ ...entrada, situacaoCotacao: cotacao.situacao, cotacao: cotacao.cotacao });
+  const motivoBloqueio = motivoQueImpedeEnvio({
+    ...entrada,
+    situacaoCotacao: cotacao.situacao,
+    cotacao: cotacao.cotacao,
+  });
   const pedido = montarPedidoDelivery(entrada);
 
   const carregarCardapio = useCallback(async () => {
@@ -70,11 +94,16 @@ export function NovoPedidoDelivery() {
     setErroCardapio(null);
 
     try {
-      const [produtosData, categoriasData] = await Promise.all([listProdutos(), listCategorias()]);
+      const [produtosData, categoriasData] = await Promise.all([
+        listProdutos(),
+        listCategorias(),
+      ]);
       setProdutos(produtosData);
       setCategorias(categoriasData);
     } catch (error) {
-      setErroCardapio(getApiErrorMessage(error, "Não foi possível carregar o cardápio."));
+      setErroCardapio(
+        getApiErrorMessage(error, "Não foi possível carregar o cardápio."),
+      );
     } finally {
       setCarregandoCardapio(false);
     }
@@ -100,7 +129,10 @@ export function NovoPedidoDelivery() {
     }
 
     if (motivoBloqueio !== null || pedido === null) {
-      showToast(motivoBloqueio ?? "Complete o pedido antes de enviar.", "error");
+      showToast(
+        motivoBloqueio ?? "Complete o pedido antes de enviar.",
+        "error",
+      );
       return;
     }
 
@@ -112,7 +144,10 @@ export function NovoPedidoDelivery() {
       showToast(mensagemPedidoCriado(criado.numero_entrega), "success");
       limparFormulario();
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Não foi possível criar o pedido delivery."), "error");
+      showToast(
+        getApiErrorMessage(error, "Não foi possível criar o pedido delivery."),
+        "error",
+      );
     } finally {
       enviandoRef.current = false;
       setEnviando(false);
@@ -131,7 +166,10 @@ export function NovoPedidoDelivery() {
     }
 
     // Em botões o Enter continua clicando; nos campos, avança para o próximo.
-    if (evento.target instanceof HTMLInputElement || evento.target instanceof HTMLSelectElement) {
+    if (
+      evento.target instanceof HTMLInputElement ||
+      evento.target instanceof HTMLSelectElement
+    ) {
       evento.preventDefault();
       focarProximoCampo(evento.currentTarget, evento.target);
     }
@@ -152,15 +190,26 @@ export function NovoPedidoDelivery() {
             </button>
             <Truck className="hidden h-5 w-5 text-orange-600 sm:block" />
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">PedMesa · Delivery</p>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">Novo pedido delivery</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                PedMesa · Delivery
+              </p>
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+                Novo pedido delivery
+              </h1>
             </div>
             <p className="ml-auto hidden text-xs text-slate-500 md:block dark:text-slate-400">
-              <kbd className="rounded border border-slate-300 px-1 dark:border-slate-700">Enter</kbd> avança ·{" "}
-              <kbd className="rounded border border-slate-300 px-1 dark:border-slate-700">Ctrl+Enter</kbd> envia
+              <kbd className="rounded border border-slate-300 px-1 dark:border-slate-700">
+                Enter
+              </kbd>{" "}
+              avança ·{" "}
+              <kbd className="rounded border border-slate-300 px-1 dark:border-slate-700">
+                Ctrl+Enter
+              </kbd>{" "}
+              envia
             </p>
           </header>
 
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: delega o Enter dos campos internos; o contêiner não recebe foco */}
           <div
             onKeyDown={aoTeclar}
             className="grid gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start"

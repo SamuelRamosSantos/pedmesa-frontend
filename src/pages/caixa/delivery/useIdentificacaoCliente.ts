@@ -1,14 +1,14 @@
-import { useRef, useState, type RefObject } from "react";
+import { type RefObject, useRef, useState } from "react";
 import { useConsultaPorChave } from "../../../hooks/useConsultaPorChave";
 import type { ResultadoConsulta } from "../../../lib/consulta-por-chave";
 import {
+  type DadosClienteDelivery,
   dadosDaIdentificacao,
+  type EscolhaEndereco,
   enderecoPadrao,
+  type SituacaoIdentificacao,
   situacaoDaIdentificacao,
   telefoneProntoParaBusca,
-  type DadosClienteDelivery,
-  type EscolhaEndereco,
-  type SituacaoIdentificacao,
 } from "../../../lib/identificacao-cliente";
 import { mascararTelefone, somenteDigitos } from "../../../lib/mascaras";
 import { buscarClientePorTelefone } from "../../../services/cliente.service";
@@ -38,11 +38,16 @@ export interface ControleIdentificacaoCliente {
 
 // Estado do bloco "Cliente" do novo pedido delivery (PED-107). A tela (PED-109) é dona do
 // estado: lê `dados` para montar o pedido e chama `limpar` depois de enviar.
-export function useIdentificacaoCliente({ onClienteEncontrado }: OpcoesIdentificacaoCliente = {}): ControleIdentificacaoCliente {
+export function useIdentificacaoCliente({
+  onClienteEncontrado,
+}: OpcoesIdentificacaoCliente = {}): ControleIdentificacaoCliente {
   const [telefone, setTelefone] = useState("");
   // null = nome vindo do cadastro; texto = digitado pelo atendente.
   const [nomeDigitado, setNomeDigitado] = useState<string | null>(null);
-  const [escolhaManual, setEscolhaManual] = useState<{ clienteId: string | null; escolha: EscolhaEndereco } | null>(null);
+  const [escolhaManual, setEscolhaManual] = useState<{
+    clienteId: string | null;
+    escolha: EscolhaEndereco;
+  } | null>(null);
   const telefoneRef = useRef<HTMLInputElement>(null);
   const nomeRef = useRef<HTMLInputElement>(null);
 
@@ -63,7 +68,7 @@ export function useIdentificacaoCliente({ onClienteEncontrado }: OpcoesIdentific
   const consulta = useConsultaPorChave(
     telefoneProntoParaBusca(telefoneDigitos) ? telefoneDigitos : null,
     buscarClientePorTelefone,
-    aoConcluirBusca
+    aoConcluirBusca,
   );
 
   const cliente = consulta.status === "concluida" ? consulta.valor : null;
@@ -71,7 +76,9 @@ export function useIdentificacaoCliente({ onClienteEncontrado }: OpcoesIdentific
   const nome = nomeDigitado ?? cliente?.nome ?? "";
   // A escolha manual vale só para o cliente em que foi feita.
   const escolhaEndereco =
-    escolhaManual !== null && escolhaManual.clienteId === clienteId ? escolhaManual.escolha : enderecoPadrao(cliente?.enderecos ?? []);
+    escolhaManual !== null && escolhaManual.clienteId === clienteId
+      ? escolhaManual.escolha
+      : enderecoPadrao(cliente?.enderecos ?? []);
 
   return {
     telefone,

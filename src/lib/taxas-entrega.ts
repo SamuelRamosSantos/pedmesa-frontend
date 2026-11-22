@@ -20,14 +20,20 @@ export type ResultadoFormTaxa =
 // Mesmo limite do backend (taxa-entrega-input.validator).
 const TEMPO_MAXIMO_MIN = 24 * 60;
 
-export function formDaTaxa(taxa: TaxaEntrega | null, cidadePadrao: string): FormTaxa {
+export function formDaTaxa(
+  taxa: TaxaEntrega | null,
+  cidadePadrao: string,
+): FormTaxa {
   return taxa === null
     ? { cidade: cidadePadrao, bairro: "", valorCents: 0, tempoEstimado: "" }
     : {
         cidade: taxa.cidade,
         bairro: taxa.bairro,
         valorCents: Math.round(taxa.valor * 100),
-        tempoEstimado: taxa.tempo_estimado_min === null ? "" : String(taxa.tempo_estimado_min),
+        tempoEstimado:
+          taxa.tempo_estimado_min === null
+            ? ""
+            : String(taxa.tempo_estimado_min),
       };
 }
 
@@ -40,7 +46,10 @@ export function validarFormTaxa(form: FormTaxa): ResultadoFormTaxa {
 
   if (cidade === "") erros.cidade = "Informe a cidade.";
   if (bairro === "") erros.bairro = "Informe o bairro.";
-  if (tempoTexto !== "" && (!Number.isInteger(tempo) || tempo < 1 || tempo > TEMPO_MAXIMO_MIN)) {
+  if (
+    tempoTexto !== "" &&
+    (!Number.isInteger(tempo) || tempo < 1 || tempo > TEMPO_MAXIMO_MIN)
+  ) {
     erros.tempoEstimado = `Informe minutos inteiros entre 1 e ${TEMPO_MAXIMO_MIN}, ou deixe vazio.`;
   }
 
@@ -50,19 +59,39 @@ export function validarFormTaxa(form: FormTaxa): ResultadoFormTaxa {
 
   return {
     ok: true,
-    payload: { cidade, bairro, valor: form.valorCents / 100, tempo_estimado_min: tempoTexto === "" ? null : tempo },
+    payload: {
+      cidade,
+      bairro,
+      valor: form.valorCents / 100,
+      tempo_estimado_min: tempoTexto === "" ? null : tempo,
+    },
   };
 }
 
 function normalizar(texto: string): string {
-  return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+  return texto
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
 }
 
 // Ordem de leitura (cidade, depois bairro) e busca sem acento por bairro ou cidade.
-export function listarTaxas(taxas: readonly TaxaEntrega[], busca: string): TaxaEntrega[] {
+export function listarTaxas(
+  taxas: readonly TaxaEntrega[],
+  busca: string,
+): TaxaEntrega[] {
   const termo = normalizar(busca);
 
   return taxas
-    .filter((taxa) => termo === "" || normalizar(`${taxa.bairro} ${taxa.cidade}`).includes(termo))
-    .sort((a, b) => a.cidade.localeCompare(b.cidade, "pt-BR") || a.bairro.localeCompare(b.bairro, "pt-BR"));
+    .filter(
+      (taxa) =>
+        termo === "" ||
+        normalizar(`${taxa.bairro} ${taxa.cidade}`).includes(termo),
+    )
+    .sort(
+      (a, b) =>
+        a.cidade.localeCompare(b.cidade, "pt-BR") ||
+        a.bairro.localeCompare(b.bairro, "pt-BR"),
+    );
 }

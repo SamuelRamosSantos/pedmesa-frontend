@@ -11,12 +11,23 @@ function navegavel(campo: Campo): boolean {
 
 // Um grupo de radios conta como um campo só (como no Tab): o marcado, ou o primeiro.
 function representaSeuGrupo(campo: Campo, campos: readonly Campo[]): boolean {
-  if (!(campo instanceof HTMLInputElement) || campo.type !== "radio" || campo.name === "") {
+  if (
+    !(campo instanceof HTMLInputElement) ||
+    campo.type !== "radio" ||
+    campo.name === ""
+  ) {
     return true;
   }
 
-  const grupo = campos.filter((outro) => outro instanceof HTMLInputElement && outro.type === "radio" && outro.name === campo.name);
-  const marcado = grupo.find((radio) => radio instanceof HTMLInputElement && radio.checked);
+  const grupo = campos.filter(
+    (outro) =>
+      outro instanceof HTMLInputElement &&
+      outro.type === "radio" &&
+      outro.name === campo.name,
+  );
+  const marcado = grupo.find(
+    (radio) => radio instanceof HTMLInputElement && radio.checked,
+  );
 
   return campo === (marcado ?? grupo[0]);
 }
@@ -24,7 +35,9 @@ function representaSeuGrupo(campo: Campo, campos: readonly Campo[]): boolean {
 // Leva o foco ao próximo campo depois de `atual` dentro de `raiz` (botões ficam de fora:
 // o Enter neles continua clicando). Devolve false quando não há próximo campo.
 export function focarProximoCampo(raiz: HTMLElement, atual: Element): boolean {
-  const todos = Array.from(raiz.querySelectorAll<Campo>(SELETOR_CAMPOS)).filter(navegavel);
+  const todos = Array.from(raiz.querySelectorAll<Campo>(SELETOR_CAMPOS)).filter(
+    navegavel,
+  );
   const campos = todos.filter((campo) => representaSeuGrupo(campo, todos));
   const indiceAtual = todos.findIndex((campo) => campo === atual);
   const proximo = campos.find((campo) => todos.indexOf(campo) > indiceAtual);

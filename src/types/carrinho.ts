@@ -11,4 +11,6 @@ export interface ItemCarrinho {
   observacao: string;
 }
 
-export type AlteracaoItemCarrinho = Partial<Pick<ItemCarrinho, "quantidade" | "integranteId" | "observacao">>;
+export type AlteracaoItemCarrinho = Partial<
+  Pick<ItemCarrinho, "quantidade" | "integranteId" | "observacao">
+>;

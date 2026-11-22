@@ -1,5 +1,9 @@
 import { useEffect, useEffectEvent, useState } from "react";
-import { estadoDaConsulta, type EstadoConsulta, type ResultadoConsulta } from "../lib/consulta-por-chave";
+import {
+  type EstadoConsulta,
+  estadoDaConsulta,
+  type ResultadoConsulta,
+} from "../lib/consulta-por-chave";
 
 // Consulta assíncrona que acompanha um valor digitado: ao mudar a chave, cancela a
 // consulta anterior. `consultar` deve ser estável (função de módulo ou useCallback).
@@ -7,10 +11,13 @@ import { estadoDaConsulta, type EstadoConsulta, type ResultadoConsulta } from ".
 export function useConsultaPorChave<T>(
   chave: string | null,
   consultar: (chave: string, signal: AbortSignal) => Promise<T>,
-  aoConcluir?: (resultado: ResultadoConsulta<T>) => void
+  aoConcluir?: (resultado: ResultadoConsulta<T>) => void,
 ): EstadoConsulta<T> {
-  const [ultimoResultado, setUltimoResultado] = useState<ResultadoConsulta<T> | null>(null);
-  const notificar = useEffectEvent((resultado: ResultadoConsulta<T>) => aoConcluir?.(resultado));
+  const [ultimoResultado, setUltimoResultado] =
+    useState<ResultadoConsulta<T> | null>(null);
+  const notificar = useEffectEvent((resultado: ResultadoConsulta<T>) =>
+    aoConcluir?.(resultado),
+  );
 
   useEffect(() => {
     if (chave === null) {
@@ -30,7 +37,7 @@ export function useConsultaPorChave<T>(
         if (!controller.signal.aborted) {
           registrar({ chave, status: "falhou", valor: null });
         }
-      }
+      },
     );
 
     return () => controller.abort();
