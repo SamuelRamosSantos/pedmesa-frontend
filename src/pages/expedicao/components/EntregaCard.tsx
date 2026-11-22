@@ -13,6 +13,7 @@ import {
   aguardandoCozinha,
   formatarNumeroEntrega,
   podeCancelar,
+  seloDaCozinha,
   type TomDoTempo,
   tomDoTempo,
   VOLTAR,
@@ -68,6 +69,7 @@ export function EntregaCard({
     entrega.troco > 0 &&
     entrega.troco_suficiente;
   const numero = formatarNumeroEntrega(entrega.numero_entrega);
+  const selo = seloDaCozinha(entrega, (status) => STATUS_ITEM_LABEL[status]);
 
   return (
     <article
@@ -79,9 +81,12 @@ export function EntregaCard({
         <p className="text-3xl font-extrabold leading-none text-slate-900 dark:text-white">
           {numero}
         </p>
-        {entrega.status_entrega === "em_producao" && (
-          <span className="rounded-full bg-slate-900/5 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
-            Cozinha: {STATUS_ITEM_LABEL[entrega.status_preparo]}
+        {selo && (
+          <span
+            data-testid={`selo-cozinha-${entrega.numero_entrega}`}
+            className="rounded-full bg-slate-900/5 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200"
+          >
+            {selo}
           </span>
         )}
       </div>

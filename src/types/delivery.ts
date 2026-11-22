@@ -65,7 +65,10 @@ export interface EntregaPainel {
   criado_em: string;
   previsao_entrega_em: string | null;
   atrasado: boolean;
+  // Só dos itens que a cozinha prepara, como no KDS (PED-129).
   status_preparo: StatusPreparo;
+  // false = só itens sem preparo: a entrega não aparece no KDS.
+  passa_pela_cozinha: boolean;
 }
 
 // Resposta da transição de status e campo `entrega` do 409 de concorrência.

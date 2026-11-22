@@ -110,6 +110,29 @@ export function motivoValido(motivo: string): boolean {
   return motivo.trim().length >= MOTIVO_MINIMO_CARACTERES;
 }
 
+// Selo da cozinha no card (PED-129): o status do KDS enquanto a entrega está em produção,
+// ou o aviso de que ela não passa pela cozinha (só itens sem preparo), para ninguém
+// procurá-la no KDS. null nas outras situações.
+export function seloDaCozinha(
+  entrega: Pick<
+    EntregaPainel,
+    "status_entrega" | "status_preparo" | "passa_pela_cozinha"
+  >,
+  rotuloDoStatus: (status: EntregaPainel["status_preparo"]) => string,
+): string | null {
+  const antesDeSair =
+    entrega.status_entrega === "em_producao" ||
+    entrega.status_entrega === "pronto_para_envio";
+
+  if (!entrega.passa_pela_cozinha) {
+    return antesDeSair ? "Sem itens para a cozinha" : null;
+  }
+
+  return entrega.status_entrega === "em_producao"
+    ? `Cozinha: ${rotuloDoStatus(entrega.status_preparo)}`
+    : null;
+}
+
 // Só fica pronta para envio quando a cozinha terminou tudo (o backend recusa antes disso).
 export function aguardandoCozinha(
   entrega: Pick<EntregaPainel, "status_entrega" | "status_preparo">,

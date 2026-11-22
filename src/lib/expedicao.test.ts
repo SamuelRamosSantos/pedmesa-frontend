@@ -12,6 +12,7 @@ import {
   motivoValido,
   podeCancelar,
   restaurarEntrega,
+  seloDaCozinha,
   textosDoMotivo,
   tomDoTempo,
   VOLTAR,
@@ -38,9 +39,40 @@ function entrega(
     previsao_entrega_em: "2026-10-11T18:40:00.000Z",
     atrasado: false,
     status_preparo: "pendente",
+    passa_pela_cozinha: true,
     ...alteracao,
   };
 }
+
+describe("seloDaCozinha (PED-129)", () => {
+  const rotulo = (status: string) => status.toUpperCase();
+
+  it("em produção mostra o status da cozinha", () => {
+    expect(seloDaCozinha(entrega("e1"), rotulo)).toBe("Cozinha: PENDENTE");
+    expect(
+      seloDaCozinha(entrega("e1", { status_entrega: "em_rota" }), rotulo),
+    ).toBeNull();
+  });
+
+  it("sem item de cozinha avisa enquanto não saiu", () => {
+    const semCozinha = {
+      passa_pela_cozinha: false,
+      status_preparo: "pronto",
+    } as const;
+    expect(
+      seloDaCozinha(
+        entrega("e1", { ...semCozinha, status_entrega: "pronto_para_envio" }),
+        rotulo,
+      ),
+    ).toBe("Sem itens para a cozinha");
+    expect(
+      seloDaCozinha(
+        entrega("e1", { ...semCozinha, status_entrega: "em_rota" }),
+        rotulo,
+      ),
+    ).toBeNull();
+  });
+});
 
 describe("desfazer entrega (PED-127)", () => {
   it("entregue volta para em rota, com motivo", () => {
