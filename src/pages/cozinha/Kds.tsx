@@ -14,6 +14,7 @@ import { AppShell } from "../../components/layout/AppShell";
 import { useToast } from "../../contexts/ToastContext";
 import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { identificacaoNoKds } from "../../lib/atendimento-kds";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
 import type { PedidoAtivo, StatusItem } from "../../types/pedido";
 import { GrupoPreparoCard } from "./components/GrupoPreparoCard";
@@ -86,7 +87,7 @@ function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
 
     grupos.push({
       pedidoId: pedido.id,
-      numeroComanda: pedido.numero_comanda,
+      identificacao: identificacaoNoKds(pedido),
       garcomNome: pedido.garcom_nome,
       criadoEm: pedido.criado_em,
       statusGrupo: calcularStatusGrupo(

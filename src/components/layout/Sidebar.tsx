@@ -2,11 +2,13 @@ import type { LucideIcon } from "lucide-react";
 import {
   Building2,
   ChefHat,
+  Contact,
   LayoutDashboard,
   LogOut,
   MapPinned,
   Menu,
   Package,
+  PlusCircle,
   Settings,
   Truck,
   Users,
@@ -16,6 +18,12 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTenant } from "../../contexts/TenantContext";
+import {
+  entraEmTrocarVisao,
+  type IconeMenuDelivery,
+  itensMenuDelivery,
+} from "../../lib/menu-delivery";
 import { ROLE_VIEW_INFO } from "../../lib/role-routes";
 import type { UserRole } from "../../types/auth";
 import { Button } from "../ui/Button";
@@ -29,7 +37,19 @@ const ROLE_ICON: Record<UserRole, LucideIcon> = {
   expedicao: Truck,
 };
 
-const ADMIN_SUBITENS: { label: string; route: string; icon: LucideIcon }[] = [
+interface ItemNavegacao {
+  label: string;
+  route: string;
+  icon: LucideIcon;
+}
+
+const ICONE_DELIVERY: Record<IconeMenuDelivery, LucideIcon> = {
+  "novo-pedido": PlusCircle,
+  expedicao: Truck,
+  clientes: Contact,
+};
+
+const ADMIN_SUBITENS: ItemNavegacao[] = [
   { label: "Produtos", route: "/admin/produtos", icon: Package },
   { label: "Usuários", route: "/admin/usuarios", icon: Users },
   { label: "Bairros e taxas", route: "/admin/delivery/taxas", icon: MapPinned },
@@ -52,6 +72,7 @@ export function Sidebar({
   onToggleDesktop,
 }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { tenant } = useTenant();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -63,10 +84,14 @@ export function Sidebar({
     return user!.roles.includes(role) || user!.roles.includes("admin");
   }
 
-  const itensTrocarVisao = Object.values(ROLE_VIEW_INFO).filter((item) =>
-    podeAcessar(item.role),
+  const itensTrocarVisao = Object.values(ROLE_VIEW_INFO).filter(
+    (item) => podeAcessar(item.role) && entraEmTrocarVisao(item.role),
   );
   const ehAdmin = user.roles.includes("admin");
+  const itensDelivery = itensMenuDelivery(
+    user.roles,
+    tenant?.delivery_ativo ?? null,
+  );
 
   function handleLogout() {
     logout();
@@ -81,6 +106,48 @@ export function Sidebar({
         ? "bg-orange-600 text-white"
         : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
     }`;
+  }
+
+  function renderSecao(
+    titulo: string,
+    itens: readonly ItemNavegacao[],
+    collapsed: boolean,
+    onNavigated: () => void,
+  ) {
+    return (
+      <>
+        {collapsed ? (
+          <div className="my-3 border-t border-slate-200 dark:border-slate-800" />
+        ) : (
+          <p className="mt-6 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+            {titulo}
+          </p>
+        )}
+        <div className={`flex flex-col gap-1 ${collapsed ? "" : "mt-2"}`}>
+          {itens.map((item) => {
+            const Icon = item.icon;
+            const ativo = location.pathname === item.route;
+
+            return (
+              <button
+                key={item.route}
+                type="button"
+                title={collapsed ? item.label : undefined}
+                aria-current={ativo ? "page" : undefined}
+                onClick={() => {
+                  navigate(item.route);
+                  onNavigated();
+                }}
+                className={navItemClass(ativo, collapsed)}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {!collapsed && item.label}
+              </button>
+            );
+          })}
+        </div>
+      </>
+    );
   }
 
   function renderContent(mode: SidebarMode) {
@@ -128,7 +195,7 @@ export function Sidebar({
         <nav
           className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}
         >
-          {!collapsed && (
+          {!collapsed && itensTrocarVisao.length > 0 && (
             <p className="px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Trocar visão
             </p>
@@ -156,39 +223,25 @@ export function Sidebar({
             })}
           </div>
 
-          {ehAdmin && (
-            <>
-              {collapsed ? (
-                <div className="my-3 border-t border-slate-200 dark:border-slate-800" />
-              ) : (
-                <p className="mt-6 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  Administração
-                </p>
-              )}
-              <div className={`flex flex-col gap-1 ${collapsed ? "" : "mt-2"}`}>
-                {ADMIN_SUBITENS.map((item) => {
-                  const Icon = item.icon;
-                  const ativo = location.pathname === item.route;
+          {itensDelivery.length > 0 &&
+            renderSecao(
+              "Delivery",
+              itensDelivery.map((item) => ({
+                label: item.label,
+                route: item.route,
+                icon: ICONE_DELIVERY[item.icone],
+              })),
+              collapsed,
+              onNavigated,
+            )}
 
-                  return (
-                    <button
-                      key={item.route}
-                      type="button"
-                      title={collapsed ? item.label : undefined}
-                      onClick={() => {
-                        navigate(item.route);
-                        onNavigated();
-                      }}
-                      className={navItemClass(ativo, collapsed)}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {!collapsed && item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          {ehAdmin &&
+            renderSecao(
+              "Administração",
+              ADMIN_SUBITENS,
+              collapsed,
+              onNavigated,
+            )}
         </nav>
 
         <div

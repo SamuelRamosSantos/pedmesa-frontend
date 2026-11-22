@@ -1,7 +1,7 @@
 # Andamento — pedmesa-frontend
 
 > **Fonte:** Jira (projeto PED, `samuelramos.atlassian.net`) e branches do Git.
-> **Posição em:** 21/11/2026.
+> **Posição em:** 22/11/2026.
 > **Regra de atualização:** toda tarefa que muda o que está pronto, em andamento ou planejado atualiza este arquivo na mesma entrega.
 
 ## 1. Resumo por épico
@@ -27,22 +27,21 @@
 
 ## 3. Em andamento (fora da `main`)
 
-- **Delivery (PED-82):** Vitest e máscaras (PED-104), tipos e services (PED-105), ViaCEP (PED-106), identificação do cliente (PED-107), endereço e frete (PED-108), novo pedido delivery (PED-109), Kanban de expedição (PED-110) e taxas e configuração (PED-111).
+- **Delivery (PED-82):** Vitest e máscaras (PED-104), tipos e services (PED-105), ViaCEP (PED-106), identificação do cliente (PED-107), endereço e frete (PED-108), novo pedido delivery (PED-109), Kanban de expedição (PED-110), taxas e configuração (PED-111), menu do delivery e badge no KDS (PED-112), novo pedido em etapas com busca única de cliente por nome ou telefone (PED-123) e tela de clientes cadastrados (PED-124). A busca usa a listagem de clientes do backend (PED-122, branch de mesmo nome no `pedmesa-backend`).
 
 ## 4. Planejado
 
-- PED-112: navegação, permissões e badges do delivery.
 - PED-59, PED-64 e PED-69: cabeçalhos de segurança, `Cache-Control` e compressão no nginx da imagem.
 
 ## 5. Pendências conhecidas
 
-- A branch `PED-82-delivery-frontend` precisa passar pelo `npm run format` antes de ser mesclada, porque a `main` foi reformatada pelo Biome.
-- Sem testes automatizados na `main` até a PED-104 entrar.
+- Sem testes automatizados na `main` até a branch PED-82 ser mesclada.
+- O CI ainda não roda `npm test` (o job **Testes** previsto na PED-104 não entrou).
 
 ## 6. Impacto previsto na arquitetura
 
-- O delivery traz hooks compartilhados (`useCarrinho`, `usePolling`) e o `KanbanColumn` genérico, além de integração externa com o ViaCEP por service próprio.
-- A PED-104 adiciona o Vitest e o job **Testes** no CI.
+- O delivery traz hooks compartilhados (`useCarrinho`, `usePolling`, `useEnderecoForm`), componentes genéricos (`KanbanColumn`, `BarraEtapas`, `OpcaoSelecionavel`, `SeletorFormaPagamento`, `EnderecoForm`) e a integração externa com o ViaCEP por service próprio.
+- O fechamento do caixa passa a usar o `SeletorFormaPagamento` compartilhado (mesmo visual, rótulos de cartão iguais aos do restante do caixa).
 
 ## 7. Documentos relacionados
 

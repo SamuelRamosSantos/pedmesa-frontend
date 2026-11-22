@@ -1,6 +1,6 @@
 # Arquitetura — pedmesa-frontend
 
-> Estado descrito: branch `main`. As telas de delivery (novo pedido, Kanban de expedição e taxas) estão na branch do épico PED-82 (ver `docs/ANDAMENTO.md`).
+> Estado descrito: `main` mais o delivery do épico PED-82 (branch `PED-82-delivery-frontend`, ver `docs/ANDAMENTO.md`).
 
 ## 1. Stack
 
@@ -31,19 +31,22 @@ src/
   main.tsx             # providers e registro do service worker
   pages/
     Login, SelecionarVisao, NotFound, Unauthorized
-    admin/             # DashboardProprietario, Produtos, Usuarios, ConfiguracoesEmpresa
+    admin/             # DashboardProprietario, Produtos, Usuarios, ConfiguracoesEmpresa, TaxasEntrega
     caixa/             # MapaMesas, ComandaFechamento, PreContaImpressao
+    caixa/delivery/    # NovoPedidoDelivery (etapas/ Cliente, Produtos, Pagamento) e seus hooks
     cozinha/           # Kds
-    expedicao/         # Expedicao
+    expedicao/         # Expedicao (Kanban), Clientes
     garcom/            # Mesas, ComandaDetalhe
     superadmin/        # PainelSuperAdmin, PainelLeads
     <papel>/components/  # componentes usados só pelas telas daquele papel
-  components/ui/       # Button, Card, ConfirmDialog, CurrencyInput, ImageUpload, Input, Modal, Switch, ThemeToggle, Toast
+  components/ui/       # BarraEtapas, Button, Card, ConfirmDialog, CurrencyInput, ImageUpload, Input, Modal, OpcaoSelecionavel, Switch, ThemeToggle, Toast
   components/layout/   # AppShell, Sidebar
+  components/<área>/   # compartilhados entre telas: carrinho, cardapio, endereco, kanban, pagamento
   components/          # ProtectedRoute, SuperAdminProtectedRoute, ImpersonationBanner
-  services/            # api.ts, admin-api.ts e um service por recurso
+  hooks/               # useCarrinho, useEnderecoForm, useCepLookup, useConsultaPorChave, useComAtraso, usePolling
+  services/            # api.ts, admin-api.ts, um service por recurso e cep.service (ViaCEP, sem credenciais)
   contexts/            # AuthContext, SuperAdminAuthContext, TenantContext, ThemeContext, ToastContext
-  lib/                 # api-error, auth-storage, money, format, desconto, role-routes, role-labels...
+  lib/                 # funções puras com testes: api-error, money, format, busca-cliente, novo-pedido-delivery, menu-delivery, role-routes...
   types/               # contrato da API em snake_case
 ```
 
@@ -56,12 +59,21 @@ src/
 | `/garcom/mesas`, `/garcom/comanda/:id`                                              | Mesas e comanda       | garcom                           |
 | `/cozinha/kds`                                                                      | KDS                   | cozinha                          |
 | `/caixa/mapa-mesas`, `/caixa/comanda/:id/fechamento`, `/caixa/comanda/:id/preconta` | Caixa                 | caixa                            |
-| `/expedicao`                                                                        | Visão de expedição    | expedicao                        |
+| `/caixa/delivery/novo`                                                              | Novo pedido delivery  | expedicao, admin                 |
+| `/expedicao`                                                                        | Kanban de expedição   | expedicao, admin                 |
+| `/expedicao/clientes`                                                               | Clientes do delivery  | expedicao, admin                 |
 | `/admin/dashboard`, `/admin/produtos`, `/admin/usuarios`, `/admin/configuracoes`    | Administração         | admin                            |
+| `/admin/delivery/taxas`                                                             | Bairros e taxas       | admin                            |
 | `/admin`, `/admin/leads`                                                            | Painel de super-admin | super-admin                      |
 | `/nao-autorizado`, `*`                                                              | Erro de acesso e 404  | —                                |
 
 Depois do login, `src/lib/role-routes.ts` decide a tela inicial pelo papel de maior prioridade; os nomes exibidos dos papéis ficam em `src/lib/role-labels.ts`.
+
+O menu lateral (`Sidebar`) tem três seções: **Trocar visão** (as visões dos papéis do usuário), **Delivery** (Novo pedido, Expedição e Clientes, só para admin e expedição e só com `delivery_ativo`; regra em `src/lib/menu-delivery.ts`) e **Administração** (admin).
+
+### Novo pedido delivery
+
+Assistente em três etapas com a `BarraEtapas` no topo: **Cliente** (busca única por nome ou telefone, cadastro de cliente novo, endereço e frete), **Produtos** e **Pagamento** (forma, troco e revisão). As pendências de cada etapa e a liberação da seguinte ficam em `src/lib/novo-pedido-delivery.ts`; a classificação do termo da busca, em `src/lib/busca-cliente.ts`. Telefone completo cadastrado seleciona o cliente; não cadastrado abre o cadastro com o número. Tudo é operável pelo teclado (`Enter` avança o campo, `Ctrl+Enter` avança a etapa e envia na última).
 
 ## 5. Autenticação e acesso
 
@@ -88,7 +100,7 @@ As regras completas (cliente HTTP único da API, integrações externas isoladas
 
 ## 9. Limitações conhecidas
 
-- Sem testes automatizados na `main`; o Vitest entra com a PED-104, que está na branch PED-82.
+- Os testes do Vitest cobrem só a lógica pura de `src/lib`; as telas não têm testes automatizados versionados, e o CI ainda não roda `npm test`.
 
 ## 10. Setup local e fluxo de trabalho
 

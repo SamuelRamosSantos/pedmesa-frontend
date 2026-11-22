@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock, Undo2, User } from "lucide-react";
+import { AlertTriangle, Clock, Truck, Undo2, User } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
 import { STATUS_ITEM_LABEL } from "../../../lib/status-item";
@@ -49,12 +49,23 @@ export function GrupoPreparoCard({
       className={`flex flex-col gap-3 rounded-2xl border-2 p-4 shadow-lg ${STATUS_CARD_CLASS[grupo.statusGrupo]}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Mesa
-          </p>
-          <p className="text-5xl font-extrabold leading-none text-slate-900 dark:text-white">
-            {grupo.numeroComanda}
+        <div data-testid={`identificacao-${grupo.pedidoId}`}>
+          {grupo.identificacao.delivery ? (
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+              <Truck aria-hidden="true" className="h-3.5 w-3.5" />
+              {grupo.identificacao.rotulo}
+            </p>
+          ) : (
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {grupo.identificacao.rotulo}
+            </p>
+          )}
+          <p
+            className={`font-extrabold leading-none text-slate-900 dark:text-white ${
+              grupo.identificacao.delivery ? "mt-1.5 text-4xl" : "text-5xl"
+            }`}
+          >
+            {grupo.identificacao.numero}
           </p>
         </div>
         <span
