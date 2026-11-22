@@ -75,6 +75,25 @@ jobs:
         id: imagem
         run: echo "nome=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
+      - name: Conferir as variáveis de build (VITE_*)
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        run: |
+          # As VITE_* entram no bundle no build e vêm do GitHub Environment (não do
+          # Coolify). Vazias, o app chamaria a si mesmo em vez da API.
+          faltando=""
+          for nome in VITE_API_BASE_URL; do
+            if [ -z "$(printenv "$nome" | tr -d '[:space:]')" ]; then faltando="$faltando $nome"; fi
+          done
+          if [ -n "$faltando" ]; then
+            echo "::error title=Variáveis de build faltando::Cadastre em Settings > Environments > ${{ needs.ambiente.outputs.nome }} > Variables deste repositório:$faltando. No Coolify elas não têm efeito: o build é feito aqui no GitHub."
+            exit 1
+          fi
+          case "$VITE_API_BASE_URL" in
+            https://*/api/v1) echo "VITE_API_BASE_URL: $VITE_API_BASE_URL" ;;
+            *) echo "::error title=VITE_API_BASE_URL inválida::Esperado algo como https://api-dev.pedmesa.com.br/api/v1; valor atual: $VITE_API_BASE_URL"; exit 1 ;;
+          esac
+
       - name: Construir e publicar a imagem
         uses: docker/build-push-action@v7
         with:
