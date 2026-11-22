@@ -3,9 +3,13 @@ import type { CotacaoDelivery } from "../types/delivery";
 import {
   type EntradaPedidoDelivery,
   type EstadoEnvio,
+  etapaConcluida,
+  etapaLiberada,
   mensagemPedidoCriado,
   montarPedidoDelivery,
   motivoQueImpedeEnvio,
+  pendenciaDaEtapa,
+  primeiraPendencia,
 } from "./novo-pedido-delivery";
 
 const ITENS = [{ produto_id: "p1", quantidade: 2, observacao: null }];
@@ -53,6 +57,7 @@ const COTACAO: CotacaoDelivery = {
 
 const PRONTO: EstadoEnvio = {
   ...ENTRADA,
+  motivoCliente: null,
   situacaoCotacao: "atendido",
   cotacao: COTACAO,
 };
@@ -114,7 +119,12 @@ describe("motivoQueImpedeEnvio", () => {
     [
       "sem cliente",
       { cliente: null },
-      "Informe o telefone e o nome do cliente.",
+      "Escolha um cliente na busca ou cadastre um novo.",
+    ],
+    [
+      "cadastro do cliente incompleto (motivo da busca)",
+      { cliente: null, motivoCliente: "Informe o nome do cliente." },
+      "Informe o nome do cliente.",
     ],
     [
       "endereço novo incompleto",
@@ -172,6 +182,62 @@ describe("motivoQueImpedeEnvio", () => {
         cotacao: null,
       }),
     ).toBeNull();
+  });
+});
+
+describe("etapas", () => {
+  const BAIRRO_FORA = {
+    cotacao: {
+      ...COTACAO,
+      atendido: false,
+      motivo_nao_atendido: "O bairro X (Y) não é atendido pelo delivery.",
+    },
+  };
+
+  it("bairro não atendido trava já a etapa do cliente", () => {
+    expect(pendenciaDaEtapa("cliente", { ...PRONTO, ...BAIRRO_FORA })).toBe(
+      "O bairro X (Y) não é atendido pelo delivery.",
+    );
+  });
+
+  it("enquanto calcula, as etapas de cliente e produtos não travam; o envio sim", () => {
+    const calculando: EstadoEnvio = {
+      ...PRONTO,
+      ...BAIRRO_FORA,
+      situacaoCotacao: "calculando",
+    };
+
+    expect(pendenciaDaEtapa("cliente", calculando)).toBeNull();
+    expect(pendenciaDaEtapa("produtos", calculando)).toBeNull();
+    expect(pendenciaDaEtapa("pagamento", calculando)).toBe(
+      "Calculando o total...",
+    );
+  });
+
+  it("aponta a primeira etapa com pendência", () => {
+    expect(primeiraPendencia({ ...PRONTO, itens: [] })).toEqual({
+      etapa: "produtos",
+      motivo: "Adicione ao menos um item.",
+    });
+    expect(primeiraPendencia(PRONTO)).toBeNull();
+  });
+
+  it("concluída exige ela e as anteriores completas; a última nunca", () => {
+    expect(etapaConcluida("cliente", PRONTO)).toBe(true);
+    expect(etapaConcluida("produtos", { ...PRONTO, cliente: null })).toBe(
+      false,
+    );
+    expect(etapaConcluida("pagamento", PRONTO)).toBe(false);
+  });
+
+  it("libera uma etapa só com as anteriores concluídas", () => {
+    const semItens: EstadoEnvio = { ...PRONTO, itens: [] };
+
+    expect(etapaLiberada("cliente", { ...PRONTO, cliente: null })).toBe(true);
+    expect(etapaLiberada("produtos", { ...PRONTO, cliente: null })).toBe(false);
+    expect(etapaLiberada("produtos", semItens)).toBe(true);
+    expect(etapaLiberada("pagamento", semItens)).toBe(false);
+    expect(etapaLiberada("pagamento", PRONTO)).toBe(true);
   });
 });
 

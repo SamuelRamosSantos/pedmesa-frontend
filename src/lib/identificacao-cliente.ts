@@ -1,14 +1,7 @@
-import type { Cliente, EnderecoCliente } from "../types/cliente";
-import type { EstadoConsulta } from "./consulta-por-chave";
+import type { EnderecoCliente } from "../types/cliente";
 
-// Identificação do cliente do delivery pelo telefone (PED-107).
-
-export type SituacaoIdentificacao =
-  | "digitando"
-  | "buscando"
-  | "encontrado"
-  | "novo"
-  | "falhou";
+// Identificação do cliente do delivery (PED-107). A busca única por nome ou telefone do
+// PED-123 fica em busca-cliente.ts e usa estas regras.
 
 // Endereço escolhido: um salvo do cliente (id) ou "novo" (cadastro, PED-108).
 export type EscolhaEndereco = string | "novo";
@@ -32,21 +25,6 @@ export function telefoneProntoParaBusca(digitos: string): boolean {
   );
 }
 
-export function situacaoDaIdentificacao(
-  consulta: EstadoConsulta<Cliente | null>,
-): SituacaoIdentificacao {
-  switch (consulta.status) {
-    case "idle":
-      return "digitando";
-    case "carregando":
-      return "buscando";
-    case "falhou":
-      return "falhou";
-    case "concluida":
-      return consulta.valor === null ? "novo" : "encontrado";
-  }
-}
-
 // O principal vem pré-selecionado; sem principal, o primeiro; sem endereço, cadastro.
 export function enderecoPadrao(
   enderecos: readonly EnderecoCliente[],
@@ -58,9 +36,11 @@ export function enderecoPadrao(
 }
 
 // "Avenida Paulista, 1000 - Apto 52", como o endereco_resumido do painel de expedição.
-export function resumoEndereco(
-  endereco: Pick<EnderecoCliente, "logradouro" | "numero" | "complemento">,
-): string {
+export function resumoEndereco(endereco: {
+  logradouro: string;
+  numero: string;
+  complemento?: string | null;
+}): string {
   const base = `${endereco.logradouro}, ${endereco.numero}`;
   return endereco.complemento ? `${base} - ${endereco.complemento}` : base;
 }

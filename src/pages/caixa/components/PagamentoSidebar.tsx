@@ -1,18 +1,14 @@
 import {
   AlertTriangle,
-  Banknote,
   CheckCircle2,
-  CreditCard,
   HandCoins,
-  Landmark,
   Loader2,
   Plus,
-  QrCode,
   Send,
   Trash2,
 } from "lucide-react";
-import type { ComponentType } from "react";
 import { useState } from "react";
+import { SeletorFormaPagamento } from "../../../components/pagamento/SeletorFormaPagamento";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { CurrencyInput } from "../../../components/ui/CurrencyInput";
@@ -32,17 +28,6 @@ interface PagamentoSidebarProps {
   onRemovePagamento: (id: string) => void;
   onConfirmar: () => void;
 }
-
-const FORMAS: {
-  value: FormaPagamento;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-}[] = [
-  { value: "pix", label: "Pix", icon: QrCode },
-  { value: "dinheiro", label: "Dinheiro", icon: Banknote },
-  { value: "cartao_credito", label: "Cartão Crédito", icon: CreditCard },
-  { value: "cartao_debito", label: "Cartão Débito", icon: Landmark },
-];
 
 export function PagamentoSidebar({
   pagamentos,
@@ -87,32 +72,11 @@ export function PagamentoSidebar({
       </h2>
 
       <div className="mt-4 flex flex-col gap-3">
-        <div>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Forma de pagamento
-          </span>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
-            {FORMAS.map((forma) => {
-              const Icon = forma.icon;
-              const isSelected = formaSelecionada === forma.value;
-              return (
-                <button
-                  key={forma.value}
-                  type="button"
-                  onClick={() => setFormaSelecionada(forma.value)}
-                  className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2.5 text-xs font-medium transition-colors ${
-                    isSelected
-                      ? "border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
-                      : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {forma.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <SeletorFormaPagamento
+          rotulo="Forma de pagamento"
+          valor={formaSelecionada}
+          onChange={setFormaSelecionada}
+        />
 
         <div className="flex items-end gap-2">
           <div className="flex-1">

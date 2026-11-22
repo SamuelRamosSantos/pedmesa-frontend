@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -7,6 +7,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   isLoading?: boolean;
   children: ReactNode;
+  // Para quem precisa mover o foco (ex.: assistente do novo pedido delivery).
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
@@ -26,10 +28,12 @@ export function Button({
   disabled,
   className = "",
   children,
+  ref,
   ...rest
 }: ButtonProps) {
   return (
     <button
+      ref={ref}
       type="button"
       disabled={disabled || isLoading}
       aria-busy={isLoading}

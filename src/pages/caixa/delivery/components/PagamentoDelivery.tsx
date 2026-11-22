@@ -1,17 +1,10 @@
+import { SeletorFormaPagamento } from "../../../../components/pagamento/SeletorFormaPagamento";
 import { Card } from "../../../../components/ui";
 import { CurrencyInput } from "../../../../components/ui/CurrencyInput";
-import { FORMA_PAGAMENTO_LABEL } from "../../../../lib/forma-pagamento";
 import { formatCurrency } from "../../../../lib/format";
 import { ATALHOS_TROCO } from "../../../../lib/novo-pedido-delivery";
 import type { FormaPagamento } from "../../../../types/comanda";
 import type { CotacaoDelivery } from "../../../../types/delivery";
-
-const FORMAS: FormaPagamento[] = [
-  "pix",
-  "dinheiro",
-  "cartao_credito",
-  "cartao_debito",
-];
 
 interface PagamentoDeliveryProps {
   forma: FormaPagamento;
@@ -22,7 +15,8 @@ interface PagamentoDeliveryProps {
   cotacao: CotacaoDelivery | null;
 }
 
-// Forma de pagamento prevista do delivery e "troco para" em dinheiro (PED-109).
+// Forma de pagamento prevista do delivery e "troco para" em dinheiro (PED-109). A forma
+// usa os mesmos botões do fechamento do caixa (PED-123).
 export function PagamentoDelivery({
   forma,
   onForma,
@@ -36,33 +30,14 @@ export function PagamentoDelivery({
 
   return (
     <Card className="flex flex-col gap-4">
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-base font-semibold text-slate-900 dark:text-white">
-          Pagamento na entrega
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          {FORMAS.map((opcao) => (
-            <label
-              key={opcao}
-              className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                forma === opcao
-                  ? "border-orange-500 bg-orange-50 font-medium text-slate-900 dark:border-orange-500/70 dark:bg-orange-950/20 dark:text-white"
-                  : "border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300"
-              }`}
-            >
-              <input
-                type="radio"
-                name="forma-pagamento"
-                value={opcao}
-                checked={forma === opcao}
-                onChange={() => onForma(opcao)}
-                className="accent-orange-600"
-              />
-              {FORMA_PAGAMENTO_LABEL[opcao]}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        Pagamento na entrega
+      </h2>
+      <SeletorFormaPagamento
+        rotulo="Forma de pagamento"
+        valor={forma}
+        onChange={onForma}
+      />
 
       {forma === "dinheiro" && (
         <div className="flex flex-col gap-2">

@@ -1,4 +1,4 @@
-import type { Cliente, EnderecoCliente } from "../types/cliente";
+import type { Cliente, EnderecoCliente, ListaClientes } from "../types/cliente";
 import { api } from "./api";
 
 // Telefone e CEP podem ir mascarados: o backend normaliza para só dígitos.
@@ -37,6 +37,29 @@ export async function buscarClientePorTelefone(
 ): Promise<Cliente | null> {
   const { data } = await api.get<Cliente | null>("/clientes", {
     params: { telefone },
+    signal,
+  });
+  return data;
+}
+
+export interface FiltroClientes {
+  // Nome ou telefone (com ou sem máscara); vazio lista todos.
+  busca?: string;
+  pagina?: number;
+  porPagina?: number;
+}
+
+// Listagem paginada com a busca única por nome ou telefone (PED-122).
+export async function listarClientes(
+  filtro: FiltroClientes,
+  signal?: AbortSignal,
+): Promise<ListaClientes> {
+  const { data } = await api.get<ListaClientes>("/clientes", {
+    params: {
+      busca: filtro.busca || undefined,
+      pagina: filtro.pagina,
+      por_pagina: filtro.porPagina,
+    },
     signal,
   });
   return data;

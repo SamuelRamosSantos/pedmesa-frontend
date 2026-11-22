@@ -10,8 +10,9 @@ import { formatarNumeroEntrega } from "./expedicao";
 import { formatCurrency } from "./format";
 import type { DadosClienteDelivery } from "./identificacao-cliente";
 
-// Tela "Novo pedido delivery" (PED-109): monta o pedido e diz se ele pode ser enviado.
-// Valores (taxa, total, troco) são sempre os da cotação do backend.
+// Tela "Novo pedido delivery" (PED-109, em etapas desde o PED-123): monta o pedido e diz
+// o que falta em cada etapa. Valores (taxa, total, troco) são sempre os da cotação do
+// backend.
 
 export interface EntradaPedidoDelivery {
   cliente: DadosClienteDelivery | null;
@@ -55,51 +56,136 @@ export function montarPedidoDelivery(
 }
 
 export interface EstadoEnvio extends EntradaPedidoDelivery {
+  // O que falta no bloco do cliente (vem da busca: escolher, cadastrar...), ou null.
+  motivoCliente: string | null;
   situacaoCotacao: SituacaoCotacao;
   cotacao: CotacaoDelivery | null;
 }
 
-// O primeiro motivo que impede enviar, na ordem em que o atendente preenche a tela; null
-// quando pode enviar. Cotação que falhou não bloqueia: o backend confere tudo ao criar.
-export function motivoQueImpedeEnvio(estado: EstadoEnvio): string | null {
-  if (estado.cliente === null) {
-    return "Informe o telefone e o nome do cliente.";
-  }
+// Etapas do pedido (PED-123), na ordem em que o atendente preenche.
+export type EtapaPedido = "cliente" | "produtos" | "pagamento";
 
-  if (estado.cliente.endereco.tipo === "novo" && estado.enderecoNovo === null) {
-    return "Complete o endereço de entrega (CEP, logradouro, número, bairro, cidade e UF).";
-  }
+export const ETAPAS_PEDIDO: readonly { id: EtapaPedido; rotulo: string }[] = [
+  { id: "cliente", rotulo: "Cliente" },
+  { id: "produtos", rotulo: "Produtos" },
+  { id: "pagamento", rotulo: "Pagamento" },
+];
 
-  if (estado.itens.length === 0) {
-    return "Adicione ao menos um item.";
-  }
+const MOTIVO_SEM_CLIENTE = "Escolha um cliente na busca ou cadastre um novo.";
 
-  if (estado.situacaoCotacao === "calculando") {
-    return "Calculando o total...";
-  }
-
+// O que impede concluir a etapa, ou null. Cotação que falhou não bloqueia: o backend
+// confere tudo ao criar.
+export function pendenciaDaEtapa(
+  etapa: EtapaPedido,
+  estado: EstadoEnvio,
+): string | null {
   const { cotacao } = estado;
 
-  if (cotacao === null) {
-    return null;
-  }
+  switch (etapa) {
+    case "cliente":
+      if (estado.motivoCliente !== null || estado.cliente === null) {
+        return estado.motivoCliente ?? MOTIVO_SEM_CLIENTE;
+      }
 
-  if (!cotacao.atendido) {
-    return (
-      cotacao.motivo_nao_atendido ??
-      "Este endereço não é atendido pelo delivery."
-    );
-  }
+      if (
+        estado.cliente.endereco.tipo === "novo" &&
+        estado.enderecoNovo === null
+      ) {
+        return "Complete o endereço de entrega (CEP, logradouro, número, bairro, cidade e UF).";
+      }
 
-  if (!cotacao.pedido_minimo_atingido) {
-    return `O pedido mínimo para delivery é ${formatCurrency(cotacao.pedido_minimo)} em itens.`;
-  }
+      // O bairro é conferido já na primeira etapa, antes de montar o pedido.
+      if (
+        estado.situacaoCotacao !== "calculando" &&
+        cotacao !== null &&
+        !cotacao.atendido
+      ) {
+        return (
+          cotacao.motivo_nao_atendido ??
+          "Este endereço não é atendido pelo delivery."
+        );
+      }
 
-  if (estado.formaPagamento === "dinheiro" && !cotacao.troco_suficiente) {
-    return `O troco para é menor que o total (${formatCurrency(cotacao.total)}).`;
+      return null;
+
+    case "produtos":
+      if (estado.itens.length === 0) {
+        return "Adicione ao menos um item.";
+      }
+
+      if (
+        estado.situacaoCotacao !== "calculando" &&
+        cotacao !== null &&
+        !cotacao.pedido_minimo_atingido
+      ) {
+        return `O pedido mínimo para delivery é ${formatCurrency(cotacao.pedido_minimo)} em itens.`;
+      }
+
+      return null;
+
+    case "pagamento":
+      if (estado.situacaoCotacao === "calculando") {
+        return "Calculando o total...";
+      }
+
+      if (
+        estado.formaPagamento === "dinheiro" &&
+        cotacao !== null &&
+        !cotacao.troco_suficiente
+      ) {
+        return `O troco para é menor que o total (${formatCurrency(cotacao.total)}).`;
+      }
+
+      return null;
+  }
+}
+
+// A primeira etapa com pendência, na ordem das etapas; null quando pode enviar.
+export function primeiraPendencia(
+  estado: EstadoEnvio,
+): { etapa: EtapaPedido; motivo: string } | null {
+  for (const { id } of ETAPAS_PEDIDO) {
+    const motivo = pendenciaDaEtapa(id, estado);
+
+    if (motivo !== null) {
+      return { etapa: id, motivo };
+    }
   }
 
   return null;
+}
+
+// O primeiro motivo que impede enviar; null quando pode enviar.
+export function motivoQueImpedeEnvio(estado: EstadoEnvio): string | null {
+  return primeiraPendencia(estado)?.motivo ?? null;
+}
+
+// Uma etapa pode ser aberta quando todas as anteriores estão concluídas.
+export function etapaLiberada(
+  etapa: EtapaPedido,
+  estado: EstadoEnvio,
+): boolean {
+  const indice = ETAPAS_PEDIDO.findIndex(({ id }) => id === etapa);
+
+  return ETAPAS_PEDIDO.slice(0, indice).every(
+    ({ id }) => pendenciaDaEtapa(id, estado) === null,
+  );
+}
+
+// Concluída = ela e as anteriores sem pendência. A última só se conclui ao enviar: sem
+// isso, "Pagamento" (Pix, sem troco) apareceria pronta antes de existir pedido.
+export function etapaConcluida(
+  etapa: EtapaPedido,
+  estado: EstadoEnvio,
+): boolean {
+  const indice = ETAPAS_PEDIDO.findIndex(({ id }) => id === etapa);
+
+  return (
+    indice < ETAPAS_PEDIDO.length - 1 &&
+    ETAPAS_PEDIDO.slice(0, indice + 1).every(
+      ({ id }) => pendenciaDaEtapa(id, estado) === null,
+    )
+  );
 }
 
 // "Delivery #0007 criado": mesmo formato de número do cupom.

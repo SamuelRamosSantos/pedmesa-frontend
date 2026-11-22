@@ -26,3 +26,11 @@ export interface Cliente {
   atualizado_em: string;
   enderecos: EnderecoCliente[];
 }
+
+// GET /clientes?busca=&pagina=&por_pagina= (PED-122).
+export interface ListaClientes {
+  clientes: Cliente[];
+  total: number;
+  pagina: number;
+  por_pagina: number;
+}

@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { Cliente, EnderecoCliente } from "../types/cliente";
+import type { EnderecoCliente } from "../types/cliente";
 import {
   dadosDaIdentificacao,
   enderecoPadrao,
   resumoEndereco,
-  situacaoDaIdentificacao,
   telefoneProntoParaBusca,
 } from "./identificacao-cliente";
 
@@ -23,17 +22,6 @@ function endereco(id: string, principal: boolean): EnderecoCliente {
     criado_em: "2026-10-11T12:00:00.000Z",
   };
 }
-
-const CLIENTE: Cliente = {
-  id: "c1",
-  nome: "Maria",
-  telefone: "11987654321",
-  observacoes: null,
-  ativo: true,
-  criado_em: "2026-10-11T12:00:00.000Z",
-  atualizado_em: "2026-10-11T12:00:00.000Z",
-  enderecos: [],
-};
 
 describe("telefoneProntoParaBusca", () => {
   it.each([
@@ -54,26 +42,6 @@ describe("telefoneProntoParaBusca", () => {
     ["vazio", ""],
   ])("não busca: %s", (_caso, digitos) => {
     expect(telefoneProntoParaBusca(digitos)).toBe(false);
-  });
-});
-
-describe("situacaoDaIdentificacao", () => {
-  it("traduz o estado da consulta", () => {
-    expect(situacaoDaIdentificacao({ status: "idle", valor: null })).toBe(
-      "digitando",
-    );
-    expect(situacaoDaIdentificacao({ status: "carregando", valor: null })).toBe(
-      "buscando",
-    );
-    expect(situacaoDaIdentificacao({ status: "falhou", valor: null })).toBe(
-      "falhou",
-    );
-    expect(situacaoDaIdentificacao({ status: "concluida", valor: null })).toBe(
-      "novo",
-    );
-    expect(
-      situacaoDaIdentificacao({ status: "concluida", valor: CLIENTE }),
-    ).toBe("encontrado");
   });
 });
 
