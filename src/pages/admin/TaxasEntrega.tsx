@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { TaxaEntregaModal } from "../../components/delivery/TaxaEntregaModal";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -26,7 +27,6 @@ import {
   updateTaxaEntrega,
 } from "../../services/delivery.service";
 import type { TaxaEntrega } from "../../types/delivery";
-import { TaxaEntregaModal } from "./components/TaxaEntregaModal";
 
 // "Editando": null = nova taxa; undefined = modal fechado.
 type Edicao = TaxaEntrega | null | undefined;

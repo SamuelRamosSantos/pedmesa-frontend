@@ -1,42 +1,46 @@
 import { Save } from "lucide-react";
 import { type FormEvent, useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { CurrencyInput } from "../../../components/ui/CurrencyInput";
-import { Input } from "../../../components/ui/Input";
-import { Modal } from "../../../components/ui/Modal";
-import { useToast } from "../../../contexts/ToastContext";
-import { getApiErrorMessage, getApiErrorStatus } from "../../../lib/api-error";
+import { useToast } from "../../contexts/ToastContext";
+import { getApiErrorMessage, getApiErrorStatus } from "../../lib/api-error";
 import {
   type CampoFormTaxa,
   type FormTaxa,
   formDaTaxa,
   validarFormTaxa,
-} from "../../../lib/taxas-entrega";
+} from "../../lib/taxas-entrega";
 import {
   createTaxaEntrega,
   updateTaxaEntrega,
-} from "../../../services/delivery.service";
-import type { TaxaEntrega } from "../../../types/delivery";
+} from "../../services/delivery.service";
+import type { TaxaEntrega } from "../../types/delivery";
+import { Button } from "../ui/Button";
+import { CurrencyInput } from "../ui/CurrencyInput";
+import { Input } from "../ui/Input";
+import { Modal } from "../ui/Modal";
 
 interface TaxaEntregaModalProps {
   // null = nova taxa.
   taxa: TaxaEntrega | null;
   cidadePadrao: string;
+  // Bairro já preenchido na taxa nova (cadastro pelo novo pedido, PED-125).
+  bairroPadrao?: string;
   onClose: () => void;
   onSaved: (taxa: TaxaEntrega) => void;
 }
 
-// Criar/editar a taxa de um bairro (PED-111). Montado só quando aberto: cada abertura
-// começa do valor salvo. Bairro duplicado (409) aparece no próprio campo.
+// Criar/editar a taxa de um bairro (PED-111; também pelo novo pedido delivery, PED-125).
+// Montado só quando aberto: cada abertura começa do valor salvo. Bairro duplicado (409)
+// aparece no próprio campo.
 export function TaxaEntregaModal({
   taxa,
   cidadePadrao,
+  bairroPadrao = "",
   onClose,
   onSaved,
 }: TaxaEntregaModalProps) {
   const { showToast } = useToast();
   const [form, setForm] = useState<FormTaxa>(() =>
-    formDaTaxa(taxa, cidadePadrao),
+    formDaTaxa(taxa, cidadePadrao, bairroPadrao),
   );
   const [erros, setErros] = useState<Partial<Record<CampoFormTaxa, string>>>(
     {},

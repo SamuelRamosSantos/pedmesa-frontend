@@ -1,13 +1,19 @@
 import { AlertTriangle, Ban, Clock, Loader2, Truck } from "lucide-react";
+import type { ReactNode } from "react";
 import { formatCurrency } from "../../../../lib/format";
 import type { ControleCotacaoDelivery } from "../useCotacaoDelivery";
 
 interface FreteCotacaoProps {
   cotacao: ControleCotacaoDelivery;
+  // Bairro não atendido: o que o atendente pode fazer (cadastrar o bairro, PED-125).
+  acaoBairroNaoAtendido?: ReactNode;
 }
 
 // Taxa e tempo estimado vindos do backend (PED-108). A UI só exibe.
-export function FreteCotacao({ cotacao }: FreteCotacaoProps) {
+export function FreteCotacao({
+  cotacao,
+  acaoBairroNaoAtendido,
+}: FreteCotacaoProps) {
   const { situacao } = cotacao;
 
   if (situacao === "sem_endereco") {
@@ -46,18 +52,21 @@ export function FreteCotacao({ cotacao }: FreteCotacaoProps) {
 
   if (situacao === "nao_atendido") {
     return (
-      <p
+      <div
         role="alert"
-        className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+        className="flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
       >
-        <Ban className="mt-0.5 h-4 w-4 shrink-0" />
-        <span>
-          {cotacao.bloqueio}{" "}
-          <span className="font-normal">
-            O pedido não pode ser enviado para este endereço.
+        <p className="flex items-start gap-2">
+          <Ban className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            {cotacao.bloqueio}{" "}
+            <span className="font-normal">
+              O pedido não pode ser enviado para este endereço.
+            </span>
           </span>
-        </span>
-      </p>
+        </p>
+        {acaoBairroNaoAtendido}
+      </div>
     );
   }
 

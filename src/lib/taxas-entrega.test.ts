@@ -29,6 +29,13 @@ describe("formDaTaxa", () => {
     });
   });
 
+  it("cadastro pelo novo pedido já vem com o bairro e a cidade do endereço (PED-125)", () => {
+    expect(formDaTaxa(null, "Frei Inocêncio", "Independência")).toMatchObject({
+      cidade: "Frei Inocêncio",
+      bairro: "Independência",
+    });
+  });
+
   it("edição carrega os valores (sem erro de ponto flutuante)", () => {
     expect(
       formDaTaxa(

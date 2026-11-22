@@ -23,9 +23,15 @@ const TEMPO_MAXIMO_MIN = 24 * 60;
 export function formDaTaxa(
   taxa: TaxaEntrega | null,
   cidadePadrao: string,
+  bairroPadrao = "",
 ): FormTaxa {
   return taxa === null
-    ? { cidade: cidadePadrao, bairro: "", valorCents: 0, tempoEstimado: "" }
+    ? {
+        cidade: cidadePadrao,
+        bairro: bairroPadrao,
+        valorCents: 0,
+        tempoEstimado: "",
+      }
     : {
         cidade: taxa.cidade,
         bairro: taxa.bairro,

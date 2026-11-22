@@ -1,6 +1,10 @@
-import { MapPin } from "lucide-react";
-import { Card } from "../../../../components/ui";
+import { MapPin, MapPinPlus } from "lucide-react";
+import { useState } from "react";
+import { TaxaEntregaModal } from "../../../../components/delivery/TaxaEntregaModal";
+import { Button, Card } from "../../../../components/ui";
 import { OpcaoSelecionavel } from "../../../../components/ui/OpcaoSelecionavel";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { localidadeDaEntrega } from "../../../../lib/endereco-entrega";
 import { resumoEndereco } from "../../../../lib/identificacao-cliente";
 import type { ControleBuscaCliente } from "../useBuscaCliente";
 import type { ControleCotacaoDelivery } from "../useCotacaoDelivery";
@@ -16,13 +20,23 @@ interface EnderecoEntregaProps {
 
 // Bloco "Endereço de entrega" da etapa Cliente (PED-108; seleção por cartões desde o
 // PED-123): endereços salvos do cliente, cadastro de um novo e o frete cotado pelo backend.
+// Bairro não atendido: o admin cadastra a taxa ali mesmo e a cotação é refeita (PED-125).
 export function EnderecoEntrega({
   busca,
   endereco,
   cotacao,
 }: EnderecoEntregaProps) {
+  const { user } = useAuth();
+  // Só o admin cadastra bairros (o backend recusa os outros papéis).
+  const ehAdmin = user?.roles.includes("admin") ?? false;
+  const [cadastrandoBairro, setCadastrandoBairro] = useState(false);
   const enderecos = busca.selecionado?.enderecos ?? [];
   const cadastrarEndereco = busca.escolhaEndereco === "novo";
+  const localidade = localidadeDaEntrega(
+    busca.selecionado,
+    busca.escolhaEndereco,
+    endereco.campos,
+  );
 
   return (
     <Card className="flex flex-col gap-4">
@@ -67,7 +81,40 @@ export function EnderecoEntrega({
 
       {cadastrarEndereco && <EnderecoNovoForm endereco={endereco} />}
 
-      <FreteCotacao cotacao={cotacao} />
+      <FreteCotacao
+        cotacao={cotacao}
+        acaoBairroNaoAtendido={
+          localidade === null ? null : ehAdmin ? (
+            <Button
+              variant="secondary"
+              onClick={() => setCadastrandoBairro(true)}
+              data-testid="botao-cadastrar-bairro"
+              className="w-fit"
+            >
+              <MapPinPlus className="h-4 w-4" />
+              Cadastrar o bairro {localidade.bairro}
+            </Button>
+          ) : (
+            <p className="font-normal">
+              Peça ao administrador para cadastrar este bairro em Bairros e
+              taxas.
+            </p>
+          )
+        }
+      />
+
+      {cadastrandoBairro && localidade && (
+        <TaxaEntregaModal
+          taxa={null}
+          cidadePadrao={localidade.cidade}
+          bairroPadrao={localidade.bairro}
+          onClose={() => setCadastrandoBairro(false)}
+          onSaved={() => {
+            setCadastrandoBairro(false);
+            cotacao.recotar();
+          }}
+        />
+      )}
     </Card>
   );
 }

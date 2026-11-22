@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useComAtraso } from "../../../hooks/useComAtraso";
 import { useConsultaPorChave } from "../../../hooks/useConsultaPorChave";
 import {
@@ -20,6 +20,8 @@ export interface ControleCotacaoDelivery {
   cotacao: CotacaoDelivery | null;
   // Motivo que impede enviar (bairro não atendido), ou null.
   bloqueio: string | null;
+  // Cota de novo o mesmo pedido (ex.: o bairro acabou de ser cadastrado, PED-125).
+  recotar: () => void;
 }
 
 // Cotação do pedido delivery (PED-108; o resumo da PED-109 usa a mesma): refaz a cada
@@ -27,8 +29,11 @@ export interface ControleCotacaoDelivery {
 export function useCotacaoDelivery(
   entrada: EntradaCotacao,
 ): ControleCotacaoDelivery {
+  // Entra na chave para forçar uma nova cotação com o mesmo pedido.
+  const [rodada, setRodada] = useState(0);
   const payload = payloadDaCotacao(entrada);
-  const chaveAtual = payload === null ? null : JSON.stringify(payload);
+  const chaveAtual =
+    payload === null ? null : `${JSON.stringify(payload)}#${rodada}`;
   const comAtraso = useComAtraso(payload, chaveAtual ?? "", ATRASO_COTACAO_MS);
   const payloadAtrasado = comAtraso.valor;
 
@@ -55,5 +60,10 @@ export function useCotacaoDelivery(
       ? consulta.valor
       : null;
 
-  return { situacao, cotacao, bloqueio: bloqueioDoEnvio(cotacao) };
+  return {
+    situacao,
+    cotacao,
+    bloqueio: bloqueioDoEnvio(cotacao),
+    recotar: () => setRodada((atual) => atual + 1),
+  };
 }
