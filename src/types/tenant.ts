@@ -19,5 +19,9 @@ export interface Tenant {
   estado: string | null;
   cep: string | null;
   token_agente: string | null;
+  delivery_ativo: boolean;
+  // null = não atende bairros fora da lista de taxas.
+  taxa_entrega_padrao: number | null;
+  pedido_minimo_delivery: number;
   criado_em: string;
 }

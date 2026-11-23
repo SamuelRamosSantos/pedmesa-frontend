@@ -11,11 +11,15 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { ProdutoCard } from "../../components/cardapio/ProdutoCard";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { useToast } from "../../contexts/ToastContext";
+import { useCarrinho } from "../../hooks/useCarrinho";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { filtrarProdutos } from "../../lib/cardapio";
+import { itensParaPedidoMesa } from "../../lib/carrinho";
 import { formatCurrency } from "../../lib/format";
 import { listCategorias } from "../../services/categoria.service";
 import {
@@ -40,8 +44,6 @@ import type { Produto } from "../../types/produto";
 import { AddIntegranteModal } from "./components/AddIntegranteModal";
 import { CartDrawer } from "./components/CartDrawer";
 import { PedidoEnviadoCard } from "./components/PedidoEnviadoCard";
-import { ProdutoCard } from "./components/ProdutoCard";
-import type { CartItem } from "./types";
 
 type AbaComandaDetalhe = "cardapio" | "pedidos";
 const POLL_PEDIDOS_INTERVAL_MS = 8000;
@@ -64,7 +66,7 @@ export function ComandaDetalhe() {
   );
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const carrinho = useCarrinho();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmittingPedido, setIsSubmittingPedido] = useState(false);
   const [isAddIntegranteOpen, setIsAddIntegranteOpen] = useState(false);
@@ -138,29 +140,9 @@ export function ComandaDetalhe() {
     return () => clearInterval(interval);
   }, [abaAtiva, fetchPedidosSilencioso]);
 
-  const produtosFiltrados = useMemo(() => {
-    const termo = searchTerm.trim().toLowerCase();
-
-    return produtos
-      .filter(
-        (produto) =>
-          !selectedCategoriaId || produto.categoria_id === selectedCategoriaId,
-      )
-      .filter((produto) => !termo || produto.nome.toLowerCase().includes(termo))
-      .sort((a, b) => a.nome.localeCompare(b.nome));
-  }, [produtos, selectedCategoriaId, searchTerm]);
-
-  const cartTotal = useMemo(
-    () =>
-      cart.reduce(
-        (soma, item) => soma + item.precoUnitario * item.quantidade,
-        0,
-      ),
-    [cart],
-  );
-  const cartCount = useMemo(
-    () => cart.reduce((soma, item) => soma + item.quantidade, 0),
-    [cart],
+  const produtosFiltrados = useMemo(
+    () => filtrarProdutos(produtos, selectedCategoriaId, searchTerm),
+    [produtos, selectedCategoriaId, searchTerm],
   );
 
   const pedidosOrdenados = useMemo(
@@ -192,38 +174,6 @@ export function ComandaDetalhe() {
       comanda.resumo_financeiro.valor_total_comanda === 0,
   );
 
-  function handleAddToCart(produto: Produto) {
-    setCart((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        produtoId: produto.id,
-        produtoNome: produto.nome,
-        precoUnitario: produto.preco,
-        quantidade: 1,
-        integranteId: null,
-        observacao: "",
-      },
-    ]);
-  }
-
-  function handleUpdateCartItem(
-    itemId: string,
-    changes: Partial<
-      Pick<CartItem, "quantidade" | "integranteId" | "observacao">
-    >,
-  ) {
-    setCart((current) =>
-      current.map((item) =>
-        item.id === itemId ? { ...item, ...changes } : item,
-      ),
-    );
-  }
-
-  function handleRemoveCartItem(itemId: string) {
-    setCart((current) => current.filter((item) => item.id !== itemId));
-  }
-
   function handleIntegranteAdicionado(integrante: Integrante) {
     setComanda((current) =>
       current
@@ -246,7 +196,7 @@ export function ComandaDetalhe() {
   }
 
   async function handleConfirmarPedido() {
-    if (!id || cart.length === 0) {
+    if (!id || carrinho.itens.length === 0) {
       return;
     }
 
@@ -254,16 +204,11 @@ export function ComandaDetalhe() {
 
     try {
       const resultado = await createPedido(id, {
-        itens: cart.map((item) => ({
-          produto_id: item.produtoId,
-          integrante_id: item.integranteId,
-          quantidade: item.quantidade,
-          observacao: item.observacao.trim() || null,
-        })),
+        itens: itensParaPedidoMesa(carrinho.itens),
       });
 
       showToast(resultado.mensagem, "success");
-      setCart([]);
+      carrinho.limpar();
       setIsCartOpen(false);
       fetchDados();
     } catch (error) {
@@ -592,7 +537,7 @@ export function ComandaDetalhe() {
                     <ProdutoCard
                       key={produto.id}
                       produto={produto}
-                      onAdd={handleAddToCart}
+                      onAdd={carrinho.adicionar}
                     />
                   ))}
                 </div>
@@ -640,7 +585,7 @@ export function ComandaDetalhe() {
               )}
           </main>
 
-          {cart.length > 0 && !isCartOpen && (
+          {carrinho.itens.length > 0 && !isCartOpen && (
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
@@ -648,9 +593,12 @@ export function ComandaDetalhe() {
             >
               <span className="flex items-center gap-2 text-sm font-medium">
                 <ShoppingCart className="h-5 w-5" />
-                {cartCount} {cartCount === 1 ? "item" : "itens"}
+                {carrinho.quantidadeTotal}{" "}
+                {carrinho.quantidadeTotal === 1 ? "item" : "itens"}
               </span>
-              <span className="font-semibold">{formatCurrency(cartTotal)}</span>
+              <span className="font-semibold">
+                {formatCurrency(carrinho.totalEstimado)}
+              </span>
               <span className="text-sm font-semibold text-orange-400">
                 Ver pedido
               </span>
@@ -660,12 +608,10 @@ export function ComandaDetalhe() {
           {comanda && (
             <CartDrawer
               isOpen={isCartOpen}
-              items={cart}
+              carrinho={carrinho}
               integrantes={comanda.divisao_por_integrante}
               isSubmitting={isSubmittingPedido}
               onClose={() => setIsCartOpen(false)}
-              onUpdateItem={handleUpdateCartItem}
-              onRemoveItem={handleRemoveCartItem}
               onConfirm={handleConfirmarPedido}
             />
           )}

@@ -19,6 +19,10 @@ export interface UpdateTenantConfigPayload {
   cidade?: string | null;
   estado?: string | null;
   cep?: string | null;
+  delivery_ativo?: boolean;
+  // null = não atende bairros fora da lista de taxas.
+  taxa_entrega_padrao?: number | null;
+  pedido_minimo_delivery?: number;
 }
 
 export async function updateTenantConfiguracoes(

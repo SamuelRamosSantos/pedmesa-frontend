@@ -7,9 +7,19 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: ReactNode;
+  // "lg" para formulários maiores (ex.: cliente com endereços).
+  tamanho?: "md" | "lg";
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+const LARGURA_MODAL = { md: "max-w-md", lg: "max-w-2xl" } as const;
+
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  tamanho = "md",
+}: ModalProps) {
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -44,7 +54,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
+        className={`max-h-[calc(100svh-2rem)] w-full overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 ${LARGURA_MODAL[tamanho]}`}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           {title && (

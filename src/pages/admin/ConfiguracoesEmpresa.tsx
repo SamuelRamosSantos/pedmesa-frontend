@@ -32,6 +32,7 @@ import {
   updateTenantConfiguracoes,
 } from "../../services/tenant.service";
 import type { Impressora } from "../../types/impressora";
+import { ConfiguracaoDeliveryCard } from "./components/ConfiguracaoDeliveryCard";
 import { ImpressoraModal } from "./components/ImpressoraModal";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -550,6 +551,13 @@ export function ConfiguracoesEmpresa() {
                     />
                   </div>
                 </Card>
+
+                <ConfiguracaoDeliveryCard
+                  // Remonta com os valores salvos sempre que eles mudam.
+                  key={`${tenant.delivery_ativo}-${tenant.taxa_entrega_padrao}-${tenant.pedido_minimo_delivery}`}
+                  tenant={tenant}
+                  onSalvo={refetch}
+                />
 
                 <Card>
                   <div className="flex items-center justify-between gap-3">

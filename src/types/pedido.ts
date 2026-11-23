@@ -1,3 +1,5 @@
+import type { TipoAtendimento } from "./comanda";
+
 export type StatusPreparo = "pendente" | "em_preparo" | "pronto" | "entregue";
 
 export type StatusItem =
@@ -26,7 +28,10 @@ export interface PedidoItemAtivo {
 export interface PedidoAtivo {
   id: string;
   comanda_id: string;
-  numero_comanda: number;
+  tipo_atendimento: TipoAtendimento;
+  // Mesa: numero_comanda. Delivery: numero_entrega (o outro vem null).
+  numero_comanda: number | null;
+  numero_entrega: number | null;
   usuario_id: string;
   garcom_nome: string;
   status_preparo: StatusPreparo;

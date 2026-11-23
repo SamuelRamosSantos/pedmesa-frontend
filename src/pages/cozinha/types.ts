@@ -1,3 +1,4 @@
+import type { IdentificacaoAtendimento } from "../../lib/atendimento-kds";
 import type { StatusItem } from "../../types/pedido";
 
 export interface ItemDoGrupoPreparo {
@@ -10,7 +11,8 @@ export interface ItemDoGrupoPreparo {
 
 export interface GrupoPreparo {
   pedidoId: string;
-  numeroComanda: number;
+  // Mesa N ou DELIVERY #0007 (PED-112).
+  identificacao: IdentificacaoAtendimento;
   garcomNome: string;
   criadoEm: string;
   statusGrupo: StatusItem;

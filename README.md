@@ -8,7 +8,7 @@ Interface do **PedMesa** para os estabelecimentos: garçom, cozinha (KDS), caixa
 - **Garçom:** mesas, comanda, integrantes e lançamento de pedidos pelo carrinho.
 - **Cozinha:** KDS em colunas com o avanço do preparo e a disponibilidade dos produtos.
 - **Caixa:** mapa de mesas, fechamento com divisão de conta, desconto, pagamentos, junção de comandas e pré-conta para impressão.
-- **Expedição:** visão de expedição do delivery (as telas completas de novo pedido e Kanban estão na branch PED-82).
+- **Delivery (admin e expedição):** novo pedido por telefone em três etapas (cliente e endereço com busca única por nome ou telefone, produtos, pagamento e revisão), painel Kanban de expedição e cadastro de clientes com seus endereços.
 - **Admin:** dashboard, produtos e categorias (com imagem), usuários, impressoras e configurações da empresa.
 - **Super-admin:** tenants (cadastro, edição, status e impersonação) e leads da landing page.
 - Tema claro, escuro ou do sistema.
@@ -53,12 +53,13 @@ React 19, TypeScript (`strict`), Vite 8, Tailwind CSS 4, React Router 7, Axios, 
 | `npm run check`   | `tsc` do app e da config do Vite + Biome com `--error-on-warnings` |
 | `npm run format`  | formata e aplica as correções seguras do Biome                     |
 | `npm run lint`    | só o lint do Biome                                                 |
+| `npm test`        | testes do Vitest (lógica pura em `src/lib`)                        |
 
 > `npx tsc --noEmit` não checa nada aqui (o `tsconfig.json` é _solution-style_). Use `npm run check` ou `npm run build`.
 
 ## Testes
 
-Ainda não há testes automatizados no frontend; a adoção do Vitest está planejada na PED-104. A verificação hoje é `npm run check`, `npm run build` e o teste manual das telas.
+A lógica pura (`src/lib/*.test.ts`) é testada com Vitest: `npm test`. As telas são verificadas com `npm run check`, `npm run build` e testes de navegador (Playwright, fora do repositório; ver a skill `dev-workflow`).
 
 ## Docker
 

@@ -1,8 +1,8 @@
 import { BadgePercent } from "lucide-react";
-import { Card } from "../../../components/ui/Card";
-import { CurrencyInput } from "../../../components/ui/CurrencyInput";
-import { formatCurrency } from "../../../lib/format";
-import { toCents } from "../../../lib/money";
+import { formatCurrency } from "../../lib/format";
+import { toCents } from "../../lib/money";
+import { Card } from "../ui/Card";
+import { CurrencyInput } from "../ui/CurrencyInput";
 
 export type DescontoTipoEntrada = "percentual" | "valor_fixo";
 

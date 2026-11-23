@@ -8,13 +8,16 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { KanbanColumn } from "../../components/kanban/KanbanColumn";
 import { AppShell } from "../../components/layout/AppShell";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { identificacaoNoKds } from "../../lib/atendimento-kds";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
 import type { PedidoAtivo, StatusItem } from "../../types/pedido";
-import { KanbanColumn } from "./components/KanbanColumn";
+import { GrupoPreparoCard } from "./components/GrupoPreparoCard";
 import {
   COLUNAS_KANBAN,
   PROXIMA_ACAO_ITEM,
@@ -84,7 +87,7 @@ function montarGruposPreparo(pedidos: PedidoAtivo[]): GrupoPreparo[] {
 
     grupos.push({
       pedidoId: pedido.id,
-      numeroComanda: pedido.numero_comanda,
+      identificacao: identificacaoNoKds(pedido),
       garcomNome: pedido.garcom_nome,
       criadoEm: pedido.criado_em,
       statusGrupo: calcularStatusGrupo(
@@ -137,11 +140,7 @@ export function Kds() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchPedidos();
-    const interval = setInterval(fetchPedidos, POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [fetchPedidos]);
+  usePolling(fetchPedidos, POLL_INTERVAL_MS);
 
   function atualizarStatusItensLocal(
     pedidoId: string,
@@ -319,10 +318,16 @@ export function Kds() {
                     titulo={coluna.titulo}
                     icon={COLUNA_VISUAL[coluna.status].icon}
                     headerClass={COLUNA_VISUAL[coluna.status].headerClass}
-                    grupos={gruposPorStatus[coluna.status]}
-                    updatingPedidoId={updatingPedidoId}
-                    onAvancar={handleAvancar}
-                    onRegredir={handleRegredir}
+                    itens={gruposPorStatus[coluna.status]}
+                    chave={(grupo) => grupo.pedidoId}
+                    renderCard={(grupo) => (
+                      <GrupoPreparoCard
+                        grupo={grupo}
+                        isUpdating={updatingPedidoId === grupo.pedidoId}
+                        onAvancar={handleAvancar}
+                        onRegredir={handleRegredir}
+                      />
+                    )}
                   />
                 ))}
               </div>

@@ -5,11 +5,14 @@ import { SuperAdminProtectedRoute } from "./components/SuperAdminProtectedRoute"
 import { ConfiguracoesEmpresa } from "./pages/admin/ConfiguracoesEmpresa";
 import { DashboardProprietario } from "./pages/admin/DashboardProprietario";
 import { Produtos } from "./pages/admin/Produtos";
+import { TaxasEntrega } from "./pages/admin/TaxasEntrega";
 import { Usuarios } from "./pages/admin/Usuarios";
 import { ComandaFechamento } from "./pages/caixa/ComandaFechamento";
+import { NovoPedidoDelivery } from "./pages/caixa/delivery/NovoPedidoDelivery";
 import { MapaMesas } from "./pages/caixa/MapaMesas";
 import { PreContaImpressao } from "./pages/caixa/PreContaImpressao";
 import { Kds } from "./pages/cozinha/Kds";
+import { Clientes } from "./pages/expedicao/Clientes";
 import { Expedicao } from "./pages/expedicao/Expedicao";
 import { ComandaDetalhe } from "./pages/garcom/ComandaDetalhe";
 import { Mesas } from "./pages/garcom/Mesas";
@@ -109,10 +112,30 @@ function App() {
         />
 
         <Route
+          path="/caixa/delivery/novo"
+          element={
+            // Mesmos papéis que o backend aceita em POST /delivery/pedidos (ADR-001).
+            <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
+              <NovoPedidoDelivery />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/expedicao"
           element={
             <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
               <Expedicao />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expedicao/clientes"
+          element={
+            // Mesmos papéis que o backend aceita em /clientes (ADR-001).
+            <ProtectedRoute allowedRoles={["expedicao", "admin"]}>
+              <Clientes />
             </ProtectedRoute>
           }
         />
@@ -149,6 +172,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ConfiguracoesEmpresa />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/delivery/taxas"
+          element={
+            // Só o dono configura onde entrega e quanto cobra (backend: GERENCIAR_TAXAS_ROLES).
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <TaxasEntrega />
             </ProtectedRoute>
           }
         />
