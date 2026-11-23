@@ -1,5 +1,6 @@
 import { ChevronDown, User } from "lucide-react";
 import { formatCurrency } from "../../../lib/format";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import type { ExtratoIntegranteResumo } from "../../../types/comanda";
 
 interface IntegranteAccordionProps {
@@ -26,19 +27,19 @@ export function IntegranteAccordion({
         aria-expanded={isExpanded}
         className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60"
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-marca-50 text-marca-600 dark:bg-marca-950/40 dark:text-marca-400">
           <User className="h-4 w-4" />
         </div>
-        <span className="flex-1 font-medium text-slate-900 dark:text-white">
+        <span className="flex-1 text-corpo font-medium text-slate-900 dark:text-white">
           {integrante.nome}
         </span>
         <span className="flex flex-col items-end">
           {temDesconto && (
-            <span className="text-xs text-slate-400 line-through dark:text-slate-500">
+            <span className="text-legenda text-slate-400 line-through dark:text-slate-500">
               {formatCurrency(integrante.total_a_pagar)}
             </span>
           )}
-          <span className="text-lg font-bold text-slate-900 dark:text-white">
+          <span className="text-titulo-secao tabular-nums text-slate-900 dark:text-white">
             {formatCurrency(totalComDesconto)}
           </span>
         </span>
@@ -50,12 +51,12 @@ export function IntegranteAccordion({
       {isExpanded && (
         <div className="border-t border-slate-200 px-5 py-4 dark:border-slate-800">
           {integrante.itens_individuais.length === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-500">
+            <p className="text-corpo text-slate-400 dark:text-slate-500">
               Nenhum item individual — apenas cota compartilhada.
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 <span>Produto</span>
                 <span className="text-right">Qtd.</span>
                 <span className="text-right">Preço Un.</span>
@@ -65,7 +66,7 @@ export function IntegranteAccordion({
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: lista só de exibição, sem id e sem reordenação
                   key={`${item.produto}-${index}`}
-                  className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-sm text-slate-700 dark:text-slate-300"
+                  className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-corpo text-slate-700 dark:text-slate-300"
                 >
                   <span>{item.produto}</span>
                   <span className="text-right">{item.qtd}</span>
@@ -80,7 +81,7 @@ export function IntegranteAccordion({
             </div>
           )}
 
-          <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-100 pt-3 text-sm dark:border-slate-800">
+          <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-100 pt-3 text-corpo dark:border-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span>Total Individual</span>
               <span>{formatCurrency(integrante.total_individual)}</span>
@@ -90,7 +91,9 @@ export function IntegranteAccordion({
               <span>{formatCurrency(integrante.cota_compartilhada)}</span>
             </div>
             {temDesconto && (
-              <div className="flex items-center justify-between text-orange-600 dark:text-orange-400">
+              <div
+                className={`flex items-center justify-between ${CLASSES_DO_TOM.marca.texto}`}
+              >
                 <span>Desconto</span>
                 <span>- {formatCurrency(descontoAplicado)}</span>
               </div>

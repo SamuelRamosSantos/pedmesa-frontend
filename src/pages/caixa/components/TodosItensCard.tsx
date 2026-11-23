@@ -1,7 +1,9 @@
 import { Loader2, Receipt, Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { Card } from "../../../components/ui/Card";
+import { Selo } from "../../../components/ui/Selo";
 import { formatCurrency } from "../../../lib/format";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import type {
   ExtratoIntegranteResumo,
   ExtratoItemCompartilhadoLinha,
@@ -39,20 +41,14 @@ const GRID_COLS_CLASS: Record<string, string> = {
 
 function DestinoBadge({ linha }: { linha: LinhaTodosItens }) {
   if (linha.pessoaNome) {
-    return (
-      <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold uppercase text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
-        {linha.pessoaNome}
-      </span>
-    );
+    return <Selo tom="neutro">{linha.pessoaNome}</Selo>;
   }
 
   return (
     <>
-      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold uppercase text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
-        Compartilhado
-      </span>
+      <Selo tom="neutro">Compartilhado</Selo>
       {linha.valorPorPessoa !== null && (
-        <span className="text-[11px] text-slate-400 dark:text-slate-500">
+        <span className="text-legenda text-slate-400 dark:text-slate-500">
           {formatCurrency(linha.valorPorPessoa)}/pessoa
         </span>
       )}
@@ -106,7 +102,7 @@ export function TodosItensCard({
     <Card data-testid="card-todos-itens">
       <div className="flex items-center gap-2">
         <Receipt className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-titulo-secao text-slate-900 dark:text-white">
           Todos os Itens
         </h2>
       </div>
@@ -125,10 +121,10 @@ export function TodosItensCard({
               className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3 dark:border-slate-800"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-corpo font-medium text-slate-900 dark:text-white">
                   {linha.produto}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 text-legenda text-slate-500 dark:text-slate-400">
                   {linha.qtd}x · {formatCurrency(linha.subtotal)}
                   {temDesconto &&
                     desconto > 0 &&
@@ -163,21 +159,21 @@ export function TodosItensCard({
       {/* A partir de sm: grade tabular normal, com espaço de sobra para todas as colunas. */}
       <div className="mt-4 hidden overflow-x-auto sm:block">
         <div className={`grid ${gridColsClass} items-center gap-x-3 gap-y-2.5`}>
-          <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <span className="text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Produto
           </span>
-          <span className="text-right text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <span className="text-right text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Qtd.
           </span>
-          <span className="text-right text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <span className="text-right text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Valor Total
           </span>
           {temDesconto && (
-            <span className="text-right text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+            <span className="text-right text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Desconto
             </span>
           )}
-          <span className="text-right text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <span className="text-right text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Para
           </span>
           {podeExcluirItem && <span aria-hidden="true" />}
@@ -187,17 +183,19 @@ export function TodosItensCard({
 
             return (
               <Fragment key={linha.chave}>
-                <span className="text-sm text-slate-700 dark:text-slate-300">
+                <span className="text-corpo text-slate-700 dark:text-slate-300">
                   {linha.produto}
                 </span>
-                <span className="text-right text-sm text-slate-700 dark:text-slate-300">
+                <span className="text-right text-corpo text-slate-700 dark:text-slate-300">
                   {linha.qtd}
                 </span>
-                <span className="text-right text-sm font-medium text-slate-700 dark:text-slate-300">
+                <span className="text-right text-corpo font-medium text-slate-700 dark:text-slate-300">
                   {formatCurrency(linha.subtotal)}
                 </span>
                 {temDesconto && (
-                  <span className="text-right text-sm text-orange-600 dark:text-orange-400">
+                  <span
+                    className={`text-right text-corpo ${CLASSES_DO_TOM.marca.texto}`}
+                  >
                     {desconto > 0 ? `- ${formatCurrency(desconto)}` : "—"}
                   </span>
                 )}

@@ -11,7 +11,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listComandas } from "../../services/comanda.service";
 import { getTenantMe } from "../../services/tenant.service";
 import type { ComandaListItem } from "../../types/comanda";
@@ -130,12 +132,12 @@ export function MapaMesas() {
             </button>
 
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-legenda text-slate-500 dark:text-slate-400">
                 PedMesa · Painel do Caixa
               </p>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              <TituloPagina>
                 {tenant?.nome_fantasia ?? "Carregando..."}
-              </h1>
+              </TituloPagina>
             </div>
 
             <button
@@ -153,8 +155,10 @@ export function MapaMesas() {
 
           <main className="mx-auto max-w-7xl px-6 py-6">
             {errorMessage ? (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <Button variant="danger" onClick={fetchDados}>
@@ -188,9 +192,9 @@ export function MapaMesas() {
                         key={opcao.value}
                         type="button"
                         onClick={() => setFiltro(opcao.value)}
-                        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                        className={`rounded-md px-3 py-1.5 text-corpo font-medium transition-colors ${
                           filtro === opcao.value
-                            ? "bg-orange-600 text-white"
+                            ? "bg-marca-600 text-white"
                             : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                         }`}
                       >
@@ -212,7 +216,7 @@ export function MapaMesas() {
                         placeholder="Buscar pelo número..."
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
-                        className="w-48 rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+                        className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 text-campo text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 sm:w-56 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
                       />
                     </div>
 
@@ -235,11 +239,11 @@ export function MapaMesas() {
                   {isLoading && posicoes.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                       <RefreshCw className="h-6 w-6 animate-spin" />
-                      <p className="text-sm">Carregando mapa de mesas...</p>
+                      <p className="text-corpo">Carregando mapa de mesas...</p>
                     </div>
                   ) : posicoes.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
-                      <p className="text-sm">
+                      <p className="text-corpo">
                         Nenhuma mesa encontrada para os filtros selecionados.
                       </p>
                     </div>

@@ -15,11 +15,14 @@ import { DescontoCard } from "../../components/pagamento/DescontoCard";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Selo } from "../../components/ui/Selo";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { calcularDesconto, ratearDesconto } from "../../lib/desconto";
 import { STATUS_ITEM_LABEL } from "../../lib/status-item";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import {
   addPagamentoComanda,
   cancelarComanda,
@@ -391,23 +394,20 @@ export function ComandaFechamento() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-legenda text-slate-500 dark:text-slate-400">
                   Fechamento de Conta
                 </p>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                <TituloPagina>
                   {comanda ? `Mesa ${comanda.numero_comanda}` : "Carregando..."}
-                </h1>
+                </TituloPagina>
               </div>
               {comanda && (
-                <span
-                  className={`ml-1 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    comanda.status === "aberta"
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                      : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                  }`}
+                <Selo
+                  tom={comanda.status === "aberta" ? "sucesso" : "neutro"}
+                  className="ml-1"
                 >
                   {comanda.status === "aberta" ? "Aberta" : "Fechada"}
-                </span>
+                </Selo>
               )}
               <div className="ml-auto flex items-center gap-1">
                 {comanda?.status === "aberta" && (
@@ -415,7 +415,7 @@ export function ComandaFechamento() {
                     type="button"
                     onClick={handleImprimirPreConta}
                     data-testid="botao-imprimir-preconta"
-                    className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                    className="flex items-center gap-2 rounded-full px-3 py-2 text-corpo font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                   >
                     <Printer className="h-4 w-4" />
                     Imprimir Pré-Conta
@@ -440,13 +440,15 @@ export function ComandaFechamento() {
             {isLoading && !comanda && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando extrato...</p>
+                <p className="text-corpo">Carregando extrato...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <div className="flex gap-3">
@@ -469,11 +471,15 @@ export function ComandaFechamento() {
                   comanda.possui_itens_pendentes && (
                     <div
                       data-testid="alerta-itens-pendentes"
-                      className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-950/30"
+                      className={`flex flex-col gap-2 rounded-2xl border p-4 ${CLASSES_DO_TOM.aviso.superficie}`}
                     >
                       <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
-                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                        <AlertTriangle
+                          className={`h-5 w-5 shrink-0 ${CLASSES_DO_TOM.aviso.texto}`}
+                        />
+                        <p
+                          className={`text-corpo font-semibold ${CLASSES_DO_TOM.aviso.texto}`}
+                        >
                           Atenção: esta comanda possui{" "}
                           {comanda.itens_pendentes_entrega}{" "}
                           {comanda.itens_pendentes_entrega === 1
@@ -486,7 +492,9 @@ export function ComandaFechamento() {
                           pela cozinha/bar!
                         </p>
                       </div>
-                      <ul className="ml-8 flex flex-col gap-0.5 text-sm text-amber-700 dark:text-amber-300">
+                      <ul
+                        className={`ml-8 flex flex-col gap-0.5 text-corpo ${CLASSES_DO_TOM.aviso.texto}`}
+                      >
                         {comanda.itens_pendentes.map((item, index) => (
                           // biome-ignore lint/suspicious/noArrayIndexKey: lista só de exibição, sem id e sem reordenação
                           <li key={`${item.produto_nome}-${index}`}>
@@ -499,7 +507,7 @@ export function ComandaFechamento() {
                   )}
 
                 {comanda.status !== "aberta" && (
-                  <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <div className="rounded-lg bg-slate-100 px-4 py-3 text-corpo text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     Esta comanda já foi fechada e não pode receber novos
                     pagamentos.
                   </div>
@@ -523,12 +531,12 @@ export function ComandaFechamento() {
                     />
 
                     <div className="flex flex-col gap-3">
-                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                         Divisão por Integrante
                       </h2>
 
                       {comanda.divisao_por_integrante.length === 0 ? (
-                        <p className="text-sm text-slate-400 dark:text-slate-500">
+                        <p className="text-corpo text-slate-400 dark:text-slate-500">
                           Nenhum integrante cadastrado nesta comanda.
                         </p>
                       ) : (
@@ -556,27 +564,30 @@ export function ComandaFechamento() {
                   <div className="lg:col-span-1">
                     {isComandaZerada ? (
                       <Card className="flex flex-col items-center gap-3 text-center lg:sticky lg:top-20">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <div
+                          className={`flex h-12 w-12 items-center justify-center rounded-full ${CLASSES_DO_TOM.sucesso.selo}`}
+                        >
                           <PartyPopper className="h-6 w-6" />
                         </div>
                         <div>
-                          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                          <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                             Comanda Zerada
                           </h2>
-                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 text-corpo text-slate-500 dark:text-slate-400">
                             Esta mesa não teve nenhum pedido lançado. Você pode
                             liberá-la agora sem gerar nenhum valor financeiro.
                           </p>
                         </div>
-                        <button
+                        <Button
                           type="button"
+                          variant="danger"
                           onClick={() => setIsConfirmCancelOpen(true)}
                           data-testid="botao-cancelar-comanda-zerada"
-                          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+                          className="w-full"
                         >
                           <Ban className="h-4 w-4" />
                           Cancelar / Liberar Mesa
-                        </button>
+                        </Button>
                       </Card>
                     ) : (
                       <div className="flex flex-col gap-4 lg:sticky lg:top-20">
