@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listComandas } from "../../services/comanda.service";
 import type { ComandaListItem } from "../../types/comanda";
 import { ComandaCard } from "./components/ComandaCard";
@@ -72,9 +74,7 @@ export function Mesas() {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-                Salão
-              </h1>
+              <TituloPagina>Salão</TituloPagina>
             </div>
             <button
               type="button"
@@ -102,7 +102,7 @@ export function Mesas() {
                 placeholder="Buscar mesa pelo número..."
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-campo text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -111,13 +111,15 @@ export function Mesas() {
             {isLoading && comandas.length === 0 && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando mesas...</p>
+                <p className="text-corpo">Carregando mesas...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <Button variant="danger" onClick={fetchComandas}>
@@ -130,9 +132,9 @@ export function Mesas() {
               <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
                 <UtensilsCrossed className="h-10 w-10" />
                 {comandas.length === 0 ? (
-                  <p className="text-sm">Nenhuma mesa aberta no momento.</p>
+                  <p className="text-corpo">Nenhuma mesa aberta no momento.</p>
                 ) : (
-                  <p className="text-sm">
+                  <p className="text-corpo">
                     Nenhuma mesa encontrada para "{searchTerm}".
                   </p>
                 )}
@@ -156,7 +158,7 @@ export function Mesas() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-orange-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-600/30 transition-transform hover:scale-105 hover:bg-orange-700 active:scale-95"
+              className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-marca-600 px-5 py-3.5 text-corpo font-semibold text-white shadow-lg shadow-marca-600/30 transition-transform hover:scale-105 hover:bg-marca-700 active:scale-95"
             >
               <Plus className="h-5 w-5" />
               Abrir Comanda

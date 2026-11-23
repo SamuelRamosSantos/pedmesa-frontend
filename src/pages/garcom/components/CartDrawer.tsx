@@ -65,7 +65,7 @@ export function CartDrawer({
         className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900"
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-titulo-secao text-slate-900 dark:text-white">
             Seu pedido
           </h2>
           <button
@@ -80,7 +80,7 @@ export function CartDrawer({
 
         <div className="flex-1 overflow-y-auto px-4 py-3">
           {carrinho.itens.length === 0 ? (
-            <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+            <p className="py-8 text-center text-corpo text-slate-400 dark:text-slate-500">
               Nenhum item selecionado ainda.
             </p>
           ) : (
@@ -99,7 +99,7 @@ export function CartDrawer({
         </div>
 
         <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800">
-          <div className="mb-3 flex items-center justify-between text-base font-semibold text-slate-900 dark:text-white">
+          <div className="mb-3 flex items-center justify-between text-titulo-secao tabular-nums text-slate-900 dark:text-white">
             <span>Total</span>
             <span>{formatCurrency(carrinho.totalEstimado)}</span>
           </div>
