@@ -301,7 +301,7 @@ export function EditarTenantModal({
 
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-corpo font-medium text-slate-700 dark:text-slate-300">
             Endereço
           </span>
         </div>
@@ -342,7 +342,7 @@ export function EditarTenantModal({
 
         {tenant && (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-            <span className="text-sm text-slate-600 dark:text-slate-300">
+            <span className="text-corpo text-slate-600 dark:text-slate-300">
               Status atual: <strong>{STATUS_LABEL[tenant.status]}</strong>
             </span>
             <div className="flex flex-wrap gap-2">

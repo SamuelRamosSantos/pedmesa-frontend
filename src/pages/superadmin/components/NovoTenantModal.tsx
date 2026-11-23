@@ -143,7 +143,7 @@ export function NovoTenantModal({
         />
 
         <div className="border-t border-slate-100 pt-1 dark:border-slate-800">
-          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+          <p className="mb-3 text-corpo font-medium text-slate-700 dark:text-slate-300">
             Primeiro administrador
           </p>
 

@@ -17,10 +17,13 @@ import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Input } from "../../components/ui/Input";
 import { ItemEditavel } from "../../components/ui/ItemEditavel";
+import { Selo } from "../../components/ui/Selo";
 import { Switch } from "../../components/ui/Switch";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listImpressoras } from "../../services/impressora.service";
 import {
   regenerateTokenAgente,
@@ -290,9 +293,7 @@ export function ConfiguracoesEmpresa() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Configurações da Empresa
-            </h1>
+            <TituloPagina>Configurações da Empresa</TituloPagina>
 
             <button
               type="button"
@@ -311,13 +312,15 @@ export function ConfiguracoesEmpresa() {
             {isLoading && !tenant && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando dados da empresa...</p>
+                <p className="text-corpo">Carregando dados da empresa...</p>
               </div>
             )}
 
             {!isLoading && !tenant && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   Não foi possível carregar os dados da empresa.
                 </p>
                 <Button variant="danger" onClick={refetch}>
@@ -329,7 +332,7 @@ export function ConfiguracoesEmpresa() {
             {tenant && (
               <>
                 <Card>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                     Dados da Empresa
                   </h2>
                   <form
@@ -418,7 +421,7 @@ export function ConfiguracoesEmpresa() {
 
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <span className="text-corpo font-medium text-slate-700 dark:text-slate-300">
                         Endereço
                       </span>
                     </div>
@@ -477,7 +480,7 @@ export function ConfiguracoesEmpresa() {
                 <Card>
                   <div className="flex items-center gap-2">
                     <ChefHat className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                    <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                       Módulo de Cozinha
                     </h2>
                   </div>
@@ -507,7 +510,7 @@ export function ConfiguracoesEmpresa() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <Printer className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                         Impressoras
                       </h2>
                     </div>
@@ -517,7 +520,7 @@ export function ConfiguracoesEmpresa() {
                     </Button>
                   </div>
 
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-corpo text-slate-500 dark:text-slate-400">
                     Cadastre as impressoras de rede (IP) que devem receber os
                     pedidos enviados pelo garçom.
                   </p>
@@ -526,12 +529,12 @@ export function ConfiguracoesEmpresa() {
                     {isLoadingImpressoras && (
                       <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
                         <RefreshCw className="h-4 w-4 animate-spin" />
-                        <p className="text-sm">Carregando impressoras...</p>
+                        <p className="text-corpo">Carregando impressoras...</p>
                       </div>
                     )}
 
                     {!isLoadingImpressoras && impressoras.length === 0 && (
-                      <p className="py-4 text-center text-sm text-slate-400 dark:text-slate-500">
+                      <p className="py-4 text-center text-corpo text-slate-400 dark:text-slate-500">
                         Nenhuma impressora cadastrada ainda.
                       </p>
                     )}
@@ -547,23 +550,17 @@ export function ConfiguracoesEmpresa() {
                           onClick={() => handleEditarImpressora(impressora)}
                         >
                           <div>
-                            <p className="font-medium text-slate-900 dark:text-white">
+                            <p className="text-corpo font-medium text-slate-900 dark:text-white">
                               {impressora.nome}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-legenda text-slate-500 dark:text-slate-400">
                               {impressora.ip}:{impressora.porta}
                             </p>
                           </div>
 
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                              impressora.ativo
-                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                                : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                            }`}
-                          >
+                          <Selo tom={impressora.ativo ? "sucesso" : "neutro"}>
                             {impressora.ativo ? "Ativa" : "Inativa"}
-                          </span>
+                          </Selo>
                         </ItemEditavel>
                       ))}
                   </div>
@@ -571,11 +568,11 @@ export function ConfiguracoesEmpresa() {
                   <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
                     <div className="flex items-center gap-2">
                       <KeyRound className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                      <h3 className="text-corpo font-semibold text-slate-900 dark:text-white">
                         Agente de Impressão Desktop
                       </h3>
                     </div>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 text-corpo text-slate-500 dark:text-slate-400">
                       Use esse token para configurar o aplicativo{" "}
                       <strong>pedmesa-print-agent</strong> no computador do
                       caixa, para imprimir numa impressora USB local.
@@ -587,7 +584,7 @@ export function ConfiguracoesEmpresa() {
                           label="Token do Agente"
                           value={tenant.token_agente}
                           disabled
-                          className="flex-1 font-mono text-xs"
+                          className="flex-1 font-mono"
                         />
                         <Button
                           type="button"

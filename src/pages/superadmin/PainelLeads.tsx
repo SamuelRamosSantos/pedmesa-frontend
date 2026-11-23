@@ -10,8 +10,10 @@ import { useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
 import { Button } from "../../components/ui/Button";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { formatDataHora } from "../../lib/format";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listLeads } from "../../services/super-admin.service";
 import type { LeadAdminItem } from "../../types/super-admin";
 
@@ -85,12 +87,10 @@ export function PainelLeads() {
           </button>
           <img src={logoIcon} alt="PedMesa" className="h-11 w-11 rounded-xl" />
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-legenda text-slate-500 dark:text-slate-400">
               PedMesa · Painel Super-Admin
             </p>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Leads
-            </h1>
+            <TituloPagina>Leads</TituloPagina>
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export function PainelLeads() {
             placeholder="Buscar por nome, estabelecimento ou e-mail..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+            className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-3 text-campo text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
           />
         </div>
 
@@ -134,13 +134,15 @@ export function PainelLeads() {
           {isLoading && (
             <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
               <RefreshCw className="h-6 w-6 animate-spin" />
-              <p className="text-sm">Carregando leads...</p>
+              <p className="text-corpo">Carregando leads...</p>
             </div>
           )}
 
           {!isLoading && errorMessage && (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-              <p className="text-sm text-red-700 dark:text-red-300">
+            <div
+              className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+            >
+              <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                 {errorMessage}
               </p>
               <Button variant="danger" onClick={fetchLeads}>
@@ -152,15 +154,15 @@ export function PainelLeads() {
           {!isLoading && !errorMessage && leadsFiltrados.length === 0 && (
             <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
               <ShieldCheck className="h-10 w-10" />
-              <p className="text-sm">Nenhum lead encontrado.</p>
+              <p className="text-corpo">Nenhum lead encontrado.</p>
             </div>
           )}
 
           {!isLoading && !errorMessage && leadsFiltrados.length > 0 && (
             <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-corpo">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400 dark:border-slate-800 dark:text-slate-500">
+                  <tr className="border-b border-slate-100 text-legenda uppercase tracking-wide text-slate-400 dark:border-slate-800 dark:text-slate-500">
                     <th className="px-4 py-3 font-medium">Nome</th>
                     <th className="px-4 py-3 font-medium">Estabelecimento</th>
                     <th className="px-4 py-3 font-medium">E-mail</th>
@@ -190,7 +192,7 @@ export function PainelLeads() {
                           href={`https://wa.me/55${lead.whatsapp}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-orange-600 hover:underline dark:text-orange-400"
+                          className={`hover:underline ${CLASSES_DO_TOM.marca.texto}`}
                         >
                           {formatWhatsapp(lead.whatsapp)}
                         </a>

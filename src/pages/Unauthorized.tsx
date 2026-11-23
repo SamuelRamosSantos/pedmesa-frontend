@@ -1,6 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import { TituloPagina } from "../components/ui/TituloPagina";
 import { useAuth } from "../contexts/AuthContext";
 import { getHomeRouteForRoles } from "../lib/role-routes";
 
@@ -23,12 +24,10 @@ export function Unauthorized() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-slate-50 px-4 text-center dark:bg-slate-950">
-      <ShieldAlert className="h-12 w-12 text-orange-500" />
+      <ShieldAlert className="h-12 w-12 text-marca-500" />
       <div>
-        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
-          Acesso não autorizado
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <TituloPagina>Acesso não autorizado</TituloPagina>
+        <p className="mt-1 text-corpo text-slate-500 dark:text-slate-400">
           Sua conta não tem permissão para acessar esta página.
         </p>
       </div>

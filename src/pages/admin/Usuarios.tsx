@@ -9,10 +9,13 @@ import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { ItemEditavel } from "../../components/ui/ItemEditavel";
+import { Selo } from "../../components/ui/Selo";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { ROLE_LABEL } from "../../lib/role-labels";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listUsuarios } from "../../services/usuario.service";
 import type { Usuario } from "../../types/usuario";
 import { UsuarioModal } from "./components/UsuarioModal";
@@ -79,9 +82,7 @@ export function Usuarios() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Gestão de Usuários
-            </h1>
+            <TituloPagina>Gestão de Usuários</TituloPagina>
 
             <div className="ml-auto flex items-center gap-3">
               <button
@@ -106,13 +107,15 @@ export function Usuarios() {
             {isLoading && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando usuários...</p>
+                <p className="text-corpo">Carregando usuários...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <Button variant="danger" onClick={fetchUsuarios}>
@@ -124,7 +127,7 @@ export function Usuarios() {
             {!isLoading && !errorMessage && usuarios.length === 0 && (
               <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
                 <UsersIcon className="h-10 w-10" />
-                <p className="text-sm">Nenhum usuário cadastrado ainda.</p>
+                <p className="text-corpo">Nenhum usuário cadastrado ainda.</p>
               </div>
             )}
 
@@ -151,51 +154,47 @@ export function Usuarios() {
                               className="h-10 w-10 shrink-0 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-corpo font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                               {usuario.nome.charAt(0).toUpperCase()}
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-slate-900 dark:text-white">
+                            <p className="text-corpo font-semibold text-slate-900 dark:text-white">
                               {usuario.nome}
                               {isSelf && (
-                                <span className="ml-1.5 text-xs font-normal text-slate-400">
+                                <span className="ml-1.5 text-legenda font-normal text-slate-400">
                                   (você)
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-legenda text-slate-500 dark:text-slate-400">
                               {usuario.email}
                             </p>
                           </div>
                         </div>
                         {!usuario.ativo && (
-                          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/60 dark:text-red-300">
+                          <Selo tom="perigo" className="shrink-0">
                             Inativo
-                          </span>
+                          </Selo>
                         )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5">
                         {usuario.roles.map((role) => (
-                          <span
+                          <Selo
                             key={role}
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                              role === "admin"
-                                ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
-                                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                            }`}
+                            tom={role === "admin" ? "marca" : "neutro"}
+                            icone={
+                              role === "admin" ? <ShieldCheck /> : undefined
+                            }
                           >
-                            {role === "admin" && (
-                              <ShieldCheck className="h-3 w-3" />
-                            )}
                             {ROLE_LABEL[role]}
-                          </span>
+                          </Selo>
                         ))}
                       </div>
 
                       {usuario.pode_excluir_item_fechamento && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-legenda text-slate-500 dark:text-slate-400">
                           Pode excluir item no fechamento
                         </p>
                       )}

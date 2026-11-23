@@ -5,7 +5,9 @@ import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
+import { Select } from "../../../components/ui/Select";
 import { Switch } from "../../../components/ui/Switch";
+import { Textarea } from "../../../components/ui/Textarea";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import {
@@ -206,56 +208,29 @@ export function ProdutoModal({
           error={precoError}
         />
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="produto-categoria"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Categoria
-          </label>
-          <select
-            id="produto-categoria"
-            value={categoriaId}
-            onChange={(event) => setCategoriaId(event.target.value)}
-            className={`rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 dark:bg-slate-800 dark:text-white ${
-              categoriaError
-                ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
-                : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
-            }`}
-          >
-            <option value="">Selecione uma categoria...</option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nome}
-              </option>
-            ))}
-          </select>
-          {categoriaError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {categoriaError}
-            </p>
-          )}
-        </div>
+        <Select
+          id="produto-categoria"
+          label="Categoria"
+          value={categoriaId}
+          onChange={(event) => setCategoriaId(event.target.value)}
+          error={categoriaError}
+        >
+          <option value="">Selecione uma categoria...</option>
+          {categorias.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nome}
+            </option>
+          ))}
+        </Select>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="produto-descricao"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Descrição{" "}
-            <span className="font-normal text-slate-400 dark:text-slate-500">
-              (opcional)
-            </span>
-          </label>
-          <textarea
-            id="produto-descricao"
-            rows={2}
-            placeholder="Ex.: Sem cebola, acompanha molho especial"
-            value={descricao}
-            onChange={(event) => setDescricao(event.target.value)}
-            className="resize-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-          />
-        </div>
+        <Textarea
+          id="produto-descricao"
+          label="Descrição (opcional)"
+          rows={2}
+          placeholder="Ex.: Sem cebola, acompanha molho especial"
+          value={descricao}
+          onChange={(event) => setDescricao(event.target.value)}
+        />
 
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
           <Switch

@@ -1,23 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-// Teste de conformidade do guia visual (PED-132, PED-136): impede regressões de
-// tipografia e de cor nos diretórios já migrados. A cada novo card de aplicação
-// (PED-137 a PED-141), o diretório migrado entra no glob abaixo.
+// Teste de conformidade do guia visual (PED-132, PED-136 a PED-141): impede
+// regressões de tipografia e de cor em 100% dos arquivos .tsx de src/.
 
-const ARQUIVOS_MIGRADOS = import.meta.glob<string>(
-  [
-    "../components/**/*.tsx",
-    "../pages/caixa/**/*.tsx",
-    "../pages/cozinha/**/*.tsx",
-    "../pages/dev/**/*.tsx",
-    "../pages/expedicao/**/*.tsx",
-  ],
-  {
-    query: "?raw",
-    import: "default",
-    eager: true,
-  },
-);
+const ARQUIVOS_MIGRADOS = import.meta.glob<string>(["../**/*.tsx"], {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 const PADROES_PROIBIDOS: { nome: string; regex: RegExp }[] = [
   {

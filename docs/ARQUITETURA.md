@@ -142,7 +142,7 @@ Tamanho, peso e cor saem dos tokens abaixo, não de uma classe escolhida na tela
 
 **Padrão único de edição (PED-135):** nas listas de cadastro (Produtos, Usuários, Bairros e taxas, Impressoras, Clientes, Endereços do cliente e Estabelecimentos do Super-Admin), a lista exibe apenas o item e seu estado (`Selo`), sem botões de ação soltos; clicar no item (`ItemEditavel`) abre a edição (`Modal` ou editor inline), onde ficam os campos, ativar/desativar, salvar e excluir (`RodapeEdicao`).
 
-**Teste de conformidade (`src/lib/conformidade-guia.test.ts`, PED-136):** verifica automaticamente nos diretórios já migrados (`src/components/**`, `src/pages/cozinha/**`, `src/pages/dev/**`) a ausência de `font-bold`, `font-extrabold`, tamanhos arbitrários (`text-[10px|11px|13px]`), tamanhos fora dos tokens (`text-xs` a `text-5xl`), `orange-*` direto e cores decorativas (`violet-*`, `yellow-*`, `blue-*`).
+**Teste de conformidade (`src/lib/conformidade-guia.test.ts`, PED-136 a PED-141):** verifica automaticamente em 100% dos arquivos `.tsx` de `src/` a ausência de `font-bold`, `font-extrabold`, tamanhos arbitrários (`text-[10px|11px|13px]`), tamanhos fora dos tokens (`text-xs` a `text-5xl`), `orange-*` direto e cores decorativas (`violet-*`, `yellow-*`, `blue-*`).
 
 A aplicação do guia no KDS é o PED-133, nos componentes compartilhados é o PED-136 e nas demais telas, os cards PED-137 a PED-141 (levantados na PED-134).
 

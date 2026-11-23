@@ -10,6 +10,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import { ROLE_LABEL, ROLES_EM_ORDEM } from "../../../lib/role-labels";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import {
   alterarSenhaUsuario,
   createUsuario,
@@ -248,7 +249,7 @@ export function UsuarioModal({
         />
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <p className="text-corpo font-medium text-slate-700 dark:text-slate-300">
             Visões (papéis de acesso)
           </p>
 
@@ -261,7 +262,7 @@ export function UsuarioModal({
               return (
                 <label
                   key={opcao.role}
-                  className={`flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300 ${
+                  className={`flex items-center gap-2.5 text-corpo text-slate-700 dark:text-slate-300 ${
                     disabled ? "opacity-60" : "cursor-pointer"
                   }`}
                 >
@@ -270,12 +271,12 @@ export function UsuarioModal({
                     checked={roles.includes(opcao.role)}
                     onChange={() => handleToggleRole(opcao.role)}
                     disabled={disabled}
-                    className="h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
+                    className="h-4 w-4 rounded border-slate-300 accent-marca-600 dark:border-slate-600 dark:bg-slate-800"
                   />
                   {opcao.label}
                   {opcao.role === "admin" && (
                     <ShieldCheck
-                      className="h-3.5 w-3.5 text-orange-500"
+                      className="h-3.5 w-3.5 text-marca-500"
                       aria-hidden="true"
                     />
                   )}
@@ -285,13 +286,13 @@ export function UsuarioModal({
           </div>
 
           {isEditandoProprioUsuario && alvoJaEhAdmin && (
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-legenda text-slate-400 dark:text-slate-500">
               Você não pode remover sua própria permissão de Admin.
             </p>
           )}
 
           {!usaModuloCozinha && (
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-legenda text-slate-400 dark:text-slate-500">
               O módulo de visão e preparo na cozinha está desativado nas
               configurações da empresa — não é possível conceder ou remover a
               visão de Cozinha enquanto isso.
@@ -299,7 +300,7 @@ export function UsuarioModal({
           )}
 
           {rolesError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className={`text-legenda ${CLASSES_DO_TOM.perigo.texto}`}>
               {rolesError}
             </p>
           )}
