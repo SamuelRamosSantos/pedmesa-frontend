@@ -100,6 +100,52 @@ Assistente em três etapas com a `BarraEtapas` no topo: **Cliente** (busca únic
 
 As regras completas (cliente HTTP único da API, integrações externas isoladas, generalizar em vez de duplicar, backend como fonte da verdade, acessibilidade) estão em `.agents/AGENTS.md`, seção 8.
 
+### Guia visual (PED-132)
+
+Tamanho, peso e cor saem dos tokens abaixo, não de uma classe escolhida na tela. Em desenvolvimento, a página `/dev/guia` mostra tudo no claro e no escuro (ela não entra no build).
+
+**Tipografia** (`@theme` em `src/index.css`; cada token já traz entrelinha e peso)
+
+| Classe               | Uso                                                              | Medida            |
+| -------------------- | ---------------------------------------------------------------- | ----------------- |
+| `text-titulo-pagina` | `h1` de cada tela (componente `TituloPagina`)                    | 24px · 1.25 · 600 |
+| `text-titulo-secao`  | `h2` de seções, cards e modais                                   | 18px · 1.3 · 600  |
+| `text-destaque`      | número do pedido ou da mesa, total (componente `NumeroDestaque`) | 36px · 1.1 · 600  |
+| `text-corpo`         | texto padrão das telas                                           | 14px · 1.5 · 400  |
+| `text-campo`         | valor digitado em input e select                                 | 16px · 1.5 · 400  |
+| `text-legenda`       | horário, rótulo, selo, ajuda                                     | 12px · 1.4 · 400  |
+
+- Só três pesos: 400 (texto), 500 (`font-medium`: rótulos, botões, selos) e 600 (`font-semibold`: títulos e números). Sem `font-bold` nem `font-extrabold`.
+- Nada abaixo de 12px (sem `text-[10px]`, `text-[11px]`).
+- Campos sempre em 16px: abaixo disso o Safari do iPhone dá zoom ao focar.
+- Fonte do sistema (`system-ui`): carrega na hora e funciona offline no PWA.
+
+**Paleta semântica** (`src/lib/tons.ts`): uma cor por significado.
+
+| Tom         | Cor                         | Significa                                                                     |
+| ----------- | --------------------------- | ----------------------------------------------------------------------------- |
+| `marca`     | laranja (`--color-marca-*`) | ação principal, seleção, foco, item ativo do menu                             |
+| `aviso`     | âmbar                       | aguardando ou pede atenção: pendente, observação do item, começando a atrasar |
+| `andamento` | azul-céu                    | em preparo, em produção, em rota                                              |
+| `sucesso`   | verde                       | pronto, pago, conectado, salvo                                                |
+| `perigo`    | vermelho                    | erro, atrasado, cancelar e excluir                                            |
+| `neutro`    | slate                       | concluído, cancelado (riscado), inativo, tipo de atendimento, todo o resto    |
+
+- `CLASSES_DO_TOM[tom]` dá quatro variações: `selo` (suave, o padrão), `seloForte` (sólido, para ler de longe no KDS), `superficie` (bloco ou cabeçalho de coluna) e `texto`.
+- Status nunca escolhem cor na tela: `TOM_STATUS_ITEM` (`lib/status-item.ts`) e `TOM_STATUS_ENTREGA` (`lib/expedicao.ts`) dizem o tom, e o teste `tons.test.ts` garante que todo status tem um. O mesmo momento tem o mesmo tom na cozinha e na expedição.
+- A cor da marca usa o alias `marca-*` (`bg-marca-600`), não `orange-*`. Trocar a marca é mudar o `@theme`.
+- Sem cor decorativa: violeta, azul ou amarelo "para destacar" não existem. Mesa e delivery se distinguem por ícone e texto (`TipoAtendimento`), não por cor.
+
+**Componentes base** (`src/components/ui`): `Selo` (status com tom, opcional `forte` e `riscado`), `TipoAtendimento`, `NumeroDestaque`, `TituloPagina`, `ItemEditavel` (card ou linha clicável para abrir a edição, sem botões "Editar" ou lápis espalhados na lista; PED-135) e `RodapeEdicao` (Cancelar, Salvar e Excluir com confirmação nomeando o item; PED-135), além de `Button`, `Card`, `Modal` (com retorno automático de foco ao elemento que abriu), `Input`, `Select`, `Textarea`, `CurrencyInput`, `Switch`, `OpcaoSelecionavel`, `BarraEtapas`, `ConfirmDialog`, `ImageUpload` e `Toast`, já nos tokens.
+
+**Superfícies:** card com borda de 1px sutil e sombra leve (alpha abaixo de 0,08); no escuro, borda sem sombra. Sombra forte só em sobreposições (modal, toast).
+
+**Padrão único de edição (PED-135):** nas listas de cadastro (Produtos, Usuários, Bairros e taxas, Impressoras, Clientes, Endereços do cliente e Estabelecimentos do Super-Admin), a lista exibe apenas o item e seu estado (`Selo`), sem botões de ação soltos; clicar no item (`ItemEditavel`) abre a edição (`Modal` ou editor inline), onde ficam os campos, ativar/desativar, salvar e excluir (`RodapeEdicao`).
+
+**Teste de conformidade (`src/lib/conformidade-guia.test.ts`, PED-136 a PED-141):** verifica automaticamente em 100% dos arquivos `.tsx` de `src/` a ausência de `font-bold`, `font-extrabold`, tamanhos arbitrários (`text-[10px|11px|13px]`), tamanhos fora dos tokens (`text-xs` a `text-5xl`), `orange-*` direto e cores decorativas (`violet-*`, `yellow-*`, `blue-*`).
+
+A aplicação do guia no KDS é o PED-133, nos componentes compartilhados é o PED-136 e nas demais telas, os cards PED-137 a PED-141 (levantados na PED-134).
+
 ## 9. Limitações conhecidas
 
 - Os testes do Vitest cobrem só a lógica pura de `src/lib`; as telas não têm testes automatizados versionados, e o CI ainda não roda `npm test`.

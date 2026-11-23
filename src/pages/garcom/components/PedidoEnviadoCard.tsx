@@ -5,12 +5,10 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
+import { Selo } from "../../../components/ui/Selo";
 import { useAuth } from "../../../contexts/AuthContext";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
-import {
-  STATUS_ITEM_BADGE_CLASS,
-  STATUS_ITEM_LABEL,
-} from "../../../lib/status-item";
+import { STATUS_ITEM_LABEL, TOM_STATUS_ITEM } from "../../../lib/status-item";
 import type { PedidoAtivo, PedidoItemAtivo } from "../../../types/pedido";
 
 interface PedidoEnviadoCardProps {
@@ -100,11 +98,12 @@ export function PedidoEnviadoCard({
                     </p>
                   )}
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold uppercase ${STATUS_ITEM_BADGE_CLASS[item.status_item]}`}
+                <Selo
+                  tom={TOM_STATUS_ITEM[item.status_item]}
+                  riscado={item.status_item === "cancelado"}
                 >
                   {STATUS_ITEM_LABEL[item.status_item]}
-                </span>
+                </Selo>
               </div>
 
               {item.observacao && (

@@ -78,7 +78,7 @@ export function Login() {
             alt="PedMesa"
             className="hidden h-10 w-auto dark:block"
           />
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-corpo text-slate-500 dark:text-slate-400">
             Entre com sua conta para continuar
           </p>
         </div>

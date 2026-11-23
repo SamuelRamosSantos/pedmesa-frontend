@@ -1,34 +1,28 @@
 import {
-  KeyRound,
   Menu,
-  Pencil,
   PlusCircle,
   RefreshCw,
   ShieldCheck,
-  Trash2,
-  Undo2,
   Users as UsersIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
+import { Selo } from "../../components/ui/Selo";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
-import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { ROLE_LABEL } from "../../lib/role-labels";
-import {
-  listUsuarios,
-  updateUsuarioAtivo,
-} from "../../services/usuario.service";
+import { CLASSES_DO_TOM } from "../../lib/tons";
+import { listUsuarios } from "../../services/usuario.service";
 import type { Usuario } from "../../types/usuario";
-import { AlterarSenhaModal } from "./components/AlterarSenhaModal";
 import { UsuarioModal } from "./components/UsuarioModal";
 
 export function Usuarios() {
   const { user: usuarioLogado } = useAuth();
   const { tenant } = useTenant();
-  const { showToast } = useToast();
   const usaModuloCozinha = tenant?.usa_modulo_cozinha ?? true;
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -37,9 +31,6 @@ export function Usuarios() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
-  const [usuarioAlterandoSenha, setUsuarioAlterandoSenha] =
-    useState<Usuario | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchUsuarios = useCallback(async () => {
     setIsLoading(true);
@@ -77,37 +68,6 @@ export function Usuarios() {
     fetchUsuarios();
   }
 
-  function handleSenhaSaved() {
-    setUsuarioAlterandoSenha(null);
-  }
-
-  async function handleToggleAtivo(usuario: Usuario) {
-    setTogglingId(usuario.id);
-
-    try {
-      const atualizado = await updateUsuarioAtivo(usuario.id, !usuario.ativo);
-      setUsuarios((current) =>
-        current.map((item) => (item.id === usuario.id ? atualizado : item)),
-      );
-      showToast(
-        atualizado.ativo
-          ? `"${usuario.nome}" reativado.`
-          : `"${usuario.nome}" desativado.`,
-        "success",
-      );
-    } catch (error) {
-      showToast(
-        getApiErrorMessage(
-          error,
-          "Não foi possível atualizar o status do usuário.",
-        ),
-        "error",
-      );
-    } finally {
-      setTogglingId(null);
-    }
-  }
-
   return (
     <AppShell>
       {({ openSidebar }) => (
@@ -122,9 +82,7 @@ export function Usuarios() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Gestão de Usuários
-            </h1>
+            <TituloPagina>Gestão de Usuários</TituloPagina>
 
             <div className="ml-auto flex items-center gap-3">
               <button
@@ -149,13 +107,15 @@ export function Usuarios() {
             {isLoading && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando usuários...</p>
+                <p className="text-corpo">Carregando usuários...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <Button variant="danger" onClick={fetchUsuarios}>
@@ -167,7 +127,7 @@ export function Usuarios() {
             {!isLoading && !errorMessage && usuarios.length === 0 && (
               <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-400 dark:text-slate-500">
                 <UsersIcon className="h-10 w-10" />
-                <p className="text-sm">Nenhum usuário cadastrado ainda.</p>
+                <p className="text-corpo">Nenhum usuário cadastrado ainda.</p>
               </div>
             )}
 
@@ -177,14 +137,15 @@ export function Usuarios() {
                   const isSelf = usuario.id === usuarioLogado?.id;
 
                   return (
-                    <div
+                    <ItemEditavel
                       key={usuario.id}
+                      variante="card"
+                      inativo={!usuario.ativo}
                       data-testid={`usuario-card-${usuario.nome}`}
-                      className={`flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 ${
-                        usuario.ativo ? "" : "opacity-70"
-                      }`}
+                      aria-label={`Editar usuário ${usuario.nome}`}
+                      onClick={() => handleEditarUsuario(usuario)}
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex w-full items-start justify-between gap-2">
                         <div className="flex items-start gap-3">
                           {usuario.foto_url ? (
                             <img
@@ -193,99 +154,51 @@ export function Usuarios() {
                               className="h-10 w-10 shrink-0 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-corpo font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                               {usuario.nome.charAt(0).toUpperCase()}
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-slate-900 dark:text-white">
+                            <p className="text-corpo font-semibold text-slate-900 dark:text-white">
                               {usuario.nome}
                               {isSelf && (
-                                <span className="ml-1.5 text-xs font-normal text-slate-400">
+                                <span className="ml-1.5 text-legenda font-normal text-slate-400">
                                   (você)
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-legenda text-slate-500 dark:text-slate-400">
                               {usuario.email}
                             </p>
                           </div>
                         </div>
                         {!usuario.ativo && (
-                          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/60 dark:text-red-300">
+                          <Selo tom="perigo" className="shrink-0">
                             Inativo
-                          </span>
+                          </Selo>
                         )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5">
                         {usuario.roles.map((role) => (
-                          <span
+                          <Selo
                             key={role}
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                              role === "admin"
-                                ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
-                                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                            }`}
+                            tom={role === "admin" ? "marca" : "neutro"}
+                            icone={
+                              role === "admin" ? <ShieldCheck /> : undefined
+                            }
                           >
-                            {role === "admin" && (
-                              <ShieldCheck className="h-3 w-3" />
-                            )}
                             {ROLE_LABEL[role]}
-                          </span>
+                          </Selo>
                         ))}
                       </div>
 
                       {usuario.pode_excluir_item_fechamento && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-legenda text-slate-500 dark:text-slate-400">
                           Pode excluir item no fechamento
                         </p>
                       )}
-
-                      <div className="mt-1 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-                        <button
-                          type="button"
-                          onClick={() => handleEditarUsuario(usuario)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Editar
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setUsuarioAlterandoSenha(usuario)}
-                          aria-label={`Alterar senha de ${usuario.nome}`}
-                          title="Alterar senha"
-                          className="flex shrink-0 items-center justify-center rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleAtivo(usuario)}
-                          disabled={togglingId === usuario.id || isSelf}
-                          title={
-                            isSelf
-                              ? "Você não pode desativar sua própria conta."
-                              : undefined
-                          }
-                          aria-label={
-                            usuario.ativo
-                              ? `Desativar ${usuario.nome}`
-                              : `Reativar ${usuario.nome}`
-                          }
-                          className="flex shrink-0 items-center justify-center rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-400 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-                        >
-                          {usuario.ativo ? (
-                            <Trash2 className="h-4 w-4" />
-                          ) : (
-                            <Undo2 className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                    </ItemEditavel>
                   );
                 })}
               </div>
@@ -301,13 +214,6 @@ export function Usuarios() {
               setUsuarioEditando(null);
             }}
             onSaved={handleModalSaved}
-          />
-
-          <AlterarSenhaModal
-            isOpen={usuarioAlterandoSenha !== null}
-            usuario={usuarioAlterandoSenha}
-            onClose={() => setUsuarioAlterandoSenha(null)}
-            onSaved={handleSenhaSaved}
           />
         </>
       )}

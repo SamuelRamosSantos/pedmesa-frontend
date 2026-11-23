@@ -1,4 +1,5 @@
 import { Card } from "../../../components/ui/Card";
+import { NumeroDestaque } from "../../../components/ui/NumeroDestaque";
 import { formatCurrency } from "../../../lib/format";
 import type { ResumoFinanceiro } from "../../../types/comanda";
 
@@ -9,11 +10,11 @@ interface ResumoFinanceiroCardProps {
 export function ResumoFinanceiroCard({ resumo }: ResumoFinanceiroCardProps) {
   return (
     <Card>
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+      <h2 className="text-titulo-secao text-slate-900 dark:text-white">
         Resumo Financeiro
       </h2>
 
-      <dl className="mt-4 flex flex-col gap-2 text-sm">
+      <dl className="mt-4 flex flex-col gap-2 text-corpo">
         <div className="flex items-center justify-between">
           <dt className="text-slate-500 dark:text-slate-400">
             Total de Itens Individuais
@@ -41,12 +42,12 @@ export function ResumoFinanceiroCard({ resumo }: ResumoFinanceiroCardProps) {
       </dl>
 
       <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <span className="text-corpo font-medium text-slate-700 dark:text-slate-300">
           Valor Total da Comanda
         </span>
-        <span className="text-3xl font-bold text-slate-900 dark:text-white">
+        <NumeroDestaque>
           {formatCurrency(resumo.valor_total_comanda)}
-        </span>
+        </NumeroDestaque>
       </div>
     </Card>
   );

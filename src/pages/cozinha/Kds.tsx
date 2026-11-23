@@ -11,10 +11,14 @@ import {
 import { useCallback, useMemo, useRef, useState } from "react";
 import { KanbanColumn } from "../../components/kanban/KanbanColumn";
 import { AppShell } from "../../components/layout/AppShell";
+import { Button } from "../../components/ui/Button";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useToast } from "../../contexts/ToastContext";
 import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { identificacaoNoKds } from "../../lib/atendimento-kds";
+import { TOM_STATUS_ITEM } from "../../lib/status-item";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listPedidos, updateItemStatus } from "../../services/pedido.service";
 import type { PedidoAtivo, StatusItem } from "../../types/pedido";
 import { GrupoPreparoCard } from "./components/GrupoPreparoCard";
@@ -29,35 +33,13 @@ const POLL_INTERVAL_MS = 8000;
 
 const STATUS_FORA_DA_FILA: StatusItem[] = ["entregue", "cancelado"];
 
-const COLUNA_VISUAL: Record<
-  StatusItem,
-  { icon: LucideIcon; headerClass: string }
-> = {
-  pendente: {
-    icon: Clock3,
-    headerClass:
-      "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-300",
-  },
-  em_preparo: {
-    icon: Flame,
-    headerClass:
-      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300",
-  },
-  pronto: {
-    icon: CheckCircle2,
-    headerClass:
-      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-300",
-  },
-  entregue: {
-    icon: CheckCircle2,
-    headerClass:
-      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
-  },
-  cancelado: {
-    icon: CheckCircle2,
-    headerClass:
-      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
-  },
+// A cor da coluna vem do tom do status (guia visual, PED-132).
+const ICONE_DA_COLUNA: Record<StatusItem, LucideIcon> = {
+  pendente: Clock3,
+  em_preparo: Flame,
+  pronto: CheckCircle2,
+  entregue: CheckCircle2,
+  cancelado: CheckCircle2,
 };
 
 function calcularStatusGrupo(statusDosItens: StatusItem[]): StatusItem {
@@ -258,13 +240,11 @@ export function Kds() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Painel da Cozinha
-            </h1>
+            <TituloPagina>Painel da Cozinha</TituloPagina>
 
             <div className="ml-auto flex items-center gap-4">
               <span
-                className={`flex items-center gap-1.5 text-xs font-semibold ${isConnected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                className={`flex items-center gap-1.5 text-legenda font-medium ${isConnected ? CLASSES_DO_TOM.sucesso.texto : CLASSES_DO_TOM.perigo.texto}`}
               >
                 {isConnected ? (
                   <Wifi className="h-4 w-4" />
@@ -291,22 +271,18 @@ export function Kds() {
             {isLoading && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando pedidos...</p>
+                <p className="text-corpo">Carregando pedidos...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/40 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
-                  {errorMessage}
-                </p>
-                <button
-                  type="button"
-                  onClick={fetchPedidos}
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
-                >
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className="text-corpo">{errorMessage}</p>
+                <Button variant="danger" onClick={fetchPedidos}>
                   Tentar novamente
-                </button>
+                </Button>
               </div>
             )}
 
@@ -316,8 +292,10 @@ export function Kds() {
                   <KanbanColumn
                     key={coluna.status}
                     titulo={coluna.titulo}
-                    icon={COLUNA_VISUAL[coluna.status].icon}
-                    headerClass={COLUNA_VISUAL[coluna.status].headerClass}
+                    icon={ICONE_DA_COLUNA[coluna.status]}
+                    headerClass={
+                      CLASSES_DO_TOM[TOM_STATUS_ITEM[coluna.status]].superficie
+                    }
                     itens={gruposPorStatus[coluna.status]}
                     chave={(grupo) => grupo.pedidoId}
                     renderCard={(grupo) => (

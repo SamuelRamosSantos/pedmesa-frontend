@@ -10,14 +10,14 @@ interface EnderecoNovoFormProps {
 export function EnderecoNovoForm({ endereco }: EnderecoNovoFormProps) {
   return (
     <EnderecoForm endereco={endereco}>
-      <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+      <label className="flex w-fit cursor-pointer items-center gap-2 text-corpo text-slate-700 dark:text-slate-300">
         <input
           type="checkbox"
           checked={endereco.salvarNoCadastro}
           onChange={(evento) =>
             endereco.alterarSalvarNoCadastro(evento.target.checked)
           }
-          className="h-4 w-4 accent-orange-600"
+          className="h-4 w-4 accent-marca-600"
         />
         Salvar endereço no cadastro
       </label>

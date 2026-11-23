@@ -1,15 +1,18 @@
-import { Banknote, Save } from "lucide-react";
+import { Banknote } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/Button";
 import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
+import { Select } from "../../../components/ui/Select";
 import { Switch } from "../../../components/ui/Switch";
+import { Textarea } from "../../../components/ui/Textarea";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import {
   createProduto,
+  deleteProduto,
   updateProduto,
 } from "../../../services/produto.service";
 import type { Categoria } from "../../../types/categoria";
@@ -22,6 +25,7 @@ interface ProdutoModalProps {
   usaModuloCozinha: boolean;
   onClose: () => void;
   onSaved: () => void;
+  onDeleted?: (produtoId: string) => void;
 }
 
 export function ProdutoModal({
@@ -31,6 +35,7 @@ export function ProdutoModal({
   usaModuloCozinha,
   onClose,
   onSaved,
+  onDeleted,
 }: ProdutoModalProps) {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
@@ -44,6 +49,7 @@ export function ProdutoModal({
   const [precoError, setPrecoError] = useState<string | undefined>();
   const [categoriaError, setCategoriaError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { showToast } = useToast();
   const isEdicao = produtoEditando !== null;
@@ -75,7 +81,28 @@ export function ProdutoModal({
     setPrecoError(undefined);
     setCategoriaError(undefined);
     setIsSubmitting(false);
+    setIsDeleting(false);
   }, [isOpen, produtoEditando]);
+
+  async function handleExcluir() {
+    if (!produtoEditando || !onDeleted) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteProduto(produtoEditando.id);
+      showToast(`Produto "${produtoEditando.nome}" excluído.`, "success");
+      onDeleted(produtoEditando.id);
+    } catch (error) {
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir o produto."),
+        "error",
+      );
+      setIsDeleting(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -181,56 +208,29 @@ export function ProdutoModal({
           error={precoError}
         />
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="produto-categoria"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Categoria
-          </label>
-          <select
-            id="produto-categoria"
-            value={categoriaId}
-            onChange={(event) => setCategoriaId(event.target.value)}
-            className={`rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 dark:bg-slate-800 dark:text-white ${
-              categoriaError
-                ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
-                : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
-            }`}
-          >
-            <option value="">Selecione uma categoria...</option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nome}
-              </option>
-            ))}
-          </select>
-          {categoriaError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {categoriaError}
-            </p>
-          )}
-        </div>
+        <Select
+          id="produto-categoria"
+          label="Categoria"
+          value={categoriaId}
+          onChange={(event) => setCategoriaId(event.target.value)}
+          error={categoriaError}
+        >
+          <option value="">Selecione uma categoria...</option>
+          {categorias.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nome}
+            </option>
+          ))}
+        </Select>
 
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="produto-descricao"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Descrição{" "}
-            <span className="font-normal text-slate-400 dark:text-slate-500">
-              (opcional)
-            </span>
-          </label>
-          <textarea
-            id="produto-descricao"
-            rows={2}
-            placeholder="Ex.: Sem cebola, acompanha molho especial"
-            value={descricao}
-            onChange={(event) => setDescricao(event.target.value)}
-            className="resize-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-          />
-        </div>
+        <Textarea
+          id="produto-descricao"
+          label="Descrição (opcional)"
+          rows={2}
+          placeholder="Ex.: Sem cebola, acompanha molho especial"
+          value={descricao}
+          onChange={(event) => setDescricao(event.target.value)}
+        />
 
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
           <Switch
@@ -256,20 +256,24 @@ export function ProdutoModal({
           )}
         </div>
 
-        <div className="mt-2 flex gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" isLoading={isSubmitting} className="flex-1">
-            <Save className="h-4 w-4" />
-            Salvar
-          </Button>
-        </div>
+        <RodapeEdicao
+          onCancelar={onClose}
+          salvando={isSubmitting}
+          excluir={
+            produtoEditando && onDeleted
+              ? {
+                  confirmacao: (
+                    <span>
+                      Excluir o produto <strong>{produtoEditando.nome}</strong>?
+                      Esta ação não pode ser desfeita.
+                    </span>
+                  ),
+                  excluindo: isDeleting,
+                  onConfirmar: () => void handleExcluir(),
+                }
+              : undefined
+          }
+        />
       </form>
     </Modal>
   );

@@ -2,7 +2,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Pencil,
   RefreshCw,
   Search,
   UserPlus,
@@ -13,12 +12,15 @@ import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useComAtraso } from "../../hooks/useComAtraso";
 import { useConsultaPorChave } from "../../hooks/useConsultaPorChave";
 import { formatarTermoDigitado } from "../../lib/busca-cliente";
 import { totalDePaginas } from "../../lib/cadastro-cliente";
 import { resumoEndereco } from "../../lib/identificacao-cliente";
 import { mascararTelefone } from "../../lib/mascaras";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { listarClientes } from "../../services/cliente.service";
 import type { Cliente } from "../../types/cliente";
 import { ClienteModal } from "./components/ClienteModal";
@@ -29,8 +31,8 @@ const ATRASO_BUSCA_MS = 300;
 // "Editando": null = cliente novo; undefined = modal fechado.
 type Edicao = Cliente | null | undefined;
 
-// Clientes cadastrados do delivery (PED-124): lista paginada com a busca única por nome
-// ou telefone e o cadastro/edição de cada cliente com seus endereços.
+// Clientes cadastrados do delivery (PED-124, PED-137): lista paginada com a busca única
+// por nome ou telefone e o cadastro/edição de cada cliente com seus endereços.
 export function Clientes() {
   const [termo, setTermo] = useState("");
   const [pagina, setPagina] = useState(1);
@@ -82,12 +84,10 @@ export function Clientes() {
               <Menu className="h-5 w-5" />
             </button>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-legenda text-slate-500 dark:text-slate-400">
                 PedMesa · Delivery
               </p>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                Clientes
-              </h1>
+              <TituloPagina>Clientes</TituloPagina>
             </div>
             <Button
               onClick={() => setEditando(null)}
@@ -116,14 +116,16 @@ export function Clientes() {
               />
 
               {carregando && (
-                <p className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500 dark:text-slate-400">
+                <p className="flex items-center justify-center gap-2 py-6 text-corpo text-slate-500 dark:text-slate-400">
                   <RefreshCw className="h-4 w-4 animate-spin" />
                   Carregando clientes...
                 </p>
               )}
 
               {!carregando && consulta.status === "falhou" && (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                <div
+                  className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-corpo ${CLASSES_DO_TOM.perigo.superficie}`}
+                >
                   Não foi possível carregar os clientes.
                   <Button
                     variant="danger"
@@ -139,16 +141,16 @@ export function Clientes() {
                   <Users className="h-8 w-8" />
                   {busca === "" ? (
                     <>
-                      <p className="text-sm">
+                      <p className="text-corpo">
                         Nenhum cliente cadastrado ainda.
                       </p>
-                      <p className="max-w-sm text-xs">
+                      <p className="max-w-sm text-legenda">
                         Os clientes entram aqui no primeiro pedido delivery ou
                         pelo botão "Novo cliente".
                       </p>
                     </>
                   ) : (
-                    <p className="text-sm">
+                    <p className="text-corpo">
                       Nenhum cliente encontrado para "{busca}".
                     </p>
                   )}
@@ -157,7 +159,7 @@ export function Clientes() {
 
               {!carregando && lista && lista.clientes.length > 0 && (
                 <>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-corpo text-slate-500 dark:text-slate-400">
                     {lista.total === 1
                       ? "1 cliente"
                       : `${lista.total} clientes`}
@@ -177,7 +179,7 @@ export function Clientes() {
               {!carregando && lista && paginas > 1 && (
                 <nav
                   aria-label="Páginas de clientes"
-                  className="flex items-center justify-between gap-3 border-t border-slate-200 pt-3 text-sm dark:border-slate-800"
+                  className="flex items-center justify-between gap-3 border-t border-slate-200 pt-3 text-corpo dark:border-slate-800"
                 >
                   <Button
                     variant="secondary"
@@ -228,31 +230,27 @@ function LinhaCliente({
   const outros = cliente.enderecos.length - 1;
 
   return (
-    <li
-      data-testid={`cliente-${cliente.telefone}`}
-      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700"
-    >
-      <div className="min-w-0">
-        <p className="flex flex-wrap items-baseline gap-x-3 font-medium text-slate-900 dark:text-white">
-          {cliente.nome}
-          <span className="whitespace-nowrap text-sm font-normal tabular-nums text-slate-600 dark:text-slate-300">
-            {mascararTelefone(cliente.telefone)}
-          </span>
-        </p>
-        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-          {principal
-            ? `${resumoEndereco(principal)} · ${principal.bairro}${outros > 0 ? ` · +${outros} ${outros === 1 ? "endereço" : "endereços"}` : ""}`
-            : "Sem endereço salvo"}
-        </p>
-      </div>
-      <Button
-        variant="secondary"
+    <li>
+      <ItemEditavel
+        variante="linha"
+        data-testid={`cliente-${cliente.telefone}`}
+        aria-label={`Editar cliente ${cliente.nome}`}
         onClick={onEditar}
-        aria-label={`Editar ${cliente.nome}`}
       >
-        <Pencil className="h-4 w-4" />
-        Editar
-      </Button>
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-3 font-medium text-slate-900 dark:text-white">
+            {cliente.nome}
+            <span className="whitespace-nowrap text-corpo font-normal tabular-nums text-slate-600 dark:text-slate-300">
+              {mascararTelefone(cliente.telefone)}
+            </span>
+          </p>
+          <p className="truncate text-legenda text-slate-500 dark:text-slate-400">
+            {principal
+              ? `${resumoEndereco(principal)} · ${principal.bairro}${outros > 0 ? ` · +${outros} ${outros === 1 ? "endereço" : "endereços"}` : ""}`
+              : "Sem endereço salvo"}
+          </p>
+        </div>
+      </ItemEditavel>
     </li>
   );
 }

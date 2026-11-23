@@ -40,8 +40,10 @@ export function KanbanColumn<T>({
         className={`flex items-center gap-2 rounded-t-2xl border-b px-4 py-3 ${headerClass} ${recolhida ? "rounded-b-2xl md:rounded-b-none" : ""}`}
       >
         <Icon className="h-4 w-4" />
-        <h2 className="text-sm font-bold uppercase tracking-wide">{titulo}</h2>
-        <span className="ml-auto rounded-full bg-black/10 px-2.5 py-0.5 text-xs font-bold tabular-nums dark:bg-black/25">
+        <h2 className="text-corpo font-semibold uppercase tracking-wide">
+          {titulo}
+        </h2>
+        <span className="ml-auto rounded-full bg-black/10 px-2.5 py-0.5 text-legenda font-semibold tabular-nums dark:bg-black/25">
           {itens.length}
         </span>
         {recolhivel && (
@@ -68,7 +70,7 @@ export function KanbanColumn<T>({
           className="flex flex-col gap-3 p-3 md:min-h-0 md:flex-1 md:overflow-y-auto"
         >
           {itens.length === 0 && (
-            <p className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+            <p className="py-8 text-center text-legenda text-slate-400 dark:text-slate-500">
               {mensagemVazia}
             </p>
           )}

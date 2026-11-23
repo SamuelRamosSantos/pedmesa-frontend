@@ -41,7 +41,7 @@ export function ToastViewport({ toasts, onDismiss }: ToastViewportProps) {
             className={`flex items-start gap-3 rounded-lg border p-4 shadow-lg ${VARIANT_STYLES[toast.variant]}`}
           >
             <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-            <p className="flex-1 text-sm font-medium">{toast.message}</p>
+            <p className="flex-1 text-corpo font-medium">{toast.message}</p>
             <button
               type="button"
               onClick={() => onDismiss(toast.id)}

@@ -99,11 +99,11 @@ export function Sidebar({
   }
 
   function navItemClass(ativo: boolean, collapsed: boolean) {
-    return `flex items-center rounded-lg text-sm font-medium transition-colors ${
+    return `flex items-center rounded-lg text-corpo font-medium transition-colors ${
       collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5"
     } ${
       ativo
-        ? "bg-orange-600 text-white"
+        ? "bg-marca-600 text-white"
         : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
     }`;
   }
@@ -119,7 +119,7 @@ export function Sidebar({
         {collapsed ? (
           <div className="my-3 border-t border-slate-200 dark:border-slate-800" />
         ) : (
-          <p className="mt-6 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <p className="mt-6 px-3 text-legenda font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
             {titulo}
           </p>
         )}
@@ -177,7 +177,7 @@ export function Sidebar({
                 alt="PedMesa"
                 className="h-10 w-10 rounded-xl"
               />
-              <span className="text-lg font-bold text-slate-900 dark:text-white">
+              <span className="text-titulo-secao text-slate-900 dark:text-white">
                 PedMesa
               </span>
               <button
@@ -196,7 +196,7 @@ export function Sidebar({
           className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}
         >
           {!collapsed && itensTrocarVisao.length > 0 && (
-            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+            <p className="px-3 text-legenda font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Trocar visão
             </p>
           )}
@@ -264,7 +264,7 @@ export function Sidebar({
             </>
           ) : (
             <>
-              <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+              <p className="truncate text-corpo font-medium text-slate-900 dark:text-white">
                 {user!.nome}
               </p>
               <div className="mt-3 flex items-center gap-2">

@@ -1,6 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useSuperAdminAuth } from "../contexts/SuperAdminAuthContext";
+import { CLASSES_DO_TOM } from "../lib/tons";
 
 // Um super-admin "impersonando" um tenant tem as DUAS sessões ativas ao
 // mesmo tempo (a própria + a do tenant que ele acessou) — nunca limpamos a
@@ -29,7 +30,9 @@ export function ImpersonationBanner() {
   }
 
   return (
-    <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950">
+    <div
+      className={`sticky top-0 z-50 flex items-center justify-center gap-2 px-4 py-2 text-corpo font-semibold ${CLASSES_DO_TOM.aviso.seloForte}`}
+    >
       <ShieldAlert className="h-4 w-4 shrink-0" />
       <span>Modo Impersonation —</span>
       <button

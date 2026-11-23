@@ -1,8 +1,9 @@
 import { Phone, Save } from "lucide-react";
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { Textarea } from "../../../components/ui/Textarea";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage, getApiErrorStatus } from "../../../lib/api-error";
 import {
@@ -28,12 +29,11 @@ interface ClienteModalProps {
   onSalvo: (cliente: Cliente) => void;
 }
 
-// Cadastro e edição de um cliente do delivery (PED-124): nome, telefone, observações e
-// endereços. Montado só quando aberto: cada abertura começa do que está salvo. Depois
-// de cadastrar, o modal continua aberto para incluir os endereços.
+// Cadastro e edição de um cliente do delivery (PED-124, PED-137): nome, telefone,
+// observações e endereços. Montado só quando aberto: cada abertura começa do que está
+// salvo. Depois de cadastrar, o modal continua aberto para incluir os endereços.
 export function ClienteModal({ cliente, onClose, onSalvo }: ClienteModalProps) {
   const { showToast } = useToast();
-  const observacoesId = useId();
   const [atual, setAtual] = useState<Cliente | null>(cliente);
   const [form, setForm] = useState<FormCliente>(() => formDoCliente(cliente));
   const [erros, setErros] = useState<Partial<Record<CampoFormCliente, string>>>(
@@ -130,29 +130,15 @@ export function ClienteModal({ cliente, onClose, onSalvo }: ClienteModalProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor={observacoesId}
-              className="text-sm font-medium text-slate-700 dark:text-slate-300"
-            >
-              Observações (opcional)
-            </label>
-            <textarea
-              id={observacoesId}
-              rows={2}
-              maxLength={OBSERVACOES_CLIENTE_MAX}
-              placeholder="Ex.: interfone quebrado, ligar ao chegar"
-              value={form.observacoes}
-              aria-invalid={Boolean(erros.observacoes)}
-              onChange={(evento) => alterar("observacoes", evento.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
-            />
-            {erros.observacoes && (
-              <p className="text-sm text-red-600 dark:text-red-400">
-                {erros.observacoes}
-              </p>
-            )}
-          </div>
+          <Textarea
+            label="Observações (opcional)"
+            rows={2}
+            maxLength={OBSERVACOES_CLIENTE_MAX}
+            placeholder="Ex.: interfone quebrado, ligar ao chegar"
+            value={form.observacoes}
+            error={erros.observacoes}
+            onChange={(evento) => alterar("observacoes", evento.target.value)}
+          />
 
           <div className="flex justify-end">
             <Button

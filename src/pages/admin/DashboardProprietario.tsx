@@ -20,11 +20,14 @@ import {
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { Selo } from "../../components/ui/Selo";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { FORMA_PAGAMENTO_LABEL } from "../../lib/forma-pagamento";
 import { formatCurrency, formatDataHora } from "../../lib/format";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import type { DashboardFiltro } from "../../services/dashboard.service";
 import { getDashboardResumo } from "../../services/dashboard.service";
 import type { DashboardResumo, PeriodoDashboard } from "../../types/dashboard";
@@ -130,12 +133,12 @@ export function DashboardProprietario() {
             </button>
 
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-legenda text-slate-500 dark:text-slate-400">
                 PedMesa · Dashboard
               </p>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              <TituloPagina>
                 {tenant?.nome_fantasia ?? "Dashboard do Proprietário"}
-              </h1>
+              </TituloPagina>
             </div>
 
             <button
@@ -160,9 +163,9 @@ export function DashboardProprietario() {
                       key={opcao.value}
                       type="button"
                       onClick={() => handleSelecionarPeriodo(opcao.value)}
-                      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      className={`rounded-md px-3 py-1.5 text-corpo font-medium transition-colors ${
                         periodo === opcao.value
-                          ? "bg-orange-600 text-white"
+                          ? "bg-marca-600 text-white"
                           : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                       }`}
                     >
@@ -176,7 +179,7 @@ export function DashboardProprietario() {
                     <div className="flex flex-col gap-1.5">
                       <label
                         htmlFor="dashboard-data-inicio"
-                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                        className="text-corpo font-medium text-slate-700 dark:text-slate-300"
                       >
                         Data início
                       </label>
@@ -187,13 +190,13 @@ export function DashboardProprietario() {
                         onChange={(event) =>
                           setDataInicioCustom(event.target.value)
                         }
-                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-campo text-slate-900 outline-none focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label
                         htmlFor="dashboard-data-fim"
-                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                        className="text-corpo font-medium text-slate-700 dark:text-slate-300"
                       >
                         Data fim
                       </label>
@@ -204,7 +207,7 @@ export function DashboardProprietario() {
                         onChange={(event) =>
                           setDataFimCustom(event.target.value)
                         }
-                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-campo text-slate-900 outline-none focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                     </div>
                     <Button
@@ -221,13 +224,15 @@ export function DashboardProprietario() {
             {isLoading && !resumo && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando dashboard...</p>
+                <p className="text-corpo">Carregando dashboard...</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
                   {errorMessage}
                 </p>
                 <Button variant="danger" onClick={handleRefresh}>
@@ -263,7 +268,7 @@ export function DashboardProprietario() {
                 <Card>
                   <div className="flex items-center gap-2">
                     <PieChart className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                    <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                       Produtos Mais Pedidos
                     </h2>
                   </div>
@@ -271,7 +276,7 @@ export function DashboardProprietario() {
                   <div className="mt-4 h-72">
                     {resumo.produtos_mais_pedidos.length === 0 ? (
                       <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-sm">
+                        <p className="text-corpo">
                           Nenhum produto vendido no período selecionado.
                         </p>
                       </div>
@@ -319,7 +324,7 @@ export function DashboardProprietario() {
                 <Card>
                   <div className="flex items-center gap-2">
                     <History className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                    <h2 className="text-titulo-secao text-slate-900 dark:text-white">
                       Histórico de Comandas Fechadas
                     </h2>
                   </div>
@@ -327,14 +332,14 @@ export function DashboardProprietario() {
                   <div className="mt-4 overflow-x-auto">
                     {resumo.historico_comandas.length === 0 ? (
                       <div className="flex flex-col items-center gap-2 py-10 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-sm">
+                        <p className="text-corpo">
                           Nenhuma comanda fechada no período selecionado.
                         </p>
                       </div>
                     ) : (
-                      <table className="w-full text-sm">
+                      <table className="w-full text-corpo">
                         <thead>
-                          <tr className="text-left text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                          <tr className="text-left text-legenda font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                             <th className="py-2 pr-4">Data</th>
                             <th className="py-2 pr-4">Atendimento</th>
                             <th className="py-2 pr-4 text-right">Valor</th>
@@ -356,12 +361,9 @@ export function DashboardProprietario() {
                               <td className="py-2.5">
                                 <div className="flex flex-wrap gap-1">
                                   {linha.formas_pagamento.map((forma) => (
-                                    <span
-                                      key={forma}
-                                      className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                                    >
+                                    <Selo key={forma} tom="neutro">
                                       {FORMA_PAGAMENTO_LABEL[forma]}
-                                    </span>
+                                    </Selo>
                                   ))}
                                 </div>
                               </td>

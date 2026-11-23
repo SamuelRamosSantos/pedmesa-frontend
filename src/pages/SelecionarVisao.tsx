@@ -4,6 +4,7 @@ import logoWordmark from "../assets/logo-wordmark.svg";
 import logoWordmarkDark from "../assets/logo-wordmark-dark.svg";
 import { Card } from "../components/ui/Card";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { TituloPagina } from "../components/ui/TituloPagina";
 import { useAuth } from "../contexts/AuthContext";
 import { ROLE_VIEW_INFO } from "../lib/role-routes";
 
@@ -35,10 +36,8 @@ export function SelecionarVisao() {
           alt="PedMesa"
           className="mb-3 hidden h-9 w-auto dark:block"
         />
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Qual painel você quer abrir?
-        </h1>
-        <p className="mt-1 text-center text-sm text-slate-500 dark:text-slate-400">
+        <TituloPagina>Qual painel você quer abrir?</TituloPagina>
+        <p className="mt-1 text-center text-corpo text-slate-500 dark:text-slate-400">
           Olá, {user?.nome}. Sua conta tem acesso a mais de uma visão.
         </p>
 
@@ -51,12 +50,12 @@ export function SelecionarVisao() {
               data-testid={`opcao-visao-${opcao.role}`}
               className="text-left"
             >
-              <Card className="flex items-center justify-between gap-3 transition-colors hover:border-orange-300 dark:hover:border-orange-500/50">
+              <Card className="flex items-center justify-between gap-3 transition-colors hover:border-marca-300 dark:hover:border-marca-500/50">
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">
+                  <p className="text-corpo font-semibold text-slate-900 dark:text-white">
                     {opcao.label}
                   </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-corpo text-slate-500 dark:text-slate-400">
                     {opcao.description}
                   </p>
                 </div>
@@ -69,7 +68,7 @@ export function SelecionarVisao() {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-8 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          className="mt-8 flex items-center gap-2 text-corpo font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
         >
           <LogOut className="h-4 w-4" />
           Sair

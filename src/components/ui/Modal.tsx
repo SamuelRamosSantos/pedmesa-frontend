@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -20,20 +20,37 @@ export function Modal({
   children,
   tamanho = "md",
 }: ModalProps) {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
+    const origem =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onClose();
+        onCloseRef.current();
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (origem?.isConnected) {
+        requestAnimationFrame(() => {
+          if (origem.isConnected) {
+            origem.focus();
+          }
+        });
+      }
+    };
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
@@ -58,7 +75,7 @@ export function Modal({
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           {title && (
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-titulo-secao text-slate-900 dark:text-white">
               {title}
             </h2>
           )}

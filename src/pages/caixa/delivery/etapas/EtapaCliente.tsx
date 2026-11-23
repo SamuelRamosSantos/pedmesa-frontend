@@ -1,6 +1,7 @@
 import { ArrowLeft, Phone, UserCheck, UserPlus } from "lucide-react";
 import { Button, Card, Input } from "../../../../components/ui";
 import { mascararTelefone } from "../../../../lib/mascaras";
+import { CLASSES_DO_TOM } from "../../../../lib/tons";
 import { BuscaCliente } from "../components/BuscaCliente";
 import { EnderecoEntrega } from "../components/EnderecoEntrega";
 import type { ControleBuscaCliente } from "../useBuscaCliente";
@@ -13,12 +14,12 @@ interface EtapaClienteProps {
   cotacao: ControleCotacaoDelivery;
 }
 
-// Etapa 1 do novo pedido delivery (PED-123): quem é o cliente e onde entregar.
+// Etapa 1 do novo pedido delivery (PED-123, PED-139): quem é o cliente e onde entregar.
 export function EtapaCliente({ busca, endereco, cotacao }: EtapaClienteProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <Card className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-titulo-secao text-slate-900 dark:text-white">
           Cliente
         </h2>
         {busca.modo === "busca" && <BuscaCliente busca={busca} />}
@@ -44,14 +45,16 @@ function ClienteSelecionado({ busca }: { busca: ControleBuscaCliente }) {
     <div className="flex flex-col gap-3">
       <div
         data-testid="cliente-selecionado"
-        className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900/60 dark:bg-emerald-950/20"
+        className={`flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-4 py-3 ${CLASSES_DO_TOM.sucesso.superficie}`}
       >
-        <UserCheck className="h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-400" />
+        <UserCheck
+          className={`h-5 w-5 shrink-0 ${CLASSES_DO_TOM.sucesso.texto}`}
+        />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-slate-900 dark:text-white">
+          <p className="text-corpo font-semibold text-slate-900 dark:text-white">
             {cliente.nome}
           </p>
-          <p className="whitespace-nowrap text-sm tabular-nums text-slate-600 dark:text-slate-300">
+          <p className="whitespace-nowrap text-corpo tabular-nums text-slate-600 dark:text-slate-300">
             {mascararTelefone(cliente.telefone)}
           </p>
         </div>
@@ -61,7 +64,9 @@ function ClienteSelecionado({ busca }: { busca: ControleBuscaCliente }) {
       </div>
 
       {cliente.observacoes && (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+        <p
+          className={`rounded-lg border px-3 py-2 text-corpo ${CLASSES_DO_TOM.aviso.superficie}`}
+        >
           <span className="font-semibold">Observação do cliente:</span>{" "}
           {cliente.observacoes}
         </p>
@@ -75,7 +80,9 @@ function ClienteNovo({ busca }: { busca: ControleBuscaCliente }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-400">
+      <p
+        className={`flex items-center gap-2 text-corpo font-medium ${CLASSES_DO_TOM.andamento.texto}`}
+      >
         <UserPlus className="h-4 w-4" />
         Cliente novo
       </p>
@@ -110,7 +117,7 @@ function ClienteNovo({ busca }: { busca: ControleBuscaCliente }) {
       {existente && (
         <div
           role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300"
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3.5 py-2.5 text-corpo ${CLASSES_DO_TOM.aviso.superficie}`}
         >
           <span>
             Este telefone já está cadastrado para{" "}
@@ -128,7 +135,7 @@ function ClienteNovo({ busca }: { busca: ControleBuscaCliente }) {
       <button
         type="button"
         onClick={busca.voltarParaBusca}
-        className="flex w-fit items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        className="flex w-fit items-center gap-2 rounded-lg px-2 py-1.5 text-corpo font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
       >
         <ArrowLeft className="h-4 w-4" />
         Voltar para a busca

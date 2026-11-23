@@ -44,12 +44,12 @@ export function CurrencyInput({
     <div className="flex flex-col gap-1.5">
       <label
         htmlFor={inputId}
-        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+        className="text-corpo font-medium text-slate-700 dark:text-slate-300"
       >
         {label}
       </label>
       <div className="relative">
-        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-slate-400 dark:text-slate-500">
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-campo text-slate-400 dark:text-slate-500">
           R$
         </span>
         <input
@@ -62,15 +62,15 @@ export function CurrencyInput({
           onChange={handleChange}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`w-full rounded-lg border bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:ring-2 dark:bg-slate-800 dark:text-white ${
+          className={`w-full rounded-lg border bg-white py-2 pl-9 pr-3 text-campo text-slate-900 shadow-sm outline-none transition-colors focus:ring-2 dark:bg-slate-800 dark:text-white ${
             error
               ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
-              : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
+              : "border-slate-300 focus:border-marca-500 focus:ring-marca-500/20 dark:border-slate-700"
           }`}
         />
       </div>
       {error && (
-        <p id={errorId} className="text-sm text-red-600 dark:text-red-400">
+        <p id={errorId} className="text-corpo text-red-700 dark:text-red-400">
           {error}
         </p>
       )}

@@ -3,8 +3,10 @@ import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
+import { Select } from "../../../components/ui/Select";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import { joinComandas } from "../../../services/comanda.service";
 import type { ComandaListItem } from "../../../types/comanda";
 
@@ -95,45 +97,27 @@ export function JuntarComandasModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Juntar comandas">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="comanda-principal"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Comanda principal
-          </label>
-          <select
-            id="comanda-principal"
-            value={principalId}
-            onChange={(event) => handlePrincipalChange(event.target.value)}
-            className={`rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 dark:bg-slate-800 dark:text-white ${
-              errorPrincipal
-                ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500/60"
-                : "border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 dark:border-slate-700"
-            }`}
-          >
-            <option value="">
-              Selecione a mesa que vai receber os itens...
+        <Select
+          id="comanda-principal"
+          label="Comanda principal"
+          value={principalId}
+          onChange={(event) => handlePrincipalChange(event.target.value)}
+          error={errorPrincipal}
+        >
+          <option value="">Selecione a mesa que vai receber os itens...</option>
+          {comandas.map((comanda) => (
+            <option key={comanda.id} value={comanda.id}>
+              Mesa {comanda.numero_comanda} ({comanda.total_integrantes}{" "}
+              pessoas)
             </option>
-            {comandas.map((comanda) => (
-              <option key={comanda.id} value={comanda.id}>
-                Mesa {comanda.numero_comanda} ({comanda.total_integrantes}{" "}
-                pessoas)
-              </option>
-            ))}
-          </select>
-          {errorPrincipal && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {errorPrincipal}
-            </p>
-          )}
-        </div>
+          ))}
+        </Select>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-corpo font-medium text-slate-700 dark:text-slate-300">
             Comandas secundárias
           </span>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-legenda text-slate-500 dark:text-slate-400">
             Serão fechadas e seus integrantes movidos para a comanda principal.
           </p>
 
@@ -141,13 +125,13 @@ export function JuntarComandasModal({
             {secundariasDisponiveis.map((comanda) => (
               <label
                 key={comanda.id}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-corpo text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 <input
                   type="checkbox"
                   checked={secundariasIds.includes(comanda.id)}
                   onChange={() => handleToggleSecundaria(comanda.id)}
-                  className="h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500/40 dark:border-slate-600 dark:bg-slate-800"
+                  className="h-4 w-4 rounded border-slate-300 accent-marca-600 dark:border-slate-600 dark:bg-slate-800"
                 />
                 Mesa {comanda.numero_comanda} ({comanda.total_integrantes}{" "}
                 pessoas)
@@ -155,7 +139,7 @@ export function JuntarComandasModal({
             ))}
           </div>
           {errorSecundarias && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className={`text-legenda ${CLASSES_DO_TOM.perigo.texto}`}>
               {errorSecundarias}
             </p>
           )}

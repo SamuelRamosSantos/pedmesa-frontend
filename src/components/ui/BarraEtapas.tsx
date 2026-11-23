@@ -45,18 +45,16 @@ export function BarraEtapas({
               <span
                 aria-hidden="true"
                 className={`h-1.5 w-full rounded-full transition-colors ${
-                  preenchida
-                    ? "bg-orange-600"
-                    : "bg-slate-200 dark:bg-slate-700"
+                  preenchida ? "bg-marca-600" : "bg-slate-200 dark:bg-slate-700"
                 }`}
               />
-              <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <span className="text-legenda font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Etapa {indice + 1}
               </span>
               <span
-                className={`flex items-center gap-1.5 truncate text-sm font-semibold ${
+                className={`flex items-center gap-1.5 truncate text-corpo font-semibold ${
                   ativa
-                    ? "text-orange-700 dark:text-orange-400"
+                    ? "text-marca-700 dark:text-marca-400"
                     : preenchida
                       ? "text-slate-900 dark:text-white"
                       : "text-slate-500 dark:text-slate-400"
@@ -78,7 +76,7 @@ export function BarraEtapas({
                   type="button"
                   onClick={() => onIr(indice)}
                   data-testid={`etapa-${etapa.id}`}
-                  className="flex w-full flex-col gap-1 rounded-md text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600"
+                  className="flex w-full flex-col gap-1 rounded-md text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-marca-600"
                 >
                   {conteudo}
                 </button>

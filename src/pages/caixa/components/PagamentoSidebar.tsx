@@ -15,6 +15,7 @@ import { CurrencyInput } from "../../../components/ui/CurrencyInput";
 import { FORMA_PAGAMENTO_LABEL } from "../../../lib/forma-pagamento";
 import { formatCurrency } from "../../../lib/format";
 import { fromCents, toCents } from "../../../lib/money";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import type { FormaPagamento, PagamentoComanda } from "../../../types/comanda";
 
 interface PagamentoSidebarProps {
@@ -67,7 +68,7 @@ export function PagamentoSidebar({
 
   return (
     <Card>
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+      <h2 className="text-titulo-secao text-slate-900 dark:text-white">
         Pagamento
       </h2>
 
@@ -107,7 +108,7 @@ export function PagamentoSidebar({
             {pagamentos.map((pagamento) => (
               <li
                 key={pagamento.id}
-                className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800"
+                className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-corpo dark:bg-slate-800"
               >
                 <span className="text-slate-700 dark:text-slate-300">
                   {FORMA_PAGAMENTO_LABEL[pagamento.forma]}
@@ -136,7 +137,7 @@ export function PagamentoSidebar({
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-200 pt-4 text-sm dark:border-slate-800">
+      <div className="mt-4 flex flex-col gap-1.5 border-t border-slate-200 pt-4 text-corpo dark:border-slate-800">
         <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <span>Total da Comanda</span>
           <span className="font-medium text-slate-900 dark:text-white">
@@ -158,7 +159,7 @@ export function PagamentoSidebar({
         {trocoCents > 0 && (
           <div
             data-testid="linha-troco"
-            className="flex items-center justify-between rounded-lg bg-emerald-50 px-2.5 py-1.5 font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 font-semibold ${CLASSES_DO_TOM.sucesso.selo}`}
           >
             <span className="flex items-center gap-1.5">
               <HandCoins className="h-4 w-4" />
@@ -171,12 +172,16 @@ export function PagamentoSidebar({
 
       <div className="mt-4">
         {isQuitado ? (
-          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-2 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <span
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-corpo font-semibold ${CLASSES_DO_TOM.sucesso.selo}`}
+          >
             <CheckCircle2 className="h-4 w-4" />
             Pronto para Fechar
           </span>
         ) : (
-          <span className="flex items-center justify-center gap-1.5 rounded-lg bg-red-50 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          <span
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-corpo font-semibold ${CLASSES_DO_TOM.perigo.selo}`}
+          >
             <AlertTriangle className="h-4 w-4" />
             Valor Insuficiente
           </span>

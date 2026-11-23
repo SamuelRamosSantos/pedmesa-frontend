@@ -62,7 +62,7 @@ export function ConfiguracaoDeliveryCard({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Truck className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-titulo-secao text-slate-900 dark:text-white">
             Delivery
           </h2>
         </div>
@@ -119,7 +119,7 @@ export function ConfiguracaoDeliveryCard({
               alterar({ pedidoMinimoCents })
             }
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-legenda text-slate-500 dark:text-slate-400">
             R$ 0,00 = sem pedido mínimo. A taxa de entrega não conta.
           </p>
         </div>

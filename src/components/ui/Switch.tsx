@@ -24,12 +24,12 @@ export function Switch({
       <div className="flex flex-col gap-0.5">
         <label
           htmlFor={switchId}
-          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          className="text-corpo font-medium text-slate-700 dark:text-slate-300"
         >
           {label}
         </label>
         {description && (
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-legenda text-slate-500 dark:text-slate-400">
             {description}
           </div>
         )}
@@ -41,8 +41,8 @@ export function Switch({
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 ${
-          checked ? "bg-orange-600" : "bg-slate-300 dark:bg-slate-700"
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-500 ${
+          checked ? "bg-marca-600" : "bg-slate-300 dark:bg-slate-700"
         }`}
       >
         <span
