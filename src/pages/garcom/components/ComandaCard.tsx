@@ -1,4 +1,7 @@
 import { Clock, Users } from "lucide-react";
+import { NumeroDestaque } from "../../../components/ui/NumeroDestaque";
+import { Selo } from "../../../components/ui/Selo";
+import { TipoAtendimento } from "../../../components/ui/TipoAtendimento";
 import { formatHora } from "../../../lib/format";
 import type { ComandaListItem } from "../../../types/comanda";
 
@@ -14,20 +17,14 @@ export function ComandaCard({ comanda, onClick }: ComandaCardProps) {
       onClick={onClick}
       className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-sm dark:border-slate-800 dark:bg-slate-900"
     >
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-          Mesa
-        </span>
-        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-          Aberta
-        </span>
+      <div className="flex items-center justify-between gap-2">
+        <TipoAtendimento tipo="mesa" />
+        <Selo tom="sucesso">Aberta</Selo>
       </div>
 
-      <p className="text-4xl font-bold text-slate-900 dark:text-white">
-        {comanda.numero_comanda}
-      </p>
+      <NumeroDestaque>{comanda.numero_comanda}</NumeroDestaque>
 
-      <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
+      <div className="flex items-center justify-between text-corpo text-slate-500 dark:text-slate-400">
         <span className="flex items-center gap-1">
           <Users className="h-4 w-4" />
           {comanda.total_integrantes}

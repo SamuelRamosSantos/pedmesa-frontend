@@ -6,6 +6,7 @@ import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import { createComanda } from "../../../services/comanda.service";
 
 interface IntegranteField {
@@ -135,7 +136,7 @@ export function NovaComandaModal({
         />
 
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-corpo font-medium text-slate-700 dark:text-slate-300">
             Integrantes
           </span>
 
@@ -150,7 +151,7 @@ export function NovaComandaModal({
                   onChange={(event) =>
                     handleIntegranteChange(field.id, event.target.value)
                   }
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-campo text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
                 />
                 {integrantes.length > 1 && (
                   <button
@@ -167,7 +168,7 @@ export function NovaComandaModal({
           </div>
 
           {integrantesError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className={`text-legenda ${CLASSES_DO_TOM.perigo.texto}`}>
               {integrantesError}
             </p>
           )}
@@ -175,7 +176,7 @@ export function NovaComandaModal({
           <button
             type="button"
             onClick={handleAddIntegrante}
-            className="flex items-center gap-1.5 self-start rounded-lg px-2 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/40"
+            className="flex items-center gap-1.5 self-start rounded-lg px-2 py-1.5 text-corpo font-medium text-marca-600 hover:bg-marca-50 dark:text-marca-400 dark:hover:bg-marca-950/40"
           >
             <UserPlus className="h-4 w-4" />
             Adicionar integrante
