@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Banknote, CreditCard, Landmark, QrCode } from "lucide-react";
 import { FORMA_PAGAMENTO_LABEL } from "../../lib/forma-pagamento";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import type { FormaPagamento } from "../../types/comanda";
 
 const ICONE_FORMA: Record<FormaPagamento, LucideIcon> = {
@@ -34,7 +35,7 @@ export function SeletorFormaPagamento({
 }: SeletorFormaPagamentoProps) {
   return (
     <fieldset>
-      <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <legend className="text-corpo font-medium text-slate-700 dark:text-slate-300">
         {rotulo}
       </legend>
       <div className="mt-1.5 grid grid-cols-2 gap-2">
@@ -49,9 +50,9 @@ export function SeletorFormaPagamento({
               aria-pressed={selecionada}
               data-testid={`${testIdPrefixo}-${forma}`}
               onClick={() => onChange(forma)}
-              className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 ${
+              className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2.5 text-legenda font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-600 ${
                 selecionada
-                  ? "border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
+                  ? `border-marca-500 ${CLASSES_DO_TOM.marca.superficie}`
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               }`}
             >

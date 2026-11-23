@@ -52,7 +52,7 @@ export function EnderecoForm({ endereco, children }: EnderecoFormProps) {
         <p
           role="status"
           aria-live="polite"
-          className="-mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"
+          className="-mt-2 flex items-center gap-2 text-legenda text-slate-500 dark:text-slate-400"
         >
           {statusCep === "carregando" && (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />

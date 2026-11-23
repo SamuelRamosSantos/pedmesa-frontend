@@ -102,7 +102,7 @@ export function ImageUpload({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <p className="text-corpo font-medium text-slate-700 dark:text-slate-300">
           {label}
         </p>
       )}
@@ -159,7 +159,7 @@ export function ImageUpload({
         ) : (
           <div className="flex flex-col items-center gap-1 px-3 text-center text-slate-400 dark:text-slate-500">
             <ImagePlus className="h-6 w-6" />
-            <span className="text-xs">
+            <span className="text-legenda">
               Arraste uma imagem ou clique para selecionar
             </span>
           </div>
@@ -172,7 +172,7 @@ export function ImageUpload({
         )}
       </div>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500">
+      <p className="text-legenda text-slate-400 dark:text-slate-500">
         JPG, PNG ou WEBP · máx. 5MB
       </p>
     </div>

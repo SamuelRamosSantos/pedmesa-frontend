@@ -1,6 +1,7 @@
 import { BadgePercent } from "lucide-react";
 import { formatCurrency } from "../../lib/format";
 import { toCents } from "../../lib/money";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import { Card } from "../ui/Card";
 import { CurrencyInput } from "../ui/CurrencyInput";
 
@@ -31,7 +32,7 @@ export function DescontoCard({
     <Card data-testid="card-desconto">
       <div className="flex items-center gap-2">
         <BadgePercent className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-titulo-secao text-slate-900 dark:text-white">
           Desconto
         </h2>
       </div>
@@ -43,9 +44,9 @@ export function DescontoCard({
               type="button"
               onClick={() => onChangeTipo("percentual")}
               data-testid="desconto-tipo-percentual"
-              className={`rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-md px-3 py-2 text-corpo font-semibold transition-colors ${
                 tipo === "percentual"
-                  ? "bg-orange-600 text-white"
+                  ? "bg-marca-600 text-white"
                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
               }`}
             >
@@ -55,9 +56,9 @@ export function DescontoCard({
               type="button"
               onClick={() => onChangeTipo("valor_fixo")}
               data-testid="desconto-tipo-valor-fixo"
-              className={`rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-md px-3 py-2 text-corpo font-semibold transition-colors ${
                 tipo === "valor_fixo"
-                  ? "bg-orange-600 text-white"
+                  ? "bg-marca-600 text-white"
                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
               }`}
             >
@@ -70,7 +71,7 @@ export function DescontoCard({
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="desconto-percentual"
-                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                  className="text-corpo font-medium text-slate-700 dark:text-slate-300"
                 >
                   Percentual de desconto
                 </label>
@@ -89,9 +90,9 @@ export function DescontoCard({
                         Math.max(0, Number(event.target.value) || 0),
                       )
                     }
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-3.5 pr-8 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3.5 pr-8 text-campo text-slate-900 shadow-sm outline-none transition-colors focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
-                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400 dark:text-slate-500">
+                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-corpo text-slate-400 dark:text-slate-500">
                     %
                   </span>
                 </div>
@@ -108,24 +109,30 @@ export function DescontoCard({
         </div>
 
         {valor > 0 && (
-          <div className="flex flex-col gap-1.5 rounded-lg bg-slate-50 px-3 py-2.5 text-sm dark:bg-slate-800">
+          <div className="flex flex-col gap-1.5 rounded-lg bg-slate-50 px-3 py-2.5 text-corpo dark:bg-slate-800">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span>Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
+              <span className="tabular-nums">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex items-center justify-between text-orange-600 dark:text-orange-400">
+            <div
+              className={`flex items-center justify-between ${CLASSES_DO_TOM.marca.texto}`}
+            >
               <span>Desconto</span>
-              <span>- {formatCurrency(descontoAplicado)}</span>
+              <span className="tabular-nums">
+                - {formatCurrency(descontoAplicado)}
+              </span>
             </div>
             <div className="flex items-center justify-between border-t border-slate-200 pt-1.5 font-semibold text-slate-900 dark:border-slate-700 dark:text-white">
               <span>Total Final</span>
-              <span>{formatCurrency(Math.max(0, totalFinal))}</span>
+              <span className="tabular-nums">
+                {formatCurrency(Math.max(0, totalFinal))}
+              </span>
             </div>
           </div>
         )}
 
         {totalFinalInvalido && (
-          <p className="text-sm text-red-600 dark:text-red-400">
+          <p className={`text-corpo ${CLASSES_DO_TOM.perigo.texto}`}>
             O desconto informado é maior que o valor da comanda.
           </p>
         )}
