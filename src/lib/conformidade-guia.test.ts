@@ -9,6 +9,7 @@ const ARQUIVOS_MIGRADOS = import.meta.glob<string>(
     "../components/**/*.tsx",
     "../pages/cozinha/**/*.tsx",
     "../pages/dev/**/*.tsx",
+    "../pages/expedicao/**/*.tsx",
   ],
   {
     query: "?raw",

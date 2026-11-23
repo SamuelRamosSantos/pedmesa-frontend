@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
+import { Textarea } from "../../../components/ui/Textarea";
 import { MOTIVO_MINIMO_CARACTERES, motivoValido } from "../../../lib/expedicao";
 
 interface MotivoModalProps {
@@ -25,7 +26,6 @@ export function MotivoModal({
   onFechar,
 }: MotivoModalProps) {
   const [motivo, setMotivo] = useState("");
-  const campoId = useId();
   const campoRef = useRef<HTMLTextAreaElement>(null);
   const valido = motivoValido(motivo);
 
@@ -45,26 +45,19 @@ export function MotivoModal({
           }
         }}
       >
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-corpo text-slate-600 dark:text-slate-300">
           {descricao}
         </p>
         <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={campoId}
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Motivo
-          </label>
-          <textarea
-            id={campoId}
+          <Textarea
             ref={campoRef}
+            label="Motivo"
             rows={3}
             maxLength={255}
             value={motivo}
             onChange={(evento) => setMotivo(evento.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-legenda text-slate-500 dark:text-slate-400">
             Mínimo de {MOTIVO_MINIMO_CARACTERES} caracteres.
           </p>
         </div>

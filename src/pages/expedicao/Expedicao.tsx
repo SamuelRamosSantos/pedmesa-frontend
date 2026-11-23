@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { KanbanColumn } from "../../components/kanban/KanbanColumn";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
+import { TituloPagina } from "../../components/ui/TituloPagina";
 import { useToast } from "../../contexts/ToastContext";
 import { usePolling } from "../../hooks/usePolling";
 import { getApiErrorMessage, getApiErrorStatus } from "../../lib/api-error";
@@ -258,14 +259,12 @@ export function Expedicao() {
               <Menu className="h-5 w-5" />
             </button>
 
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              Painel de expedição
-            </h1>
+            <TituloPagina>Painel de expedição</TituloPagina>
 
             {/* No celular, só ícones em "Conectado" e "Clientes": os quatro controles cabem em 375 px. */}
             <div className="ml-auto flex items-center gap-2 sm:gap-4">
               <span
-                className={`flex items-center gap-1.5 text-xs font-semibold ${conectado ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                className={`flex items-center gap-1.5 text-legenda font-medium ${conectado ? CLASSES_DO_TOM.sucesso.texto : CLASSES_DO_TOM.perigo.texto}`}
               >
                 {conectado ? (
                   <Wifi className="h-4 w-4" />
@@ -309,13 +308,15 @@ export function Expedicao() {
             {carregando && (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400 dark:text-slate-500">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <p className="text-sm">Carregando entregas...</p>
+                <p className="text-corpo">Carregando entregas...</p>
               </div>
             )}
 
             {!carregando && erro && (
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/40 dark:bg-red-950/30">
-                <p className="text-sm text-red-700 dark:text-red-300">{erro}</p>
+              <div
+                className={`flex flex-col items-center gap-3 rounded-2xl border p-6 text-center ${CLASSES_DO_TOM.perigo.superficie}`}
+              >
+                <p className="text-corpo">{erro}</p>
                 <Button variant="danger" onClick={() => void carregar()}>
                   Tentar novamente
                 </Button>

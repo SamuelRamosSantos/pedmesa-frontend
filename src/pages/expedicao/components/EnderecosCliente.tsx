@@ -4,6 +4,7 @@ import { EnderecoForm } from "../../../components/endereco/EnderecoForm";
 import { Button } from "../../../components/ui/Button";
 import { ItemEditavel } from "../../../components/ui/ItemEditavel";
 import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
+import { Selo } from "../../../components/ui/Selo";
 import { Switch } from "../../../components/ui/Switch";
 import { useToast } from "../../../contexts/ToastContext";
 import { useEnderecoForm } from "../../../hooks/useEnderecoForm";
@@ -14,6 +15,7 @@ import {
   camposDoEnderecoSalvo,
 } from "../../../lib/endereco-entrega";
 import { resumoEndereco } from "../../../lib/identificacao-cliente";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import {
   buscarClientePorTelefone,
   createEnderecoCliente,
@@ -134,7 +136,7 @@ export function EnderecosCliente({
       <div className="flex items-center justify-between gap-3">
         <h3
           id="titulo-enderecos"
-          className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-white"
+          className="flex items-center gap-2 text-titulo-secao text-slate-900 dark:text-white"
         >
           <MapPin className="h-4 w-4 text-slate-400" />
           Endereços
@@ -152,7 +154,7 @@ export function EnderecosCliente({
       </div>
 
       {cliente.enderecos.length === 0 && editando !== "novo" && (
-        <p className="rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        <p className="rounded-lg border border-dashed border-slate-300 px-4 py-3 text-corpo text-slate-500 dark:border-slate-700 dark:text-slate-400">
           Nenhum endereço salvo. Os endereços também entram aqui quando o pedido
           é feito com "Salvar endereço no cadastro".
         </p>
@@ -217,13 +219,9 @@ function LinhaEndereco({ endereco, bloqueado, onEditar }: LinhaEnderecoProps) {
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-2 font-medium text-slate-900 dark:text-white">
             {resumo}
-            {endereco.principal && (
-              <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
-                Principal
-              </span>
-            )}
+            {endereco.principal && <Selo tom="marca">Principal</Selo>}
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-corpo text-slate-500 dark:text-slate-400">
             {endereco.bairro} · {endereco.cidade}/{endereco.uf}
             {endereco.referencia && ` · ${endereco.referencia}`}
           </p>
@@ -260,7 +258,7 @@ function EditorEndereco({
   const resumo = enderecoSalvo ? resumoEndereco(enderecoSalvo) : "";
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-orange-200 bg-orange-50/40 p-4 dark:border-orange-900/50 dark:bg-orange-950/10">
+    <div className="flex flex-col gap-4 rounded-lg border border-marca-200 bg-marca-50/40 p-4 dark:border-marca-900/50 dark:bg-marca-950/10">
       <EnderecoForm endereco={endereco} />
 
       {enderecoSalvo && !enderecoSalvo.principal && (
@@ -275,7 +273,7 @@ function EditorEndereco({
       )}
 
       {tentou && endereco.endereco === null && (
-        <p role="status" className="text-sm text-amber-700 dark:text-amber-400">
+        <p role="status" className={`text-corpo ${CLASSES_DO_TOM.aviso.texto}`}>
           Preencha CEP, logradouro, número, bairro, cidade e UF.
         </p>
       )}
