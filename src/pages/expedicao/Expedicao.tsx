@@ -30,9 +30,11 @@ import {
   mesclarComPendentes,
   restaurarEntrega,
   type StatusColuna,
+  TOM_STATUS_ENTREGA,
   textosDoMotivo,
   VOLTAR,
 } from "../../lib/expedicao";
+import { CLASSES_DO_TOM } from "../../lib/tons";
 import {
   listarEntregas,
   reimprimirTicketEntrega,
@@ -45,30 +47,12 @@ import { MotivoModal } from "./components/MotivoModal";
 
 const POLL_INTERVAL_MS = 8000;
 
-const COLUNA_VISUAL: Record<
-  StatusColuna,
-  { icon: LucideIcon; headerClass: string }
-> = {
-  em_producao: {
-    icon: CookingPot,
-    headerClass:
-      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300",
-  },
-  pronto_para_envio: {
-    icon: Package,
-    headerClass:
-      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-300",
-  },
-  em_rota: {
-    icon: Truck,
-    headerClass:
-      "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/30 dark:bg-sky-950/20 dark:text-sky-300",
-  },
-  entregue: {
-    icon: CheckCircle2,
-    headerClass:
-      "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
-  },
+// A cor da coluna vem do tom do status (guia visual, PED-132), o mesmo do KDS.
+const ICONE_DA_COLUNA: Record<StatusColuna, LucideIcon> = {
+  em_producao: CookingPot,
+  pronto_para_envio: Package,
+  em_rota: Truck,
+  entregue: CheckCircle2,
 };
 
 interface TransicaoComMotivo {
@@ -344,8 +328,11 @@ export function Expedicao() {
                   <KanbanColumn
                     key={coluna.status}
                     titulo={coluna.titulo}
-                    icon={COLUNA_VISUAL[coluna.status].icon}
-                    headerClass={COLUNA_VISUAL[coluna.status].headerClass}
+                    icon={ICONE_DA_COLUNA[coluna.status]}
+                    headerClass={
+                      CLASSES_DO_TOM[TOM_STATUS_ENTREGA[coluna.status]]
+                        .superficie
+                    }
                     itens={colunas[coluna.status]}
                     chave={(entrega) => entrega.id}
                     recolhivel={coluna.recolhivel}

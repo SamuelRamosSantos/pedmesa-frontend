@@ -1,8 +1,9 @@
 import { AlertTriangle, Clock, Truck, Undo2, User } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
+import { Selo } from "../../../components/ui/Selo";
 import { formatHora, formatTempoDecorrido } from "../../../lib/format";
-import { STATUS_ITEM_LABEL } from "../../../lib/status-item";
-import type { StatusItem } from "../../../types/pedido";
+import { STATUS_ITEM_LABEL, TOM_STATUS_ITEM } from "../../../lib/status-item";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import { PROXIMA_ACAO_ITEM, REGRESSAO_ACAO_ITEM } from "../status-flow";
 import type { GrupoPreparo } from "../types";
 
@@ -13,27 +14,7 @@ interface GrupoPreparoCardProps {
   onRegredir: (grupo: GrupoPreparo) => void;
 }
 
-const STATUS_CARD_CLASS: Record<StatusItem, string> = {
-  pendente:
-    "border-red-300 bg-red-50 dark:border-red-500/70 dark:bg-red-950/30",
-  em_preparo:
-    "border-amber-300 bg-amber-50 dark:border-amber-500/70 dark:bg-amber-950/20",
-  pronto:
-    "border-emerald-300 bg-emerald-50 dark:border-emerald-500/70 dark:bg-emerald-950/20",
-  entregue:
-    "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
-  cancelado:
-    "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-900",
-};
-
-const STATUS_BADGE_CLASS: Record<StatusItem, string> = {
-  pendente: "bg-red-500 text-white",
-  em_preparo: "bg-amber-500 text-slate-900",
-  pronto: "bg-emerald-500 text-slate-900",
-  entregue: "bg-slate-600 text-white",
-  cancelado: "bg-slate-600 text-white",
-};
-
+// Cores do status pelo guia visual (PED-132). O redesenho do cartão é o PED-133.
 export function GrupoPreparoCard({
   grupo,
   isUpdating,
@@ -42,11 +23,12 @@ export function GrupoPreparoCard({
 }: GrupoPreparoCardProps) {
   const acao = PROXIMA_ACAO_ITEM[grupo.statusGrupo];
   const regressao = REGRESSAO_ACAO_ITEM[grupo.statusGrupo];
+  const tom = TOM_STATUS_ITEM[grupo.statusGrupo];
 
   return (
     <div
       data-testid={`grupo-preparo-${grupo.pedidoId}`}
-      className={`flex flex-col gap-3 rounded-2xl border-2 p-4 shadow-lg ${STATUS_CARD_CLASS[grupo.statusGrupo]}`}
+      className={`flex flex-col gap-3 rounded-2xl border-2 p-4 shadow-lg ${CLASSES_DO_TOM[tom].superficie}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div data-testid={`identificacao-${grupo.pedidoId}`}>
@@ -68,11 +50,9 @@ export function GrupoPreparoCard({
             {grupo.identificacao.numero}
           </p>
         </div>
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold uppercase ${STATUS_BADGE_CLASS[grupo.statusGrupo]}`}
-        >
+        <Selo tom={tom} forte>
           {STATUS_ITEM_LABEL[grupo.statusGrupo]}
-        </span>
+        </Selo>
       </div>
 
       <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">

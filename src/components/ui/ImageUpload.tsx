@@ -126,8 +126,8 @@ export function ImageUpload({
             : "h-32 w-full rounded-xl"
         } ${
           isDragging
-            ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
-            : "border-slate-300 bg-slate-50 hover:border-orange-400 dark:border-slate-700 dark:bg-slate-800"
+            ? "border-marca-500 bg-marca-50 dark:bg-marca-950/20"
+            : "border-slate-300 bg-slate-50 hover:border-marca-400 dark:border-slate-700 dark:bg-slate-800"
         }`}
       >
         <input

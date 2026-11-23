@@ -10,10 +10,12 @@ import {
 import { type ReactNode, useCallback, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
+import { Selo } from "../../../components/ui/Selo";
 import { useConsultaPorChave } from "../../../hooks/useConsultaPorChave";
 import {
   formatarNumeroEntrega,
   ROTULO_STATUS_ENTREGA,
+  TOM_STATUS_ENTREGA,
 } from "../../../lib/expedicao";
 import { FORMA_PAGAMENTO_LABEL } from "../../../lib/forma-pagamento";
 import {
@@ -99,16 +101,14 @@ export function DetalheEntregaModal({
     <Modal isOpen onClose={onFechar} tamanho="lg" title={`Pedido ${numero}`}>
       <div className="flex flex-col gap-5" data-testid="detalhe-entrega">
         <div className="-mt-2 flex flex-wrap items-center gap-2">
-          <span
+          <Selo
+            tom={TOM_STATUS_ENTREGA[entrega.status_entrega]}
             data-testid="detalhe-status-entrega"
-            className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800 dark:bg-orange-950/50 dark:text-orange-300"
           >
             {ROTULO_STATUS_ENTREGA[entrega.status_entrega]}
-          </span>
+          </Selo>
           {consulta.valor && !consulta.valor.passa_pela_cozinha && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-              Sem itens para a cozinha
-            </span>
+            <Selo tom="neutro">Sem itens para a cozinha</Selo>
           )}
         </div>
 

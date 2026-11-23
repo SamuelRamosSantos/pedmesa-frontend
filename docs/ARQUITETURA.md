@@ -100,6 +100,48 @@ Assistente em três etapas com a `BarraEtapas` no topo: **Cliente** (busca únic
 
 As regras completas (cliente HTTP único da API, integrações externas isoladas, generalizar em vez de duplicar, backend como fonte da verdade, acessibilidade) estão em `.agents/AGENTS.md`, seção 8.
 
+### Guia visual (PED-132)
+
+Tamanho, peso e cor saem dos tokens abaixo, não de uma classe escolhida na tela. Em desenvolvimento, a página `/dev/guia` mostra tudo no claro e no escuro (ela não entra no build).
+
+**Tipografia** (`@theme` em `src/index.css`; cada token já traz entrelinha e peso)
+
+| Classe               | Uso                                                              | Medida            |
+| -------------------- | ---------------------------------------------------------------- | ----------------- |
+| `text-titulo-pagina` | `h1` de cada tela (componente `TituloPagina`)                    | 24px · 1.25 · 600 |
+| `text-titulo-secao`  | `h2` de seções, cards e modais                                   | 18px · 1.3 · 600  |
+| `text-destaque`      | número do pedido ou da mesa, total (componente `NumeroDestaque`) | 36px · 1.1 · 600  |
+| `text-corpo`         | texto padrão das telas                                           | 14px · 1.5 · 400  |
+| `text-campo`         | valor digitado em input e select                                 | 16px · 1.5 · 400  |
+| `text-legenda`       | horário, rótulo, selo, ajuda                                     | 12px · 1.4 · 400  |
+
+- Só três pesos: 400 (texto), 500 (`font-medium`: rótulos, botões, selos) e 600 (`font-semibold`: títulos e números). Sem `font-bold` nem `font-extrabold`.
+- Nada abaixo de 12px (sem `text-[10px]`, `text-[11px]`).
+- Campos sempre em 16px: abaixo disso o Safari do iPhone dá zoom ao focar.
+- Fonte do sistema (`system-ui`): carrega na hora e funciona offline no PWA.
+
+**Paleta semântica** (`src/lib/tons.ts`): uma cor por significado.
+
+| Tom         | Cor                         | Significa                                                                     |
+| ----------- | --------------------------- | ----------------------------------------------------------------------------- |
+| `marca`     | laranja (`--color-marca-*`) | ação principal, seleção, foco, item ativo do menu                             |
+| `aviso`     | âmbar                       | aguardando ou pede atenção: pendente, observação do item, começando a atrasar |
+| `andamento` | azul-céu                    | em preparo, em produção, em rota                                              |
+| `sucesso`   | verde                       | pronto, pago, conectado, salvo                                                |
+| `perigo`    | vermelho                    | erro, atrasado, cancelar e excluir                                            |
+| `neutro`    | slate                       | concluído, cancelado (riscado), inativo, tipo de atendimento, todo o resto    |
+
+- `CLASSES_DO_TOM[tom]` dá quatro variações: `selo` (suave, o padrão), `seloForte` (sólido, para ler de longe no KDS), `superficie` (bloco ou cabeçalho de coluna) e `texto`.
+- Status nunca escolhem cor na tela: `TOM_STATUS_ITEM` (`lib/status-item.ts`) e `TOM_STATUS_ENTREGA` (`lib/expedicao.ts`) dizem o tom, e o teste `tons.test.ts` garante que todo status tem um. O mesmo momento tem o mesmo tom na cozinha e na expedição.
+- A cor da marca usa o alias `marca-*` (`bg-marca-600`), não `orange-*`. Trocar a marca é mudar o `@theme`.
+- Sem cor decorativa: violeta, azul ou amarelo "para destacar" não existem. Mesa e delivery se distinguem por ícone e texto (`TipoAtendimento`), não por cor.
+
+**Componentes base** (`src/components/ui`): `Selo` (status com tom, opcional `forte` e `riscado`), `TipoAtendimento`, `NumeroDestaque`, `TituloPagina`, além de `Button`, `Card`, `Modal`, `Input`, `CurrencyInput`, `Switch`, `OpcaoSelecionavel`, `BarraEtapas`, `ConfirmDialog` e `Toast`, já nos tokens.
+
+**Superfícies:** card com borda de 1px sutil e sombra leve (alpha abaixo de 0,08); no escuro, borda sem sombra. Sombra forte só em sobreposições (modal, toast).
+
+A aplicação do guia no KDS é o PED-133, e nas demais telas, o PED-134.
+
 ## 9. Limitações conhecidas
 
 - Os testes do Vitest cobrem só a lógica pura de `src/lib`; as telas não têm testes automatizados versionados, e o CI ainda não roda `npm test`.

@@ -3,6 +3,7 @@ import type {
   EntregaPainel,
   StatusEntrega,
 } from "../types/delivery";
+import type { Tom } from "./tons";
 
 // Painel Kanban de expedição (PED-110). As regras de transição espelham o backend
 // (entrega-status-transition.ts), que continua sendo quem decide.
@@ -116,6 +117,16 @@ export const ROTULO_STATUS_ENTREGA: Record<StatusEntrega, string> = {
   em_rota: "Em rota",
   entregue: "Entregue",
   cancelado: "Cancelado",
+};
+
+// Guia visual (PED-132): o mesmo significado do KDS. Em produção e em rota andam,
+// pronto para envio é sucesso, entregue e cancelado são neutros.
+export const TOM_STATUS_ENTREGA: Record<StatusEntrega, Tom> = {
+  em_producao: "andamento",
+  pronto_para_envio: "sucesso",
+  em_rota: "andamento",
+  entregue: "neutro",
+  cancelado: "neutro",
 };
 
 // Produtos no card (PED-130): os primeiros e quantos ficaram de fora.

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ImpersonationBanner } from "./components/ImpersonationBanner";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -22,6 +23,12 @@ import { SelecionarVisao } from "./pages/SelecionarVisao";
 import { PainelLeads } from "./pages/superadmin/PainelLeads";
 import { PainelSuperAdmin } from "./pages/superadmin/PainelSuperAdmin";
 import { Unauthorized } from "./pages/Unauthorized";
+
+// Guia visual (PED-132): só no modo de desenvolvimento. No build, `import.meta.env.DEV`
+// vira `false` e o Vite descarta a página.
+const GuiaVisual = import.meta.env.DEV
+  ? lazy(() => import("./pages/dev/GuiaVisual"))
+  : null;
 
 function App() {
   return (
@@ -185,6 +192,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {GuiaVisual && (
+          <Route
+            path="/dev/guia"
+            element={
+              <Suspense fallback={null}>
+                <GuiaVisual />
+              </Suspense>
+            }
+          />
+        )}
 
         <Route path="/nao-autorizado" element={<Unauthorized />} />
         <Route path="/" element={<Navigate to="/login" replace />} />

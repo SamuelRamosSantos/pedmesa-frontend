@@ -28,7 +28,7 @@ export function ConfirmDialog({
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
             <AlertTriangle className="h-4 w-4" />
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-corpo text-slate-600 dark:text-slate-300">
             {description}
           </p>
         </div>
