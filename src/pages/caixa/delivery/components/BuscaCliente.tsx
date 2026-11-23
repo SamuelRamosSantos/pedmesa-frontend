@@ -3,6 +3,7 @@ import type { KeyboardEvent, ReactNode } from "react";
 import { Input } from "../../../../components/ui";
 import { resumoEndereco } from "../../../../lib/identificacao-cliente";
 import { mascararTelefone } from "../../../../lib/mascaras";
+import { CLASSES_DO_TOM } from "../../../../lib/tons";
 import type { ControleBuscaCliente } from "../useBuscaCliente";
 
 interface BuscaClienteProps {
@@ -34,9 +35,9 @@ function Aviso({
 }) {
   return (
     <p
-      className={`flex items-center gap-2 text-sm ${
+      className={`flex items-center gap-2 text-corpo ${
         tom === "alerta"
-          ? "text-amber-700 dark:text-amber-400"
+          ? CLASSES_DO_TOM.aviso.texto
           : "text-slate-500 dark:text-slate-400"
       }`}
     >
@@ -46,9 +47,9 @@ function Aviso({
   );
 }
 
-// Campo único "nome ou telefone" e os resultados (PED-123). Pelo teclado: Enter escolhe
-// o primeiro resultado (ou abre o cadastro quando não há nenhum) e as setas percorrem
-// a lista.
+// Campo único "nome ou telefone" e os resultados (PED-123, PED-139). Pelo teclado: Enter
+// escolhe o primeiro resultado (ou abre o cadastro quando não há nenhum) e as setas
+// percorrem a lista.
 export function BuscaCliente({ busca }: BuscaClienteProps) {
   const { situacao, resultados, total, classificacao } = busca;
   const listaId = "resultados-busca-cliente";
@@ -160,7 +161,7 @@ export function BuscaCliente({ busca }: BuscaClienteProps) {
                   onClick={() => busca.selecionar(cliente)}
                   onKeyDown={(evento) => aoTeclarNoResultado(evento, indice)}
                   data-testid={`resultado-cliente-${cliente.telefone}`}
-                  className={`flex w-full flex-wrap items-center gap-x-3 gap-y-0.5 rounded-lg border px-3.5 py-2.5 text-left text-sm transition-colors hover:border-orange-300 hover:bg-orange-50/60 focus-visible:border-orange-500 focus-visible:bg-orange-50 focus-visible:outline-none dark:hover:border-orange-500/50 dark:hover:bg-orange-950/20 dark:focus-visible:bg-orange-950/30 ${
+                  className={`flex w-full flex-wrap items-center gap-x-3 gap-y-0.5 rounded-lg border px-3.5 py-2.5 text-left text-corpo transition-colors hover:border-marca-300 hover:bg-marca-50/60 focus-visible:border-marca-500 focus-visible:bg-marca-50 focus-visible:outline-none dark:hover:border-marca-500/50 dark:hover:bg-marca-950/20 dark:focus-visible:bg-marca-950/30 ${
                     indice === 0
                       ? "border-slate-300 dark:border-slate-600"
                       : "border-slate-200 dark:border-slate-700"
@@ -172,7 +173,7 @@ export function BuscaCliente({ busca }: BuscaClienteProps) {
                   <span className="whitespace-nowrap tabular-nums text-slate-600 dark:text-slate-300">
                     {mascararTelefone(cliente.telefone)}
                   </span>
-                  <span className="w-full truncate text-xs text-slate-500 dark:text-slate-400 sm:ml-auto sm:w-auto">
+                  <span className="w-full truncate text-legenda text-slate-500 dark:text-slate-400 sm:ml-auto sm:w-auto">
                     {principal
                       ? `${resumoEndereco(principal)} · ${principal.bairro}`
                       : "Sem endereço salvo"}
@@ -188,7 +189,7 @@ export function BuscaCliente({ busca }: BuscaClienteProps) {
         type="button"
         onClick={busca.iniciarCadastro}
         data-testid="botao-cadastrar-cliente"
-        className="flex w-fit items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-orange-700 transition-colors hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30"
+        className={`flex w-fit items-center gap-2 rounded-lg px-2 py-1.5 text-corpo font-semibold transition-colors hover:bg-marca-50 dark:hover:bg-marca-950/30 ${CLASSES_DO_TOM.marca.texto}`}
       >
         <UserPlus className="h-4 w-4" />
         {textoDoCadastro(busca)}

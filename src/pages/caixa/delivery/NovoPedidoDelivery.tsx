@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { AppShell } from "../../../components/layout/AppShell";
-import { Button } from "../../../components/ui";
+import { Button, TituloPagina } from "../../../components/ui";
 import { BarraEtapas } from "../../../components/ui/BarraEtapas";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
@@ -33,6 +33,7 @@ import {
   primeiraPendencia,
 } from "../../../lib/novo-pedido-delivery";
 import { focarProximoCampo } from "../../../lib/teclado";
+import { CLASSES_DO_TOM } from "../../../lib/tons";
 import { listCategorias } from "../../../services/categoria.service";
 import { criarPedidoDelivery } from "../../../services/delivery.service";
 import { listProdutos } from "../../../services/produto.service";
@@ -297,16 +298,14 @@ export function NovoPedidoDelivery() {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <Truck className="hidden h-5 w-5 text-orange-600 sm:block" />
+              <Truck className="hidden h-5 w-5 text-marca-600 sm:block" />
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-legenda text-slate-500 dark:text-slate-400">
                   PedMesa · Delivery
                 </p>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Novo pedido delivery
-                </h1>
+                <TituloPagina>Novo pedido delivery</TituloPagina>
               </div>
-              <p className="ml-auto hidden text-xs text-slate-500 md:block dark:text-slate-400">
+              <p className="ml-auto hidden text-legenda text-slate-500 md:block dark:text-slate-400">
                 <kbd className="rounded border border-slate-300 px-1 dark:border-slate-700">
                   Enter
                 </kbd>{" "}
@@ -394,7 +393,7 @@ export function NovoPedidoDelivery() {
                 <p
                   role="status"
                   data-testid="pendencia-etapa"
-                  className="text-sm font-medium text-amber-700 dark:text-amber-400"
+                  className={`text-corpo font-medium ${CLASSES_DO_TOM.aviso.texto}`}
                 >
                   {pendenciaAtual}
                 </p>

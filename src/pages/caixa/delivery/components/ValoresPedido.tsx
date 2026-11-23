@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { formatCurrency } from "../../../../lib/format";
+import { CLASSES_DO_TOM } from "../../../../lib/tons";
 import type { ControleCotacaoDelivery } from "../useCotacaoDelivery";
 
 function Linha({
@@ -13,7 +14,7 @@ function Linha({
 }) {
   return (
     <div
-      className={`flex items-center justify-between ${destaque ? "text-base font-bold text-slate-900 dark:text-white" : "text-sm text-slate-600 dark:text-slate-300"}`}
+      className={`flex items-center justify-between ${destaque ? "text-titulo-secao text-slate-900 dark:text-white" : "text-corpo text-slate-600 dark:text-slate-300"}`}
     >
       <span>{rotulo}</span>
       <span className="tabular-nums">{valor}</span>
@@ -24,8 +25,8 @@ function Linha({
 const exibir = (valor: number | null | undefined) =>
   valor === null || valor === undefined ? "—" : formatCurrency(valor);
 
-// Subtotal, desconto, taxa e total do pedido, sempre os da cotação do backend (PED-109;
-// desconto e taxa isenta desde o PED-126).
+// Subtotal, desconto, taxa e total do pedido, sempre os da cotação do backend (PED-109,
+// PED-139; desconto e taxa isenta desde o PED-126).
 export function ValoresPedido({
   cotacao,
 }: {
@@ -39,7 +40,7 @@ export function ValoresPedido({
       aria-live="polite"
     >
       {cotacao.situacao === "calculando" ? (
-        <p className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+        <p className="flex items-center gap-2 text-corpo text-slate-500 dark:text-slate-400">
           <Loader2 className="h-4 w-4 animate-spin" />
           Calculando...
         </p>
@@ -54,7 +55,7 @@ export function ValoresPedido({
           )}
           {valores?.taxa_isenta ? (
             <div
-              className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"
+              className="flex items-center justify-between text-corpo text-slate-600 dark:text-slate-300"
               data-testid="linha-taxa-isenta"
             >
               <span>Taxa de entrega</span>
@@ -62,7 +63,9 @@ export function ValoresPedido({
                 <s className="tabular-nums text-slate-400 dark:text-slate-500">
                   {exibir(valores.taxa_entrega_bairro)}
                 </s>
-                <span className="font-semibold text-sky-700 dark:text-sky-300">
+                <span
+                  className={`font-semibold ${CLASSES_DO_TOM.andamento.texto}`}
+                >
                   Isenta
                 </span>
               </span>

@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 const ARQUIVOS_MIGRADOS = import.meta.glob<string>(
   [
     "../components/**/*.tsx",
+    "../pages/caixa/delivery/**/*.tsx",
     "../pages/cozinha/**/*.tsx",
     "../pages/dev/**/*.tsx",
     "../pages/expedicao/**/*.tsx",

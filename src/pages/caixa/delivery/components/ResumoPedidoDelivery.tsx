@@ -17,11 +17,11 @@ export function ResumoPedidoDelivery({
 }: ResumoPedidoDeliveryProps) {
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-white">
+      <h2 className="flex items-center gap-2 text-titulo-secao text-slate-900 dark:text-white">
         <ShoppingCart className="h-4 w-4" />
         Itens do pedido
         {carrinho.quantidadeTotal > 0 && (
-          <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
+          <span className="text-corpo font-normal text-slate-500 dark:text-slate-400">
             ({carrinho.quantidadeTotal}{" "}
             {carrinho.quantidadeTotal === 1 ? "item" : "itens"})
           </span>
@@ -29,7 +29,7 @@ export function ResumoPedidoDelivery({
       </h2>
 
       {carrinho.itens.length === 0 ? (
-        <p className="py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+        <p className="py-4 text-center text-corpo text-slate-500 dark:text-slate-400">
           Nenhum item ainda. Busque um produto e tecle Enter para adicionar.
         </p>
       ) : (

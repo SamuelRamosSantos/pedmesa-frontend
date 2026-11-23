@@ -6,6 +6,7 @@ import type { AjustesPedido as Ajustes } from "../../../../lib/cotacao-delivery"
 import { FORMA_PAGAMENTO_LABEL } from "../../../../lib/forma-pagamento";
 import { formatCurrency } from "../../../../lib/format";
 import { mascararTelefone } from "../../../../lib/mascaras";
+import { CLASSES_DO_TOM } from "../../../../lib/tons";
 import type { FormaPagamento } from "../../../../types/comanda";
 import { AjustesPedido } from "../components/AjustesPedido";
 import { PagamentoDelivery } from "../components/PagamentoDelivery";
@@ -40,16 +41,16 @@ interface EtapaPagamentoProps {
 function Bloco({ titulo, children }: { titulo: string; children: string }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <p className="text-legenda font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
         {titulo}
       </p>
-      <p className="text-sm text-slate-900 dark:text-white">{children}</p>
+      <p className="text-corpo text-slate-900 dark:text-white">{children}</p>
     </div>
   );
 }
 
-// Etapa 3 do novo pedido delivery (PED-123): forma de pagamento, troco e a revisão do
-// pedido antes de enviar. Todos os valores são os da cotação do backend.
+// Etapa 3 do novo pedido delivery (PED-123, PED-139): forma de pagamento, troco e a
+// revisão do pedido antes de enviar. Todos os valores são os da cotação do backend.
 export function EtapaPagamento({
   forma,
   onForma,
@@ -86,7 +87,7 @@ export function EtapaPagamento({
       </div>
 
       <Card className="flex flex-col gap-4 lg:sticky lg:top-40">
-        <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-white">
+        <h2 className="flex items-center gap-2 text-titulo-secao text-slate-900 dark:text-white">
           <ClipboardCheck className="h-4 w-4" />
           Revisão do pedido
         </h2>
@@ -101,7 +102,7 @@ export function EtapaPagamento({
           </div>
         )}
 
-        <ul className="flex flex-col gap-1.5 border-t border-slate-200 pt-3 text-sm dark:border-slate-800">
+        <ul className="flex flex-col gap-1.5 border-t border-slate-200 pt-3 text-corpo dark:border-slate-800">
           {carrinho.itens.map((item) => (
             <li
               key={item.id}
@@ -113,7 +114,7 @@ export function EtapaPagamento({
                 </span>{" "}
                 {item.produtoNome}
                 {item.observacao.trim() !== "" && (
-                  <span className="block text-xs text-slate-500 dark:text-slate-400">
+                  <span className="block text-legenda text-slate-500 dark:text-slate-400">
                     {item.observacao}
                   </span>
                 )}
@@ -129,7 +130,7 @@ export function EtapaPagamento({
 
         {motivoBloqueio && (
           <p
-            className="text-sm text-amber-700 dark:text-amber-400"
+            className={`text-corpo ${CLASSES_DO_TOM.aviso.texto}`}
             role="status"
           >
             {motivoBloqueio}
@@ -145,7 +146,7 @@ export function EtapaPagamento({
         >
           <Send className="h-4 w-4" />
           Enviar pedido
-          <kbd className="ml-1 rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-medium">
+          <kbd className="ml-1 rounded bg-white/20 px-1.5 py-0.5 text-legenda font-medium">
             Ctrl+Enter
           </kbd>
         </Button>

@@ -1,7 +1,7 @@
 import { MapPin, MapPinPlus } from "lucide-react";
 import { useState } from "react";
 import { TaxaEntregaModal } from "../../../../components/delivery/TaxaEntregaModal";
-import { Button, Card } from "../../../../components/ui";
+import { Button, Card, Selo } from "../../../../components/ui";
 import { OpcaoSelecionavel } from "../../../../components/ui/OpcaoSelecionavel";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { localidadeDaEntrega } from "../../../../lib/endereco-entrega";
@@ -40,7 +40,7 @@ export function EnderecoEntrega({
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-white">
+      <h2 className="flex items-center gap-2 text-titulo-secao text-slate-900 dark:text-white">
         <MapPin className="h-4 w-4 text-slate-400" />
         Endereço de entrega
       </h2>
@@ -60,11 +60,7 @@ export function EnderecoEntrega({
               <span className="text-slate-500 dark:text-slate-400">
                 {salvo.bairro} · {salvo.cidade}/{salvo.uf}
               </span>
-              {salvo.principal && (
-                <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
-                  Principal
-                </span>
-              )}
+              {salvo.principal && <Selo tom="marca">Principal</Selo>}
             </OpcaoSelecionavel>
           ))}
           <OpcaoSelecionavel

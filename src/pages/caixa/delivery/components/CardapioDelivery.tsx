@@ -3,6 +3,7 @@ import { type KeyboardEvent, type RefObject, useMemo, useState } from "react";
 import { ProdutoCard } from "../../../../components/cardapio/ProdutoCard";
 import { Button, Card, Input } from "../../../../components/ui";
 import { filtrarProdutos, primeiroDisponivel } from "../../../../lib/cardapio";
+import { CLASSES_DO_TOM } from "../../../../lib/tons";
 import type { Categoria } from "../../../../types/categoria";
 import type { Produto } from "../../../../types/produto";
 
@@ -16,8 +17,9 @@ interface CardapioDeliveryProps {
   buscaRef: RefObject<HTMLInputElement | null>;
 }
 
-// Cardápio do novo pedido delivery (PED-109). Pelo teclado: digita parte do nome e Enter
-// adiciona o primeiro produto disponível; com a busca vazia, Enter segue para o próximo campo.
+// Cardápio do novo pedido delivery (PED-109, PED-139). Pelo teclado: digita parte do nome
+// e Enter adiciona o primeiro produto disponível; com a busca vazia, Enter segue para o
+// próximo campo.
 export function CardapioDelivery({
   produtos,
   categorias,
@@ -55,7 +57,7 @@ export function CardapioDelivery({
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+      <h2 className="text-titulo-secao text-slate-900 dark:text-white">
         Cardápio
       </h2>
 
@@ -81,9 +83,9 @@ export function CardapioDelivery({
             type="button"
             aria-pressed={categoriaId === categoria.id}
             onClick={() => setCategoriaId(categoria.id)}
-            className={`shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-corpo font-medium transition-colors ${
               categoriaId === categoria.id
-                ? "bg-orange-600 text-white"
+                ? "bg-marca-600 text-white"
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             }`}
           >
@@ -93,14 +95,16 @@ export function CardapioDelivery({
       </fieldset>
 
       {carregando && (
-        <p className="flex items-center gap-2 py-6 text-sm text-slate-500 dark:text-slate-400">
+        <p className="flex items-center gap-2 py-6 text-corpo text-slate-500 dark:text-slate-400">
           <RefreshCw className="h-4 w-4 animate-spin" />
           Carregando cardápio...
         </p>
       )}
 
       {!carregando && erro && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div
+          className={`flex items-center justify-between gap-3 rounded-lg border px-3.5 py-2.5 text-corpo ${CLASSES_DO_TOM.perigo.superficie}`}
+        >
           {erro}
           <Button variant="secondary" onClick={onRecarregar}>
             Tentar novamente
@@ -109,7 +113,7 @@ export function CardapioDelivery({
       )}
 
       {!carregando && !erro && filtrados.length === 0 && (
-        <p className="flex items-center gap-2 py-6 text-sm text-slate-500 dark:text-slate-400">
+        <p className="flex items-center gap-2 py-6 text-corpo text-slate-500 dark:text-slate-400">
           <UtensilsCrossed className="h-4 w-4" />
           Nenhum produto encontrado.
         </p>
