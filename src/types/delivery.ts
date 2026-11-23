@@ -1,7 +1,7 @@
 // Espelho dos mappers de delivery do backend (PED-105): cotacao.mapper, pedido-delivery.mapper,
 // entrega.mapper e taxa-entrega.mapper. Valores em reais, calculados pelo backend.
 import type { FormaPagamento } from "./comanda";
-import type { StatusPreparo } from "./pedido";
+import type { StatusItem, StatusPreparo } from "./pedido";
 
 export type StatusEntrega =
   | "em_producao"
@@ -69,6 +69,72 @@ export interface EntregaPainel {
   status_preparo: StatusPreparo;
   // false = só itens sem preparo: a entrega não aparece no KDS.
   passa_pela_cozinha: boolean;
+  // Produtos ativos (sem os cancelados), para o card (PED-130).
+  itens: ItemResumidoEntrega[];
+}
+
+export interface ItemResumidoEntrega {
+  id: string;
+  produto: string;
+  quantidade: number;
+  tem_observacao: boolean;
+}
+
+// GET /delivery/entregas/:id: tudo do pedido para o modal da expedição (PED-130).
+export interface DetalheEntrega {
+  id: string;
+  numero_entrega: number;
+  status_entrega: StatusEntrega;
+  versao: number;
+  cliente: { nome: string; telefone: string };
+  endereco: {
+    cep: string;
+    logradouro: string;
+    numero: string;
+    complemento: string | null;
+    bairro: string;
+    cidade: string;
+    uf: string;
+    referencia: string | null;
+  };
+  itens: {
+    id: string;
+    produto: string;
+    quantidade: number;
+    preco_unitario: number;
+    subtotal: number;
+    observacao: string | null;
+    status_item: StatusItem;
+    precisa_preparo: boolean;
+  }[];
+  valores: {
+    subtotal: number;
+    desconto: number;
+    taxa_entrega: number;
+    taxa_isenta: boolean;
+    total: number;
+  };
+  pagamento: {
+    forma: FormaPagamento;
+    troco_para: number | null;
+    troco: number;
+    troco_suficiente: boolean;
+  };
+  status_preparo: StatusPreparo;
+  passa_pela_cozinha: boolean;
+  criado_em: string;
+  previsao_entrega_em: string | null;
+  saiu_em: string | null;
+  entregue_em: string | null;
+  motivo_cancelamento: string | null;
+  historico: {
+    status_anterior: StatusEntrega | null;
+    status_novo: StatusEntrega;
+    motivo: string | null;
+    // null = mudança automática (sincronização com a cozinha).
+    usuario_nome: string | null;
+    criado_em: string;
+  }[];
 }
 
 // Resposta da transição de status e campo `entrega` do 409 de concorrência.

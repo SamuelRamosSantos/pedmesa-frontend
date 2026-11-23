@@ -110,6 +110,32 @@ export function motivoValido(motivo: string): boolean {
   return motivo.trim().length >= MOTIVO_MINIMO_CARACTERES;
 }
 
+export const ROTULO_STATUS_ENTREGA: Record<StatusEntrega, string> = {
+  em_producao: "Em produção",
+  pronto_para_envio: "Pronto para envio",
+  em_rota: "Em rota",
+  entregue: "Entregue",
+  cancelado: "Cancelado",
+};
+
+// Produtos no card (PED-130): os primeiros e quantos ficaram de fora.
+export const MAX_ITENS_NO_CARD = 4;
+
+export function resumoDosItens<T>(
+  itens: readonly T[],
+  maximo = MAX_ITENS_NO_CARD,
+): { visiveis: T[]; restantes: number } {
+  // Mostrar "+1 item" ocuparia a mesma linha que o próprio item: mostra todos.
+  if (itens.length <= maximo + 1) {
+    return { visiveis: [...itens], restantes: 0 };
+  }
+
+  return {
+    visiveis: itens.slice(0, maximo),
+    restantes: itens.length - maximo,
+  };
+}
+
 // Selo da cozinha no card (PED-129): o status do KDS enquanto a entrega está em produção,
 // ou o aviso de que ela não passa pela cozinha (só itens sem preparo), para ninguém
 // procurá-la no KDS. null nas outras situações.

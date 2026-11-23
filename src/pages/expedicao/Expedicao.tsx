@@ -39,6 +39,7 @@ import {
   transicionarEntrega,
 } from "../../services/delivery.service";
 import type { EntregaPainel, StatusEntrega } from "../../types/delivery";
+import { DetalheEntregaModal } from "./components/DetalheEntregaModal";
 import { EntregaCard } from "./components/EntregaCard";
 import { MotivoModal } from "./components/MotivoModal";
 
@@ -91,6 +92,8 @@ export function Expedicao() {
   const [pedidoMotivo, setPedidoMotivo] = useState<TransicaoComMotivo | null>(
     null,
   );
+  // Entrega aberta no modal de detalhes (PED-130); o estado vem sempre da lista.
+  const [detalheId, setDetalheId] = useState<string | null>(null);
   const primeiraCargaRef = useRef(true);
   // Transições em andamento: o polling não desfaz o movimento otimista delas.
   const pendentesRef = useRef(new Set<string>());
@@ -174,11 +177,42 @@ export function Expedicao() {
 
   function pedirTransicao(entrega: EntregaPainel, para: StatusEntrega) {
     if (exigeMotivo(entrega.status_entrega, para)) {
+      // Um modal por vez: o de detalhes fecha e o do motivo abre (o Escape fecharia os dois).
+      setDetalheId(null);
       setPedidoMotivo({ entrega, para });
       return;
     }
 
     void transicionar(entrega, para, null);
+  }
+
+  // As mesmas ações no card e no modal de detalhes (PED-130).
+  const acoes = {
+    onAvancar: (alvo: EntregaPainel) => {
+      const acao = AVANCAR[alvo.status_entrega];
+      if (acao) pedirTransicao(alvo, acao.para);
+    },
+    onVoltar: (alvo: EntregaPainel) => {
+      const acao = VOLTAR[alvo.status_entrega];
+      if (acao) pedirTransicao(alvo, acao.para);
+    },
+    onCancelar: (alvo: EntregaPainel) => pedirTransicao(alvo, "cancelado"),
+    onReimprimir: (alvo: EntregaPainel) => void reimprimir(alvo),
+  };
+
+  // Fechar devolve o foco ao card que abriu o modal.
+  function fecharDetalhe() {
+    const numero = entregaDetalhe?.numero_entrega;
+    setDetalheId(null);
+    if (numero !== undefined) {
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLButtonElement>(
+            `[data-testid="abrir-entrega-${numero}"]`,
+          )
+          ?.focus(),
+      );
+    }
   }
 
   async function confirmarComMotivo(motivo: string) {
@@ -213,6 +247,10 @@ export function Expedicao() {
   }
 
   const colunas = useMemo(() => agruparPorColuna(entregas), [entregas]);
+  const entregaDetalhe =
+    detalheId === null
+      ? null
+      : (entregas.find((entrega) => entrega.id === detalheId) ?? null);
   const agora = new Date();
   const textosMotivo = pedidoMotivo
     ? textosDoMotivo(
@@ -240,7 +278,8 @@ export function Expedicao() {
               Painel de expedição
             </h1>
 
-            <div className="ml-auto flex items-center gap-4">
+            {/* No celular, só ícones em "Conectado" e "Clientes": os quatro controles cabem em 375 px. */}
+            <div className="ml-auto flex items-center gap-2 sm:gap-4">
               <span
                 className={`flex items-center gap-1.5 text-xs font-semibold ${conectado ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
               >
@@ -249,7 +288,9 @@ export function Expedicao() {
                 ) : (
                   <WifiOff className="h-4 w-4 animate-pulse" />
                 )}
-                {conectado ? "Conectado" : "Sem conexão"}
+                <span className="sr-only sm:not-sr-only">
+                  {conectado ? "Conectado" : "Sem conexão"}
+                </span>
               </span>
 
               <button
@@ -266,9 +307,11 @@ export function Expedicao() {
               <Button
                 variant="secondary"
                 onClick={() => navigate("/expedicao/clientes")}
+                title="Clientes"
+                className="px-3 sm:px-4"
               >
                 <Users className="h-4 w-4" />
-                Clientes
+                <span className="sr-only sm:not-sr-only">Clientes</span>
               </Button>
 
               <Button onClick={() => navigate("/caixa/delivery/novo")}>
@@ -312,16 +355,8 @@ export function Expedicao() {
                         entrega={entrega}
                         agora={agora}
                         ocupada={ocupadas.has(entrega.id)}
-                        onAvancar={(alvo) => {
-                          const acao = AVANCAR[alvo.status_entrega];
-                          if (acao) pedirTransicao(alvo, acao.para);
-                        }}
-                        onVoltar={(alvo) => {
-                          const acao = VOLTAR[alvo.status_entrega];
-                          if (acao) pedirTransicao(alvo, acao.para);
-                        }}
-                        onCancelar={(alvo) => pedirTransicao(alvo, "cancelado")}
-                        onReimprimir={(alvo) => void reimprimir(alvo)}
+                        onAbrir={(alvo) => setDetalheId(alvo.id)}
+                        {...acoes}
                       />
                     )}
                   />
@@ -329,6 +364,15 @@ export function Expedicao() {
               </div>
             )}
           </main>
+
+          {entregaDetalhe && (
+            <DetalheEntregaModal
+              entrega={entregaDetalhe}
+              ocupada={ocupadas.has(entregaDetalhe.id)}
+              onFechar={fecharDetalhe}
+              {...acoes}
+            />
+          )}
 
           {pedidoMotivo && textosMotivo && (
             <MotivoModal

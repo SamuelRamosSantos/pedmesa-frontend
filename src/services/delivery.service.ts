@@ -1,6 +1,7 @@
 import type { FormaPagamento } from "../types/comanda";
 import type {
   CotacaoDelivery,
+  DetalheEntrega,
   EntregaEstado,
   EntregaPainel,
   PedidoDeliveryCriado,
@@ -110,6 +111,18 @@ export async function listarEntregas(
   const { data } = await api.get<EntregaPainel[]>("/delivery/entregas", {
     params: filtro.status ? { status: filtro.status } : undefined,
   });
+  return data;
+}
+
+// Detalhe completo da entrega para o modal da expedição (PED-130).
+export async function buscarDetalheEntrega(
+  entregaId: string,
+  signal?: AbortSignal,
+): Promise<DetalheEntrega> {
+  const { data } = await api.get<DetalheEntrega>(
+    `/delivery/entregas/${entregaId}`,
+    { signal },
+  );
   return data;
 }
 

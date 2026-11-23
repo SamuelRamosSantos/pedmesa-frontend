@@ -12,6 +12,7 @@ import {
   motivoValido,
   podeCancelar,
   restaurarEntrega,
+  resumoDosItens,
   seloDaCozinha,
   textosDoMotivo,
   tomDoTempo,
@@ -40,9 +41,29 @@ function entrega(
     atrasado: false,
     status_preparo: "pendente",
     passa_pela_cozinha: true,
+    itens: [],
     ...alteracao,
   };
 }
+
+describe("resumoDosItens (PED-130)", () => {
+  const itens = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+
+  it("até o máximo + 1, mostra todos (não vale um '+1 item')", () => {
+    expect(resumoDosItens(itens(4))).toEqual({
+      visiveis: [1, 2, 3, 4],
+      restantes: 0,
+    });
+    expect(resumoDosItens(itens(5)).restantes).toBe(0);
+  });
+
+  it("acima disso, mostra 4 e conta o resto", () => {
+    expect(resumoDosItens(itens(7))).toEqual({
+      visiveis: [1, 2, 3, 4],
+      restantes: 3,
+    });
+  });
+});
 
 describe("seloDaCozinha (PED-129)", () => {
   const rotulo = (status: string) => status.toUpperCase();
