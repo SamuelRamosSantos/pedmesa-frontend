@@ -1,6 +1,5 @@
 import {
   LogOut,
-  Pencil,
   PlusCircle,
   RefreshCw,
   Search,
@@ -11,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoIcon from "../../assets/logo-icon.svg";
 import { Button } from "../../components/ui/Button";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSuperAdminAuth } from "../../contexts/SuperAdminAuthContext";
@@ -22,7 +21,6 @@ import { getHomeRouteForRoles } from "../../lib/role-routes";
 import {
   impersonarTenant,
   listTenants,
-  updateTenantStatus,
 } from "../../services/super-admin.service";
 import type { TenantAdminItem, TenantStatus } from "../../types/super-admin";
 import { EditarTenantModal } from "./components/EditarTenantModal";
@@ -51,13 +49,6 @@ const STATUS_LABEL: Record<TenantStatus, string> = {
   cancelado: "Cancelado",
 };
 
-interface AcaoStatusPendente {
-  tenant: TenantAdminItem;
-  novoStatus: TenantStatus;
-  titulo: string;
-  descricao: string;
-}
-
 export function PainelSuperAdmin() {
   const navigate = useNavigate();
   const { login: authenticateTenant } = useAuth();
@@ -74,10 +65,6 @@ export function PainelSuperAdmin() {
   const [tenantEditando, setTenantEditando] = useState<TenantAdminItem | null>(
     null,
   );
-  const [acaoPendente, setAcaoPendente] = useState<AcaoStatusPendente | null>(
-    null,
-  );
-  const [isConfirmandoStatus, setIsConfirmandoStatus] = useState(false);
   const [acessandoComoId, setAcessandoComoId] = useState<string | null>(null);
 
   const fetchTenants = useCallback(async () => {
@@ -134,66 +121,6 @@ export function PainelSuperAdmin() {
       ),
     );
     setTenantEditando(null);
-  }
-
-  function solicitarSuspender(tenant: TenantAdminItem) {
-    setAcaoPendente({
-      tenant,
-      novoStatus: "suspenso",
-      titulo: "Suspender estabelecimento?",
-      descricao: `Os usuários de "${tenant.nome_fantasia}" não vão mais conseguir entrar no sistema até que o estabelecimento seja reativado.`,
-    });
-  }
-
-  function solicitarCancelar(tenant: TenantAdminItem) {
-    setAcaoPendente({
-      tenant,
-      novoStatus: "cancelado",
-      titulo: "Cancelar estabelecimento?",
-      descricao: `"${tenant.nome_fantasia}" será marcado como cancelado e os usuários não vão mais conseguir entrar no sistema.`,
-    });
-  }
-
-  function solicitarReativar(tenant: TenantAdminItem) {
-    setAcaoPendente({
-      tenant,
-      novoStatus: "ativo",
-      titulo: "Reativar estabelecimento?",
-      descricao: `"${tenant.nome_fantasia}" volta a ficar acessível normalmente para os usuários.`,
-    });
-  }
-
-  async function handleConfirmarAcaoStatus() {
-    if (!acaoPendente) {
-      return;
-    }
-
-    setIsConfirmandoStatus(true);
-
-    try {
-      const atualizado = await updateTenantStatus(
-        acaoPendente.tenant.id,
-        acaoPendente.novoStatus,
-      );
-      setTenants((current) =>
-        current.map((item) => (item.id === atualizado.id ? atualizado : item)),
-      );
-      showToast(
-        `Estabelecimento "${atualizado.nome_fantasia}" agora está ${STATUS_LABEL[atualizado.status]}.`,
-        "success",
-      );
-      setAcaoPendente(null);
-    } catch (error) {
-      showToast(
-        getApiErrorMessage(
-          error,
-          "Não foi possível atualizar o status do estabelecimento.",
-        ),
-        "error",
-      );
-    } finally {
-      setIsConfirmandoStatus(false);
-    }
   }
 
   async function handleAcessarComo(tenant: TenantAdminItem) {
@@ -328,12 +255,15 @@ export function PainelSuperAdmin() {
           {!isLoading && !errorMessage && tenantsFiltrados.length > 0 && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {tenantsFiltrados.map((tenant) => (
-                <div
+                <ItemEditavel
                   key={tenant.id}
+                  variante="card"
+                  inativo={tenant.status !== "ativo"}
                   data-testid={`tenant-card-${tenant.nome_fantasia}`}
-                  className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                  aria-label={`Editar estabelecimento ${tenant.nome_fantasia}`}
+                  onClick={() => setTenantEditando(tenant)}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex w-full items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold text-slate-900 dark:text-white">
                         {tenant.nome_fantasia}
@@ -352,59 +282,7 @@ export function PainelSuperAdmin() {
                   <p className="text-xs text-slate-400 dark:text-slate-500">
                     Criado em {formatDataHora(tenant.criado_em)}
                   </p>
-
-                  <div className="mt-1 flex flex-col gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleAcessarComo(tenant)}
-                        isLoading={acessandoComoId === tenant.id}
-                        className="flex-1"
-                      >
-                        Acessar como
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => setTenantEditando(tenant)}
-                        aria-label={`Editar ${tenant.nome_fantasia}`}
-                        title="Editar dados do estabelecimento"
-                        className="flex shrink-0 items-center justify-center rounded-lg bg-slate-100 p-2.5 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {tenant.status !== "ativo" && (
-                        <button
-                          type="button"
-                          onClick={() => solicitarReativar(tenant)}
-                          className="flex-1 rounded-lg bg-slate-100 px-2 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          Reativar
-                        </button>
-                      )}
-                      {tenant.status !== "suspenso" &&
-                        tenant.status !== "cancelado" && (
-                          <button
-                            type="button"
-                            onClick={() => solicitarSuspender(tenant)}
-                            className="flex-1 rounded-lg bg-amber-50 px-2 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/50"
-                          >
-                            Suspender
-                          </button>
-                        )}
-                      {tenant.status !== "cancelado" && (
-                        <button
-                          type="button"
-                          onClick={() => solicitarCancelar(tenant)}
-                          className="flex-1 rounded-lg bg-red-50 px-2 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-950/50"
-                        >
-                          Cancelar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                </ItemEditavel>
               ))}
             </div>
           )}
@@ -421,16 +299,8 @@ export function PainelSuperAdmin() {
         tenant={tenantEditando}
         onClose={() => setTenantEditando(null)}
         onSaved={handleTenantEditado}
-      />
-
-      <ConfirmDialog
-        isOpen={acaoPendente !== null}
-        title={acaoPendente?.titulo ?? ""}
-        description={acaoPendente?.descricao ?? ""}
-        confirmLabel="Confirmar"
-        isConfirming={isConfirmandoStatus}
-        onCancel={() => setAcaoPendente(null)}
-        onConfirm={handleConfirmarAcaoStatus}
+        onAcessarComo={handleAcessarComo}
+        acessandoComo={acessandoComoId === tenantEditando?.id}
       />
     </div>
   );

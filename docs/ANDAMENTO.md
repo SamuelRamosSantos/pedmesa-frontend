@@ -30,7 +30,7 @@
 
 ## 3. Em andamento (fora da `main`)
 
-- **Refinamento de UX e conformidade (PED-131):** guia visual (PED-132) com escala tipográfica e paleta semântica em tokens do Tailwind (`src/index.css`, `src/lib/tons.ts`), componentes base `Selo`, `TipoAtendimento`, `NumeroDestaque` e `TituloPagina`, componentes de `components/ui` nos tokens e status de item e entrega com um tom cada (pendente âmbar, em preparo/em rota azul, pronto verde). Página de referência `/dev/guia`, só em desenvolvimento. Regras em `docs/ARQUITETURA.md`, seção "Guia visual". Cartões do KDS padronizados para mesa e delivery (PED-133): `TipoAtendimento` + `NumeroDestaque` com a mesma hierarquia, superfície neutra com status comunicado apenas pelo cabeçalho da coluna, marcações de item (`"Compartilhado"` e `"Para: Fulano"`) em `Selo` neutro e observação no tom `aviso`. Auditoria visual das demais telas (PED-134) concluída sobre os 59 arquivos `.tsx` restantes e desdobrada nos cards filhos priorizados PED-136 a PED-141.
+- **Refinamento de UX e conformidade (PED-131):** guia visual (PED-132) com escala tipográfica e paleta semântica em tokens do Tailwind (`src/index.css`, `src/lib/tons.ts`), componentes base `Selo`, `TipoAtendimento`, `NumeroDestaque` e `TituloPagina`, componentes de `components/ui` nos tokens e status de item e entrega com um tom cada (pendente âmbar, em preparo/em rota azul, pronto verde). Página de referência `/dev/guia`, só em desenvolvimento. Regras em `docs/ARQUITETURA.md`, seção "Guia visual". Cartões do KDS padronizados para mesa e delivery (PED-133): `TipoAtendimento` + `NumeroDestaque` com a mesma hierarquia, superfície neutra com status comunicado apenas pelo cabeçalho da coluna, marcações de item (`"Compartilhado"` e `"Para: Fulano"`) em `Selo` neutro e observação no tom `aviso`. Auditoria visual das demais telas (PED-134) concluída sobre os 59 arquivos `.tsx` restantes e desdobrada nos cards filhos priorizados PED-136 a PED-141. Padrão único de edição (PED-135) aplicado em Produtos, Usuários, Bairros e taxas, Impressoras, Clientes, Endereços do cliente e Estabelecimentos do Super-Admin com os novos componentes `ItemEditavel` e `RodapeEdicao` e retorno de foco no `Modal`.
 
 ## 4. Planejado
 
@@ -40,7 +40,6 @@
 - PED-140: guia visual nas telas do Caixa — mapa de mesas, fechamento e pré-conta (Prioridade 4).
 - PED-139: guia visual no assistente de Novo Pedido Delivery (Prioridade 5).
 - PED-141: guia visual em Administração, Super-Admin e telas gerais + conformidade em 100% do `src/` (Prioridade 6).
-- PED-135: padrão único de edição (clicar no item abre a edição, ações e excluir dentro dela).
 - PED-114: padronizar os horários (fuso entre Node e Postgres).
 - PED-128: sugerir o bairro atendido mais parecido quando o digitado não é atendido ("Você quis dizer...?").
 - PED-59, PED-64 e PED-69: cabeçalhos de segurança, `Cache-Control` e compressão no nginx da imagem.

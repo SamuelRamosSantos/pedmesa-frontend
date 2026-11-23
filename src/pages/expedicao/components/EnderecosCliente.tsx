@@ -1,7 +1,10 @@
-import { MapPin, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { MapPin, Plus } from "lucide-react";
 import { useState } from "react";
 import { EnderecoForm } from "../../../components/endereco/EnderecoForm";
 import { Button } from "../../../components/ui/Button";
+import { ItemEditavel } from "../../../components/ui/ItemEditavel";
+import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
+import { Switch } from "../../../components/ui/Switch";
 import { useToast } from "../../../contexts/ToastContext";
 import { useEnderecoForm } from "../../../hooks/useEnderecoForm";
 import { getApiErrorMessage } from "../../../lib/api-error";
@@ -26,8 +29,9 @@ interface EnderecosClienteProps {
   onAlterado: (cliente: Cliente) => void;
 }
 
-// Endereços de um cliente na tela de clientes (PED-124): adicionar, editar, tornar
-// principal e excluir. Excluir pede confirmação na própria linha, nomeando o endereço.
+// Endereços de um cliente na tela de clientes (PED-124, PED-135): clicar na linha do
+// endereço abre o editor com os campos, a opção de tornar principal e a exclusão com
+// confirmação nomeando o endereço.
 export function EnderecosCliente({
   cliente,
   onAlterado,
@@ -35,10 +39,21 @@ export function EnderecosCliente({
   const { showToast } = useToast();
   // id do endereço em edição, "novo" ou null.
   const [editando, setEditando] = useState<string | null>(null);
-  const [confirmandoExclusao, setConfirmandoExclusao] = useState<string | null>(
-    null,
-  );
   const [ocupado, setOcupado] = useState<string | null>(null);
+  const [excluindoId, setExcluindoId] = useState<string | null>(null);
+
+  function fecharEdicao(idParaFocar?: string) {
+    setEditando(null);
+    if (idParaFocar) {
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLButtonElement>(
+            `[data-testid="endereco-${idParaFocar}"]`,
+          )
+          ?.focus(),
+      );
+    }
+  }
 
   async function executar(
     id: string,
@@ -65,20 +80,52 @@ export function EnderecosCliente({
     }
   }
 
-  async function salvar(endereco: EnderecoNovoPayload) {
-    const novo = editando === "novo";
+  async function salvar(
+    endereco: EnderecoNovoPayload,
+    tornarPrincipal: boolean,
+  ) {
+    const alvo = editando ?? "novo";
+    const novo = alvo === "novo";
     const ok = await executar(
-      editando ?? "novo",
+      alvo,
       () =>
         novo
-          ? createEnderecoCliente(cliente.id, endereco)
-          : updateEnderecoCliente(cliente.id, editando ?? "", endereco),
+          ? createEnderecoCliente(cliente.id, {
+              ...endereco,
+              ...(tornarPrincipal ? { principal: true } : {}),
+            })
+          : updateEnderecoCliente(cliente.id, alvo, {
+              ...endereco,
+              ...(tornarPrincipal ? { principal: true } : {}),
+            }),
       novo ? "Endereço adicionado." : "Endereço atualizado.",
       "Não foi possível salvar o endereço.",
     );
 
     if (ok) {
+      fecharEdicao(novo ? undefined : alvo);
+    }
+  }
+
+  async function excluir(endereco: EnderecoCliente) {
+    const resumo = resumoEndereco(endereco);
+    setExcluindoId(endereco.id);
+
+    try {
+      await deleteEnderecoCliente(cliente.id, endereco.id);
+      const atualizado = await buscarClientePorTelefone(cliente.telefone);
+      if (atualizado) {
+        onAlterado(atualizado);
+      }
+      showToast(`Endereço ${resumo} excluído.`, "success");
       setEditando(null);
+    } catch (error) {
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir o endereço."),
+        "error",
+      );
+    } finally {
+      setExcluindoId(null);
     }
   }
 
@@ -117,43 +164,20 @@ export function EnderecosCliente({
             <li key={endereco.id}>
               <EditorEndereco
                 inicial={camposDoEnderecoSalvo(endereco)}
+                enderecoSalvo={endereco}
                 salvando={ocupado === endereco.id}
-                onCancelar={() => setEditando(null)}
+                excluindo={excluindoId === endereco.id}
+                onCancelar={() => fecharEdicao(endereco.id)}
                 onSalvar={salvar}
+                onExcluir={() => void excluir(endereco)}
               />
             </li>
           ) : (
             <LinhaEndereco
               key={endereco.id}
               endereco={endereco}
-              ocupado={ocupado === endereco.id}
-              confirmando={confirmandoExclusao === endereco.id}
               bloqueado={editando !== null}
-              onEditar={() => {
-                setConfirmandoExclusao(null);
-                setEditando(endereco.id);
-              }}
-              onTornarPrincipal={() =>
-                void executar(
-                  endereco.id,
-                  () =>
-                    updateEnderecoCliente(cliente.id, endereco.id, {
-                      principal: true,
-                    }),
-                  `${resumoEndereco(endereco)} agora é o endereço principal.`,
-                  "Não foi possível trocar o endereço principal.",
-                )
-              }
-              onPedirExclusao={() => setConfirmandoExclusao(endereco.id)}
-              onCancelarExclusao={() => setConfirmandoExclusao(null)}
-              onExcluir={() =>
-                void executar(
-                  endereco.id,
-                  () => deleteEnderecoCliente(cliente.id, endereco.id),
-                  `Endereço ${resumoEndereco(endereco)} excluído.`,
-                  "Não foi possível excluir o endereço.",
-                ).then(() => setConfirmandoExclusao(null))
-              }
+              onEditar={() => setEditando(endereco.id)}
             />
           ),
         )}
@@ -163,7 +187,7 @@ export function EnderecosCliente({
         <EditorEndereco
           inicial={CAMPOS_ENDERECO_VAZIOS}
           salvando={ocupado === "novo"}
-          onCancelar={() => setEditando(null)}
+          onCancelar={() => fecharEdicao()}
           onSalvar={salvar}
         />
       )}
@@ -173,36 +197,23 @@ export function EnderecosCliente({
 
 interface LinhaEnderecoProps {
   endereco: EnderecoCliente;
-  ocupado: boolean;
-  confirmando: boolean;
-  // Outro endereço está em edição: as ações ficam indisponíveis.
+  // Outro endereço está em edição: a linha fica indisponível.
   bloqueado: boolean;
   onEditar: () => void;
-  onTornarPrincipal: () => void;
-  onPedirExclusao: () => void;
-  onCancelarExclusao: () => void;
-  onExcluir: () => void;
 }
 
-function LinhaEndereco({
-  endereco,
-  ocupado,
-  confirmando,
-  bloqueado,
-  onEditar,
-  onTornarPrincipal,
-  onPedirExclusao,
-  onCancelarExclusao,
-  onExcluir,
-}: LinhaEnderecoProps) {
+function LinhaEndereco({ endereco, bloqueado, onEditar }: LinhaEnderecoProps) {
   const resumo = resumoEndereco(endereco);
 
   return (
-    <li
-      data-testid={`endereco-${endereco.id}`}
-      className="flex flex-col gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <li>
+      <ItemEditavel
+        variante="linha"
+        disabled={bloqueado}
+        data-testid={`endereco-${endereco.id}`}
+        aria-label={`Editar endereço ${resumo}`}
+        onClick={onEditar}
+      >
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-2 font-medium text-slate-900 dark:text-white">
             {resumo}
@@ -217,88 +228,51 @@ function LinhaEndereco({
             {endereco.referencia && ` · ${endereco.referencia}`}
           </p>
         </div>
-
-        {!confirmando && (
-          <div className="flex items-center gap-1">
-            {!endereco.principal && (
-              <button
-                type="button"
-                onClick={onTornarPrincipal}
-                disabled={ocupado || bloqueado}
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                <Star className="h-3.5 w-3.5" />
-                Tornar principal
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onEditar}
-              disabled={ocupado || bloqueado}
-              aria-label={`Editar ${resumo}`}
-              title="Editar"
-              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={onPedirExclusao}
-              disabled={ocupado || bloqueado}
-              aria-label={`Excluir ${resumo}`}
-              title="Excluir"
-              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {confirmando && (
-        <div
-          role="alert"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-300"
-        >
-          <span>
-            Excluir o endereço <strong>{resumo}</strong>?
-            {endereco.principal &&
-              " O endereço mais recente passa a ser o principal."}{" "}
-            Pedidos já feitos não mudam.
-          </span>
-          <span className="flex gap-2">
-            <Button variant="secondary" onClick={onCancelarExclusao}>
-              Manter
-            </Button>
-            <Button variant="danger" onClick={onExcluir} isLoading={ocupado}>
-              Excluir endereço
-            </Button>
-          </span>
-        </div>
-      )}
+      </ItemEditavel>
     </li>
   );
 }
 
 interface EditorEnderecoProps {
   inicial: CamposEndereco;
+  enderecoSalvo?: EnderecoCliente;
   salvando: boolean;
+  excluindo?: boolean;
   onCancelar: () => void;
-  onSalvar: (endereco: EnderecoNovoPayload) => void;
+  onSalvar: (endereco: EnderecoNovoPayload, tornarPrincipal: boolean) => void;
+  onExcluir?: () => void;
 }
 
 function EditorEndereco({
   inicial,
+  enderecoSalvo,
   salvando,
+  excluindo = false,
   onCancelar,
   onSalvar,
+  onExcluir,
 }: EditorEnderecoProps) {
   const endereco = useEnderecoForm(inicial);
   const [tentou, setTentou] = useState(false);
+  const [tornarPrincipal, setTornarPrincipal] = useState(
+    () => enderecoSalvo?.principal ?? false,
+  );
+  const resumo = enderecoSalvo ? resumoEndereco(enderecoSalvo) : "";
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-orange-200 bg-orange-50/40 p-4 dark:border-orange-900/50 dark:bg-orange-950/10">
       <EnderecoForm endereco={endereco} />
+
+      {enderecoSalvo && !enderecoSalvo.principal && (
+        <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+          <Switch
+            checked={tornarPrincipal}
+            onChange={setTornarPrincipal}
+            label="Endereço principal"
+            description="Usado como padrão nos próximos pedidos deste cliente."
+          />
+        </div>
+      )}
 
       {tentou && endereco.endereco === null && (
         <p role="status" className="text-sm text-amber-700 dark:text-amber-400">
@@ -306,23 +280,39 @@ function EditorEndereco({
         </p>
       )}
 
-      <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={onCancelar} disabled={salvando}>
-          Cancelar
-        </Button>
-        <Button
-          isLoading={salvando}
-          data-testid="botao-salvar-endereco"
-          onClick={() => {
-            setTentou(true);
-            if (endereco.endereco !== null) {
-              onSalvar(endereco.endereco);
-            }
-          }}
-        >
-          Salvar endereço
-        </Button>
-      </div>
+      <RodapeEdicao
+        onCancelar={onCancelar}
+        salvando={salvando}
+        rotuloSalvar="Salvar endereço"
+        onSalvar={() => {
+          setTentou(true);
+          if (endereco.endereco !== null) {
+            onSalvar(
+              endereco.endereco,
+              Boolean(
+                enderecoSalvo && !enderecoSalvo.principal && tornarPrincipal,
+              ),
+            );
+          }
+        }}
+        excluir={
+          enderecoSalvo && onExcluir
+            ? {
+                confirmacao: (
+                  <span>
+                    Excluir o endereço <strong>{resumo}</strong>?
+                    {enderecoSalvo.principal &&
+                      " O endereço mais recente passa a ser o principal."}{" "}
+                    Pedidos já feitos não mudam.
+                  </span>
+                ),
+                rotuloConfirmar: "Excluir endereço",
+                excluindo,
+                onConfirmar: onExcluir,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

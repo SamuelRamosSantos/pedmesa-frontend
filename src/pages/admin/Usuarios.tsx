@@ -1,34 +1,25 @@
 import {
-  KeyRound,
   Menu,
-  Pencil,
   PlusCircle,
   RefreshCw,
   ShieldCheck,
-  Trash2,
-  Undo2,
   Users as UsersIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTenant } from "../../contexts/TenantContext";
-import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
 import { ROLE_LABEL } from "../../lib/role-labels";
-import {
-  listUsuarios,
-  updateUsuarioAtivo,
-} from "../../services/usuario.service";
+import { listUsuarios } from "../../services/usuario.service";
 import type { Usuario } from "../../types/usuario";
-import { AlterarSenhaModal } from "./components/AlterarSenhaModal";
 import { UsuarioModal } from "./components/UsuarioModal";
 
 export function Usuarios() {
   const { user: usuarioLogado } = useAuth();
   const { tenant } = useTenant();
-  const { showToast } = useToast();
   const usaModuloCozinha = tenant?.usa_modulo_cozinha ?? true;
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -37,9 +28,6 @@ export function Usuarios() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
-  const [usuarioAlterandoSenha, setUsuarioAlterandoSenha] =
-    useState<Usuario | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchUsuarios = useCallback(async () => {
     setIsLoading(true);
@@ -75,37 +63,6 @@ export function Usuarios() {
     setIsModalOpen(false);
     setUsuarioEditando(null);
     fetchUsuarios();
-  }
-
-  function handleSenhaSaved() {
-    setUsuarioAlterandoSenha(null);
-  }
-
-  async function handleToggleAtivo(usuario: Usuario) {
-    setTogglingId(usuario.id);
-
-    try {
-      const atualizado = await updateUsuarioAtivo(usuario.id, !usuario.ativo);
-      setUsuarios((current) =>
-        current.map((item) => (item.id === usuario.id ? atualizado : item)),
-      );
-      showToast(
-        atualizado.ativo
-          ? `"${usuario.nome}" reativado.`
-          : `"${usuario.nome}" desativado.`,
-        "success",
-      );
-    } catch (error) {
-      showToast(
-        getApiErrorMessage(
-          error,
-          "Não foi possível atualizar o status do usuário.",
-        ),
-        "error",
-      );
-    } finally {
-      setTogglingId(null);
-    }
   }
 
   return (
@@ -177,14 +134,15 @@ export function Usuarios() {
                   const isSelf = usuario.id === usuarioLogado?.id;
 
                   return (
-                    <div
+                    <ItemEditavel
                       key={usuario.id}
+                      variante="card"
+                      inativo={!usuario.ativo}
                       data-testid={`usuario-card-${usuario.nome}`}
-                      className={`flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 ${
-                        usuario.ativo ? "" : "opacity-70"
-                      }`}
+                      aria-label={`Editar usuário ${usuario.nome}`}
+                      onClick={() => handleEditarUsuario(usuario)}
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex w-full items-start justify-between gap-2">
                         <div className="flex items-start gap-3">
                           {usuario.foto_url ? (
                             <img
@@ -241,51 +199,7 @@ export function Usuarios() {
                           Pode excluir item no fechamento
                         </p>
                       )}
-
-                      <div className="mt-1 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-                        <button
-                          type="button"
-                          onClick={() => handleEditarUsuario(usuario)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Editar
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setUsuarioAlterandoSenha(usuario)}
-                          aria-label={`Alterar senha de ${usuario.nome}`}
-                          title="Alterar senha"
-                          className="flex shrink-0 items-center justify-center rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleAtivo(usuario)}
-                          disabled={togglingId === usuario.id || isSelf}
-                          title={
-                            isSelf
-                              ? "Você não pode desativar sua própria conta."
-                              : undefined
-                          }
-                          aria-label={
-                            usuario.ativo
-                              ? `Desativar ${usuario.nome}`
-                              : `Reativar ${usuario.nome}`
-                          }
-                          className="flex shrink-0 items-center justify-center rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-400 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-                        >
-                          {usuario.ativo ? (
-                            <Trash2 className="h-4 w-4" />
-                          ) : (
-                            <Undo2 className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                    </ItemEditavel>
                   );
                 })}
               </div>
@@ -301,13 +215,6 @@ export function Usuarios() {
               setUsuarioEditando(null);
             }}
             onSaved={handleModalSaved}
-          />
-
-          <AlterarSenhaModal
-            isOpen={usuarioAlterandoSenha !== null}
-            usuario={usuarioAlterandoSenha}
-            onClose={() => setUsuarioAlterandoSenha(null)}
-            onSaved={handleSenhaSaved}
           />
         </>
       )}

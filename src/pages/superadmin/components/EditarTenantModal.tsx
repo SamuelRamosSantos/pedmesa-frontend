@@ -1,19 +1,31 @@
-import { MapPin, Save } from "lucide-react";
+import { MapPin } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
-import { updateTenant } from "../../../services/super-admin.service";
-import type { TenantAdminItem } from "../../../types/super-admin";
+import {
+  updateTenant,
+  updateTenantStatus,
+} from "../../../services/super-admin.service";
+import type { TenantAdminItem, TenantStatus } from "../../../types/super-admin";
 
 interface EditarTenantModalProps {
   tenant: TenantAdminItem | null;
   onClose: () => void;
   onSaved: (tenantAtualizado: TenantAdminItem) => void;
+  onAcessarComo?: (tenant: TenantAdminItem) => void;
+  acessandoComo?: boolean;
 }
+
+const STATUS_LABEL: Record<TenantStatus, string> = {
+  ativo: "Ativo",
+  suspenso: "Suspenso",
+  cancelado: "Cancelado",
+};
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,6 +33,8 @@ export function EditarTenantModal({
   tenant,
   onClose,
   onSaved,
+  onAcessarComo,
+  acessandoComo = false,
 }: EditarTenantModalProps) {
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [cnpjCpf, setCnpjCpf] = useState("");
@@ -53,6 +67,7 @@ export function EditarTenantModal({
     string | undefined
   >();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alterandoStatus, setAlterandoStatus] = useState(false);
 
   const { showToast } = useToast();
 
@@ -84,7 +99,34 @@ export function EditarTenantModal({
     setEmailEmpresaError(undefined);
     setEmailProprietarioError(undefined);
     setIsSubmitting(false);
+    setAlterandoStatus(false);
   }, [tenant]);
+
+  async function handleMudarStatus(novoStatus: TenantStatus) {
+    if (!tenant) {
+      return;
+    }
+
+    setAlterandoStatus(true);
+
+    try {
+      const atualizado = await updateTenantStatus(tenant.id, novoStatus);
+      showToast(
+        `Estabelecimento "${atualizado.nome_fantasia}" agora está ${STATUS_LABEL[atualizado.status]}.`,
+        "success",
+      );
+      onSaved(atualizado);
+    } catch (error) {
+      showToast(
+        getApiErrorMessage(
+          error,
+          "Não foi possível atualizar o status do estabelecimento.",
+        ),
+        "error",
+      );
+      setAlterandoStatus(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -298,20 +340,68 @@ export function EditarTenantModal({
           />
         </div>
 
-        <div className="mt-2 flex gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" isLoading={isSubmitting} className="flex-1">
-            <Save className="h-4 w-4" />
-            Salvar Alterações
-          </Button>
-        </div>
+        {tenant && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+            <span className="text-sm text-slate-600 dark:text-slate-300">
+              Status atual: <strong>{STATUS_LABEL[tenant.status]}</strong>
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {onAcessarComo && (
+                <Button
+                  variant="secondary"
+                  isLoading={acessandoComo}
+                  disabled={isSubmitting || alterandoStatus}
+                  onClick={() => onAcessarComo(tenant)}
+                >
+                  Acessar como
+                </Button>
+              )}
+              {tenant.status !== "ativo" && (
+                <Button
+                  variant="secondary"
+                  isLoading={alterandoStatus}
+                  disabled={isSubmitting || acessandoComo}
+                  onClick={() => void handleMudarStatus("ativo")}
+                >
+                  Reativar
+                </Button>
+              )}
+              {tenant.status === "ativo" && (
+                <Button
+                  variant="secondary"
+                  isLoading={alterandoStatus}
+                  disabled={isSubmitting || acessandoComo}
+                  onClick={() => void handleMudarStatus("suspenso")}
+                >
+                  Suspender
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <RodapeEdicao
+          onCancelar={onClose}
+          salvando={isSubmitting}
+          rotuloSalvar="Salvar Alterações"
+          excluir={
+            tenant && tenant.status !== "cancelado"
+              ? {
+                  rotulo: "Cancelar estabelecimento",
+                  rotuloConfirmar: "Sim, cancelar",
+                  confirmacao: (
+                    <span>
+                      Cancelar o estabelecimento{" "}
+                      <strong>{tenant.nome_fantasia}</strong>? Os usuários não
+                      vão mais conseguir entrar no sistema.
+                    </span>
+                  ),
+                  excluindo: alterandoStatus,
+                  onConfirmar: () => void handleMudarStatus("cancelado"),
+                }
+              : undefined
+          }
+        />
       </form>
     </Modal>
   );

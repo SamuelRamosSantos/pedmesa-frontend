@@ -2,7 +2,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Pencil,
   RefreshCw,
   Search,
   UserPlus,
@@ -13,6 +12,7 @@ import { AppShell } from "../../components/layout/AppShell";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
 import { useComAtraso } from "../../hooks/useComAtraso";
 import { useConsultaPorChave } from "../../hooks/useConsultaPorChave";
 import { formatarTermoDigitado } from "../../lib/busca-cliente";
@@ -228,31 +228,27 @@ function LinhaCliente({
   const outros = cliente.enderecos.length - 1;
 
   return (
-    <li
-      data-testid={`cliente-${cliente.telefone}`}
-      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700"
-    >
-      <div className="min-w-0">
-        <p className="flex flex-wrap items-baseline gap-x-3 font-medium text-slate-900 dark:text-white">
-          {cliente.nome}
-          <span className="whitespace-nowrap text-sm font-normal tabular-nums text-slate-600 dark:text-slate-300">
-            {mascararTelefone(cliente.telefone)}
-          </span>
-        </p>
-        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-          {principal
-            ? `${resumoEndereco(principal)} · ${principal.bairro}${outros > 0 ? ` · +${outros} ${outros === 1 ? "endereço" : "endereços"}` : ""}`
-            : "Sem endereço salvo"}
-        </p>
-      </div>
-      <Button
-        variant="secondary"
+    <li>
+      <ItemEditavel
+        variante="linha"
+        data-testid={`cliente-${cliente.telefone}`}
+        aria-label={`Editar cliente ${cliente.nome}`}
         onClick={onEditar}
-        aria-label={`Editar ${cliente.nome}`}
       >
-        <Pencil className="h-4 w-4" />
-        Editar
-      </Button>
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-3 font-medium text-slate-900 dark:text-white">
+            {cliente.nome}
+            <span className="whitespace-nowrap text-sm font-normal tabular-nums text-slate-600 dark:text-slate-300">
+              {mascararTelefone(cliente.telefone)}
+            </span>
+          </p>
+          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+            {principal
+              ? `${resumoEndereco(principal)} · ${principal.bairro}${outros > 0 ? ` · +${outros} ${outros === 1 ? "endereço" : "endereços"}` : ""}`
+              : "Sem endereço salvo"}
+          </p>
+        </div>
+      </ItemEditavel>
     </li>
   );
 }

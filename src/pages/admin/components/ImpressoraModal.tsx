@@ -1,13 +1,15 @@
-import { Network, Save } from "lucide-react";
+import { Network } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
+import { Switch } from "../../../components/ui/Switch";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import {
   createImpressora,
+  deleteImpressora,
   updateImpressora,
 } from "../../../services/impressora.service";
 import type { Impressora } from "../../../types/impressora";
@@ -25,6 +27,7 @@ interface ImpressoraModalProps {
   impressoraEditando: Impressora | null;
   onClose: () => void;
   onSaved: () => void;
+  onDeleted?: (impressoraId: string) => void;
 }
 
 export function ImpressoraModal({
@@ -32,15 +35,18 @@ export function ImpressoraModal({
   impressoraEditando,
   onClose,
   onSaved,
+  onDeleted,
 }: ImpressoraModalProps) {
   const [nome, setNome] = useState("");
   const [ip, setIp] = useState("");
   const [porta, setPorta] = useState("9100");
+  const [ativo, setAtivo] = useState(true);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
   const [ipError, setIpError] = useState<string | undefined>();
   const [portaError, setPortaError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { showToast } = useToast();
   const isEdicao = impressoraEditando !== null;
@@ -54,17 +60,40 @@ export function ImpressoraModal({
       setNome(impressoraEditando.nome);
       setIp(impressoraEditando.ip);
       setPorta(String(impressoraEditando.porta));
+      setAtivo(impressoraEditando.ativo);
     } else {
       setNome("");
       setIp("");
       setPorta("9100");
+      setAtivo(true);
     }
 
     setNomeError(undefined);
     setIpError(undefined);
     setPortaError(undefined);
     setIsSubmitting(false);
+    setIsDeleting(false);
   }, [isOpen, impressoraEditando]);
+
+  async function handleExcluir() {
+    if (!impressoraEditando || !onDeleted) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteImpressora(impressoraEditando.id);
+      showToast(`Impressora "${impressoraEditando.nome}" excluída.`, "success");
+      onDeleted(impressoraEditando.id);
+    } catch (error) {
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir a impressora."),
+        "error",
+      );
+      setIsDeleting(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,7 +134,10 @@ export function ImpressoraModal({
 
     try {
       if (impressoraEditando) {
-        await updateImpressora(impressoraEditando.id, payload);
+        await updateImpressora(impressoraEditando.id, {
+          ...payload,
+          ativo,
+        });
         showToast(
           `Impressora "${payload.nome}" atualizada com sucesso.`,
           "success",
@@ -168,20 +200,36 @@ export function ImpressoraModal({
           error={portaError}
         />
 
-        <div className="mt-2 flex gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" isLoading={isSubmitting} className="flex-1">
-            <Save className="h-4 w-4" />
-            Salvar
-          </Button>
-        </div>
+        {isEdicao && (
+          <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+            <Switch
+              checked={ativo}
+              onChange={setAtivo}
+              label="Impressora ativa"
+              description="Impressoras inativas não recebem trabalhos de impressão."
+            />
+          </div>
+        )}
+
+        <RodapeEdicao
+          onCancelar={onClose}
+          salvando={isSubmitting}
+          excluir={
+            impressoraEditando && onDeleted
+              ? {
+                  confirmacao: (
+                    <span>
+                      Excluir a impressora{" "}
+                      <strong>{impressoraEditando.nome}</strong>? Esta ação não
+                      pode ser desfeita.
+                    </span>
+                  ),
+                  excluindo: isDeleting,
+                  onConfirmar: () => void handleExcluir(),
+                }
+              : undefined
+          }
+        />
       </form>
     </Modal>
   );

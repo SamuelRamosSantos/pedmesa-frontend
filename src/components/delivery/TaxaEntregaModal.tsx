@@ -1,4 +1,3 @@
-import { Save } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage, getApiErrorStatus } from "../../lib/api-error";
@@ -10,13 +9,15 @@ import {
 } from "../../lib/taxas-entrega";
 import {
   createTaxaEntrega,
+  deleteTaxaEntrega,
   updateTaxaEntrega,
 } from "../../services/delivery.service";
 import type { TaxaEntrega } from "../../types/delivery";
-import { Button } from "../ui/Button";
 import { CurrencyInput } from "../ui/CurrencyInput";
 import { Input } from "../ui/Input";
 import { Modal } from "../ui/Modal";
+import { RodapeEdicao } from "../ui/RodapeEdicao";
+import { Switch } from "../ui/Switch";
 
 interface TaxaEntregaModalProps {
   // null = nova taxa.
@@ -26,6 +27,7 @@ interface TaxaEntregaModalProps {
   bairroPadrao?: string;
   onClose: () => void;
   onSaved: (taxa: TaxaEntrega) => void;
+  onDeleted?: (taxaId: string) => void;
 }
 
 // Criar/editar a taxa de um bairro (PED-111; também pelo novo pedido delivery, PED-125).
@@ -37,15 +39,18 @@ export function TaxaEntregaModal({
   bairroPadrao = "",
   onClose,
   onSaved,
+  onDeleted,
 }: TaxaEntregaModalProps) {
   const { showToast } = useToast();
   const [form, setForm] = useState<FormTaxa>(() =>
     formDaTaxa(taxa, cidadePadrao, bairroPadrao),
   );
+  const [ativo, setAtivo] = useState(() => taxa?.ativo ?? true);
   const [erros, setErros] = useState<Partial<Record<CampoFormTaxa, string>>>(
     {},
   );
   const [salvando, setSalvando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   const alterar = (alteracao: Partial<FormTaxa>) =>
     setForm((atual) => ({ ...atual, ...alteracao }));
@@ -66,7 +71,10 @@ export function TaxaEntregaModal({
       const salva =
         taxa === null
           ? await createTaxaEntrega(resultado.payload)
-          : await updateTaxaEntrega(taxa.id, resultado.payload);
+          : await updateTaxaEntrega(taxa.id, {
+              ...resultado.payload,
+              ativo,
+            });
       showToast(`Taxa de ${salva.bairro} salva.`, "success");
       onSaved(salva);
     } catch (error) {
@@ -84,6 +92,26 @@ export function TaxaEntregaModal({
         );
       }
       setSalvando(false);
+    }
+  }
+
+  async function excluirTaxa() {
+    if (!taxa || !onDeleted) {
+      return;
+    }
+
+    setExcluindo(true);
+
+    try {
+      await deleteTaxaEntrega(taxa.id);
+      showToast(`Taxa de ${taxa.bairro} excluída.`, "success");
+      onDeleted(taxa.id);
+    } catch (error) {
+      showToast(
+        getApiErrorMessage(error, "Não foi possível excluir a taxa."),
+        "error",
+      );
+      setExcluindo(false);
     }
   }
 
@@ -126,15 +154,36 @@ export function TaxaEntregaModal({
           error={erros.tempoEstimado}
         />
 
-        <div className="mt-2 flex gap-3">
-          <Button variant="secondary" onClick={onClose} className="flex-1">
-            Cancelar
-          </Button>
-          <Button type="submit" isLoading={salvando} className="flex-1">
-            <Save className="h-4 w-4" />
-            Salvar
-          </Button>
-        </div>
+        {taxa !== null && (
+          <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+            <Switch
+              checked={ativo}
+              onChange={setAtivo}
+              label="Bairro atendido (ativo)"
+              description="Quando desativado, o bairro deixa de ser aceito em novos pedidos."
+            />
+          </div>
+        )}
+
+        <RodapeEdicao
+          onCancelar={onClose}
+          salvando={salvando}
+          excluir={
+            taxa !== null && onDeleted
+              ? {
+                  confirmacao: (
+                    <span>
+                      Excluir a taxa de <strong>{taxa.bairro}</strong>? O bairro
+                      deixa de ter taxa própria. Pedidos já registrados não
+                      mudam.
+                    </span>
+                  ),
+                  excluindo,
+                  onConfirmar: () => void excluirTaxa(),
+                }
+              : undefined
+          }
+        />
       </form>
     </Modal>
   );

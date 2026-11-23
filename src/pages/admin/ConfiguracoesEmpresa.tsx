@@ -4,12 +4,10 @@ import {
   KeyRound,
   MapPin,
   Menu,
-  Pencil,
   PlusCircle,
   Printer,
   RefreshCw,
   Save,
-  Trash2,
 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -18,15 +16,12 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Input } from "../../components/ui/Input";
+import { ItemEditavel } from "../../components/ui/ItemEditavel";
 import { Switch } from "../../components/ui/Switch";
 import { useTenant } from "../../contexts/TenantContext";
 import { useToast } from "../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../lib/api-error";
-import {
-  deleteImpressora,
-  listImpressoras,
-  updateImpressora,
-} from "../../services/impressora.service";
+import { listImpressoras } from "../../services/impressora.service";
 import {
   regenerateTokenAgente,
   updateTenantConfiguracoes,
@@ -77,12 +72,6 @@ export function ConfiguracoesEmpresa() {
   const [isImpressoraModalOpen, setIsImpressoraModalOpen] = useState(false);
   const [impressoraEditando, setImpressoraEditando] =
     useState<Impressora | null>(null);
-  const [togglingImpressoraId, setTogglingImpressoraId] = useState<
-    string | null
-  >(null);
-  const [deletingImpressoraId, setDeletingImpressoraId] = useState<
-    string | null
-  >(null);
 
   const [isConfirmandoNovoToken, setIsConfirmandoNovoToken] = useState(false);
   const [isRegenerandoToken, setIsRegenerandoToken] = useState(false);
@@ -245,57 +234,12 @@ export function ConfiguracoesEmpresa() {
     fetchImpressoras();
   }
 
-  async function handleToggleAtivoImpressora(impressora: Impressora) {
-    setTogglingImpressoraId(impressora.id);
-
-    try {
-      const atualizada = await updateImpressora(impressora.id, {
-        ativo: !impressora.ativo,
-      });
-      setImpressoras((current) =>
-        current.map((item) => (item.id === impressora.id ? atualizada : item)),
-      );
-      showToast(
-        atualizada.ativo
-          ? `"${impressora.nome}" ativada.`
-          : `"${impressora.nome}" desativada.`,
-        "success",
-      );
-    } catch (error) {
-      showToast(
-        getApiErrorMessage(error, "Não foi possível atualizar a impressora."),
-        "error",
-      );
-    } finally {
-      setTogglingImpressoraId(null);
-    }
-  }
-
-  async function handleExcluirImpressora(impressora: Impressora) {
-    if (
-      !window.confirm(
-        `Tem certeza que deseja excluir a impressora "${impressora.nome}"?`,
-      )
-    ) {
-      return;
-    }
-
-    setDeletingImpressoraId(impressora.id);
-
-    try {
-      await deleteImpressora(impressora.id);
-      setImpressoras((current) =>
-        current.filter((item) => item.id !== impressora.id),
-      );
-      showToast(`Impressora "${impressora.nome}" excluída.`, "success");
-    } catch (error) {
-      showToast(
-        getApiErrorMessage(error, "Não foi possível excluir a impressora."),
-        "error",
-      );
-    } finally {
-      setDeletingImpressoraId(null);
-    }
+  function handleImpressoraExcluida(impressoraId: string) {
+    setImpressoras((current) =>
+      current.filter((item) => item.id !== impressoraId),
+    );
+    setIsImpressoraModalOpen(false);
+    setImpressoraEditando(null);
   }
 
   async function handleCopiarToken() {
@@ -594,12 +538,13 @@ export function ConfiguracoesEmpresa() {
 
                     {!isLoadingImpressoras &&
                       impressoras.map((impressora) => (
-                        <div
+                        <ItemEditavel
                           key={impressora.id}
+                          variante="linha"
+                          inativo={!impressora.ativo}
                           data-testid={`impressora-card-${impressora.nome}`}
-                          className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700 ${
-                            impressora.ativo ? "" : "opacity-60"
-                          }`}
+                          aria-label={`Editar impressora ${impressora.nome}`}
+                          onClick={() => handleEditarImpressora(impressora)}
                         >
                           <div>
                             <p className="font-medium text-slate-900 dark:text-white">
@@ -610,50 +555,16 @@ export function ConfiguracoesEmpresa() {
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                impressora.ativo
-                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                                  : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                              }`}
-                            >
-                              {impressora.ativo ? "Ativa" : "Inativa"}
-                            </span>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleToggleAtivoImpressora(impressora)
-                              }
-                              disabled={togglingImpressoraId === impressora.id}
-                              className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            >
-                              {impressora.ativo ? "Desativar" : "Ativar"}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => handleEditarImpressora(impressora)}
-                              aria-label={`Editar ${impressora.nome}`}
-                              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleExcluirImpressora(impressora)
-                              }
-                              disabled={deletingImpressoraId === impressora.id}
-                              aria-label={`Excluir ${impressora.nome}`}
-                              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                              impressora.ativo
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                            }`}
+                          >
+                            {impressora.ativo ? "Ativa" : "Inativa"}
+                          </span>
+                        </ItemEditavel>
                       ))}
                   </div>
 
@@ -750,6 +661,7 @@ export function ConfiguracoesEmpresa() {
               setImpressoraEditando(null);
             }}
             onSaved={handleImpressoraModalSaved}
+            onDeleted={handleImpressoraExcluida}
           />
         </>
       )}

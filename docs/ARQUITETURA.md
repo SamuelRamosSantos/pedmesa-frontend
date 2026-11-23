@@ -136,11 +136,13 @@ Tamanho, peso e cor saem dos tokens abaixo, não de uma classe escolhida na tela
 - A cor da marca usa o alias `marca-*` (`bg-marca-600`), não `orange-*`. Trocar a marca é mudar o `@theme`.
 - Sem cor decorativa: violeta, azul ou amarelo "para destacar" não existem. Mesa e delivery se distinguem por ícone e texto (`TipoAtendimento`), não por cor.
 
-**Componentes base** (`src/components/ui`): `Selo` (status com tom, opcional `forte` e `riscado`), `TipoAtendimento`, `NumeroDestaque`, `TituloPagina`, além de `Button`, `Card`, `Modal`, `Input`, `CurrencyInput`, `Switch`, `OpcaoSelecionavel`, `BarraEtapas`, `ConfirmDialog` e `Toast`, já nos tokens.
+**Componentes base** (`src/components/ui`): `Selo` (status com tom, opcional `forte` e `riscado`), `TipoAtendimento`, `NumeroDestaque`, `TituloPagina`, `ItemEditavel` (card ou linha clicável para abrir a edição, sem botões "Editar" ou lápis espalhados na lista; PED-135) e `RodapeEdicao` (Cancelar, Salvar e Excluir com confirmação nomeando o item; PED-135), além de `Button`, `Card`, `Modal` (com retorno automático de foco ao elemento que abriu), `Input`, `CurrencyInput`, `Switch`, `OpcaoSelecionavel`, `BarraEtapas`, `ConfirmDialog` e `Toast`, já nos tokens.
 
 **Superfícies:** card com borda de 1px sutil e sombra leve (alpha abaixo de 0,08); no escuro, borda sem sombra. Sombra forte só em sobreposições (modal, toast).
 
-A aplicação do guia no KDS é o PED-133, e nas demais telas, o PED-134.
+**Padrão único de edição (PED-135):** nas listas de cadastro (Produtos, Usuários, Bairros e taxas, Impressoras, Clientes, Endereços do cliente e Estabelecimentos do Super-Admin), a lista exibe apenas o item e seu estado (`Selo`), sem botões de ação soltos; clicar no item (`ItemEditavel`) abre a edição (`Modal` ou editor inline), onde ficam os campos, ativar/desativar, salvar e excluir (`RodapeEdicao`).
+
+A aplicação do guia no KDS é o PED-133, e nas demais telas, os cards PED-136 a PED-141 (levantados na PED-134).
 
 ## 9. Limitações conhecidas
 

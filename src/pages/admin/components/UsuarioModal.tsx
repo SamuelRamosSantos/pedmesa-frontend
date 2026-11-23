@@ -1,18 +1,20 @@
-import { LockKeyhole, Save, ShieldCheck } from "lucide-react";
+import { LockKeyhole, ShieldCheck } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/Button";
 import { ImageUpload } from "../../../components/ui/ImageUpload";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
+import { RodapeEdicao } from "../../../components/ui/RodapeEdicao";
 import { Switch } from "../../../components/ui/Switch";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import { ROLE_LABEL, ROLES_EM_ORDEM } from "../../../lib/role-labels";
 import {
+  alterarSenhaUsuario,
   createUsuario,
   updateUsuario,
+  updateUsuarioAtivo,
 } from "../../../services/usuario.service";
 import type { UserRole } from "../../../types/auth";
 import type { Usuario } from "../../../types/usuario";
@@ -49,6 +51,7 @@ export function UsuarioModal({
   const [podeExcluirItemFechamento, setPodeExcluirItemFechamento] =
     useState(false);
   const [podeConcederDesconto, setPodeConcederDesconto] = useState(false);
+  const [ativo, setAtivo] = useState(true);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
   const [nomeError, setNomeError] = useState<string | undefined>();
@@ -77,6 +80,7 @@ export function UsuarioModal({
         usuarioEditando.pode_excluir_item_fechamento,
       );
       setPodeConcederDesconto(usuarioEditando.pode_conceder_desconto);
+      setAtivo(usuarioEditando.ativo);
       setFotoUrl(usuarioEditando.foto_url);
     } else {
       setNome("");
@@ -84,6 +88,7 @@ export function UsuarioModal({
       setRoles([]);
       setPodeExcluirItemFechamento(false);
       setPodeConcederDesconto(false);
+      setAtivo(true);
       setFotoUrl(null);
     }
 
@@ -126,7 +131,10 @@ export function UsuarioModal({
       hasError = true;
     }
 
-    if (!isEdicao && senha.length < 6) {
+    if (
+      (!isEdicao && senha.length < 6) ||
+      (isEdicao && senha.length > 0 && senha.length < 6)
+    ) {
       setSenhaError("A senha deve ter ao menos 6 caracteres.");
       hasError = true;
     }
@@ -152,6 +160,12 @@ export function UsuarioModal({
           pode_conceder_desconto: podeConcederDesconto,
           foto_url: fotoUrl,
         });
+        if (!isEditandoProprioUsuario && ativo !== usuarioEditando.ativo) {
+          await updateUsuarioAtivo(usuarioEditando.id, ativo);
+        }
+        if (senha.length >= 6) {
+          await alterarSenhaUsuario(usuarioEditando.id, senha);
+        }
         showToast(
           `Usuário "${nome.trim()}" atualizado com sucesso.`,
           "success",
@@ -219,17 +233,19 @@ export function UsuarioModal({
           error={emailError}
         />
 
-        {!isEdicao && (
-          <Input
-            label="Senha"
-            type="password"
-            placeholder="Mínimo de 6 caracteres"
-            icon={<LockKeyhole className="h-4 w-4" />}
-            value={senha}
-            onChange={(event) => setSenha(event.target.value)}
-            error={senhaError}
-          />
-        )}
+        <Input
+          label={isEdicao ? "Nova senha (opcional)" : "Senha"}
+          type="password"
+          placeholder={
+            isEdicao
+              ? "Deixe em branco para manter a senha atual"
+              : "Mínimo de 6 caracteres"
+          }
+          icon={<LockKeyhole className="h-4 w-4" />}
+          value={senha}
+          onChange={(event) => setSenha(event.target.value)}
+          error={senhaError}
+        />
 
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -305,22 +321,22 @@ export function UsuarioModal({
             label="Pode conceder desconto"
             description="Permite aplicar desconto (percentual ou em R$) no fechamento da conta no caixa."
           />
+
+          {isEdicao && !isEditandoProprioUsuario && (
+            <>
+              <div className="border-t border-slate-100 dark:border-slate-800" />
+
+              <Switch
+                checked={ativo}
+                onChange={setAtivo}
+                label="Usuário ativo"
+                description="Quando desativado, o usuário não consegue entrar no sistema."
+              />
+            </>
+          )}
         </div>
 
-        <div className="mt-2 flex gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" isLoading={isSubmitting} className="flex-1">
-            <Save className="h-4 w-4" />
-            Salvar
-          </Button>
-        </div>
+        <RodapeEdicao onCancelar={onClose} salvando={isSubmitting} />
       </form>
     </Modal>
   );
